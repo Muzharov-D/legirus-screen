@@ -142,8 +142,90 @@ export default function ComparisonView() {
   );
 }
 
+const AGG_KEY_LABELS = {
+  // shooting (page 12)
+  totalShots: 'Удары всего',
+  avgShotDistance: 'Средняя дистанция удара, м',
+  shotsOnTarget: 'Удары в створ',
+  expectedGoals: 'xG',
+  goalActions: 'Голевые моменты',
+  shotsByHead: 'Удары головой',
+  freeKickShots: 'Удары со штрафных',
+
+  // setPieces (page 13)
+  throwIns: 'Вбрасывания',
+  freeKicks: 'Штрафные',
+  freeKicksWithShot: 'Штрафные с ударом',
+  penalty: 'Пенальти',
+  corners: 'Угловые',
+  offsides: 'Офсайды',
+  directFreeKicks: 'Прямые штрафные',
+
+  // possession (page 14)
+  possessionsCount: 'Кол-во владений',
+  losses: 'Потери',
+  byThird: 'Владение по третям',
+  dangerousLossesOwnHalf: 'Опасные потери на своей половине',
+  technicalMistakes: 'Технические ошибки',
+  averagePossessionTime: 'Среднее время владения, с',
+  possessionPct: 'Владение, %',
+
+  // passes (page 15)
+  forward: 'Передачи вперёд',
+  back: 'Передачи назад',
+  sideways: 'Передачи в сторону',
+  short: 'Короткие передачи',
+  middle: 'Средние передачи',
+  long: 'Длинные передачи',
+  progressive: 'Прогрессивные передачи',
+  toFinalThird: 'Передачи в финальную треть',
+  crosses: 'Кроссы',
+  goalKicks: 'Удары от ворот',
+  oppda: 'OPPDA',
+  passesPerMinute: 'Передач в минуту',
+  totalPasses: 'Всего передач',
+  passAccuracy: 'Точность передач, %',
+
+  // attacks (page 16)
+  positional: 'Позиционные атаки',
+  counterattacks: 'Контратаки',
+  defenceBreakthroughs: 'Прорывы обороны',
+  crossingMidfield: 'Прохождения средней линии',
+  attacksTotal: 'Всего атак',
+
+  // recoveriesAndTackling (page 17)
+  thirdLow: 'Возвраты — своя треть',
+  thirdMid: 'Возвраты — средняя треть',
+  thirdHigh: 'Возвраты — чужая треть',
+  recoveries: 'Возвраты мяча',
+  returns: 'Возвраты',
+  tacklesLine: 'Отборы',
+  recoveriesByThird: 'Возвраты по третям',
+
+  // duels (page 18)
+  totalDuels: 'Единоборств всего',
+  aerialDuels: 'Воздушные дуэли',
+  groundDuels: 'Дуэли в земле',
+
+  // pressing (page 19)
+  pressing: 'Прессинг',
+  counterpressing: 'Контрпрессинг',
+  averagePPDA: 'Средний PPDA',
+
+  // positioning (page 20)
+  shotsAgainst: 'Удары против',
+  interceptions: 'Перехваты',
+  clearance: 'Выносы',
+  fouls: 'Нарушения',
+  yellowCards: 'Жёлтые карточки',
+  redCards: 'Красные карточки',
+  blockedShots: 'Заблокированные удары',
+  saves: 'Сейвы',
+};
+
 function prettyKey(k) {
-  // camelCase → "пробелами"; первый символ — большой
+  if (AGG_KEY_LABELS[k]) return AGG_KEY_LABELS[k];
+  // fallback: camelCase → "Camel case" (как раньше) — на случай новых ключей
   const s = String(k).replace(/([a-z])([A-Z])/g, '$1 $2');
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
