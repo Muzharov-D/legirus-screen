@@ -1,0 +1,21 @@
+.agent-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #ffd000 0%, #ffae00 100%);
+  color: #0e0e2a;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(255, 208, 0, 0.35);
+  z-index: 50;
+}
+
+.agent-trigger:hover { transform: translateY(-1px); }
+.agent-trigger__bolt { font-size: 18px; }

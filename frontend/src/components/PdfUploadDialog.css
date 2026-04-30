@@ -1,0 +1,111 @@
+.upload-dialog__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.upload-dialog {
+  width: 480px;
+  background: #14143c;
+  border: 1px solid rgba(255,208,0,0.2);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.upload-dialog__head {
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-weight: 700;
+  color: #ffd000;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 13px;
+}
+
+.upload-dialog__x {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.upload-dialog__body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.upload-dialog__hint {
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.7);
+}
+
+.upload-dialog__pick {
+  background: rgba(255,255,255,0.05);
+  border: 1px dashed rgba(255,208,0,0.4);
+  color: #fff;
+  padding: 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.upload-dialog__pick:hover { border-color: #ffd000; }
+.upload-dialog__pick:disabled { cursor: not-allowed; opacity: 0.6; }
+
+.upload-dialog__error {
+  background: rgba(211,47,47,0.15);
+  border: 1px solid rgba(211,47,47,0.4);
+  color: #ff8080;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.upload-dialog__success {
+  background: rgba(46,125,50,0.15);
+  border: 1px solid rgba(124,179,66,0.5);
+  color: #a8d870;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.upload-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.upload-dialog__cancel,
+.upload-dialog__submit {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.upload-dialog__cancel {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
+}
+.upload-dialog__submit {
+  background: linear-gradient(135deg, #ffd000, #ffae00);
+  color: #0e0e2a;
+}
+.upload-dialog__submit:disabled {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+  cursor: not-allowed;
+}

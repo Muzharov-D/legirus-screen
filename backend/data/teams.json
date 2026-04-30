@@ -1,0 +1,22 @@
+{
+  "teams": [
+    {
+      "id": "legirus-2010",
+      "name": "Легирус 2010",
+      "shortName": "Легирус",
+      "yearGroup": 2010,
+      "isOurTeam": true,
+      "logo": "legirus.png",
+      "colors": { "primary": "#1a4ba0", "accent": "#ffd000" },
+      "headCoach": null
+    },
+    {
+      "id": "porohovchanin-2010",
+      "name": "Пороховчанин 2010",
+      "shortName": "Пороховчанин",
+      "yearGroup": 2010,
+      "isOurTeam": false,
+      "logo": "porohovchanin.png"
+    }
+  ]
+}

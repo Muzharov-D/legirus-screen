@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: legirus-api
+    runtime: node
+    rootDir: backend
+    plan: starter
+    healthCheckPath: /api/health
+    buildCommand: |
+      apt-get update && apt-get install -y poppler-utils python3-full python3-pip
+      pip3 install --break-system-packages pdfplumber pillow
+      npm install
+    startCommand: npm start
+    disk:
+      name: matches-disk
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+      - key: NODE_ENV
+        value: production
+      - key: PYTHON_BIN
+        value: python3
+      - key: MATCHES_DIR
+        value: /var/data/matches
+      - key: MAPS_DIR
+        value: /var/data/maps
+      - key: USERS_PATH
+        value: /var/data/users.json
+      - key: CORS_ORIGIN
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true

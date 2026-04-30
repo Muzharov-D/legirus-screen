@@ -1,0 +1,433 @@
+import { useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
+import { fetchMatch, fetchMatches, fetchMetrics } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import PlayerPhoto from '../components/PlayerPhoto';
+import RatingCard from '../components/RatingCard';
+import RatingPill from '../components/RatingPill';
+import RadarChart from '../components/RadarChart';
+import HalfTimeBars from '../components/HalfTimeBars';
+import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
+import { ratingColor } from '../utils/colors';
+import { lineOf } from '../utils/lines';
+import './PlayerDetail.css';
+
+// Ключевые метрики для бейджей "Лучший в команде" — топ-3 ранг по матчу.
+const RANK_METRICS = [
+  { id: 'goal',         label: 'голам',                getter: (p) => p.stats?.attack4?.goal },
+  { id: 'shot',         label: 'ударам в створ',       getter: (p) => p.stats?.attack4?.shot },
+  { id: 'assist',       label: 'ассистам',             getter: (p) => p.stats?.attack1?.assist },
+  { id: 'keyPass',      label: 'ключевым пасам',       getter: (p) => p.stats?.attack1?.keyPass },
+  { id: 'progPass',     label: 'прогрессивным пасам',  getter: (p) => p.stats?.attack2?.progressivePass },
+  { id: 'finalThird',   label: 'передачам в финальную треть', getter: (p) => p.stats?.attack2?.passToFinalThird },
+  { id: 'tackle',       label: 'отборам',              getter: (p) => p.stats?.defence1?.tackle },
+  { id: 'interception', label: 'перехватам',           getter: (p) => p.stats?.defence1?.interception },
+  { id: 'pressing',     label: 'прессингу',            getter: (p) => p.stats?.defence2?.pressing },
+  { id: 'save',         label: 'сейвам',               getter: (p) => p.stats?.defence3?.save },
+  { id: 'distance',     label: 'дистанции',            getter: (p) => p.stats?.fitness?.totalDistance },
+  { id: 'sprints',      label: 'спринтам',             getter: (p) => p.stats?.fitness?.sprintsCount },
+];
+
+const RANK_ICONS = ['🏆', '🥈', '🥉'];
+
+// Splits keys grouped (used to render Атака / Защита tables).
+const ATTACK_SPLIT_KEYS = [
+  'Goal', 'Shot', 'Shot by head', 'Free kick shot', 'Free kick with shot',
+  'Assist', 'Second assist', 'Third assist', 'Shot on target assist', 'Key pass',
+  'Pass with packing', 'Pass into pen. area', 'Cross', 'Entries in box',
+  'Sprint forward', 'Progressive pass', 'Pass to final third',
+  'Pass', 'Pass forward', 'Pass back', 'Pass sideways',
+  'Pass short', 'Pass middle', 'Pass long',
+  'Touches in pen. area', 'Received pass',
+  'Dribble', 'Dribble packing', 'Goal actions',
+  'Penalty', 'Throwing', 'Direct free kick',
+  'Lose on own half', 'Dangerous loses on own half', 'Lost ball',
+  'Technical mistake', 'Autogoal', 'Offside', 'Fouls suffered',
+];
+
+const DEFENCE_SPLIT_KEYS = [
+  'Tackle', 'Sliding tackles', 'Tackle & recovery', 'Tackle & recovery on opp. half',
+  'Interception', 'Recovery', 'Sprint back', 'Return', 'Return on opp. half',
+  'Clearance', 'Blocked shot', 'Foul', 'Yellow card', 'Red card',
+  'Duel', 'Ariel duel', 'Pressing', 'Contrpressing', 'Dribble against',
+  'Save', 'Shots against', 'Goalkeeper exits', 'Goal kick',
+  'Short goal kicks', 'Long goal kicks',
+];
+
+// Fitness comes from stats.fitness, not splits.
+const FITNESS_ROWS = [
+  ['Минут на поле',                'minutes'],
+  ['Общая дистанция, м',           'totalDistance'],
+  ['Дистанция 4–5.5 м/с, м',       'speed_4_5_5'],
+  ['Дистанция 5.5–7 м/с, м',       'speed_5_5_7'],
+  ['Дистанция 7+ м/с, м',          'speed_7plus'],
+  ['Спринтерская дистанция, м',    'sprintDistance'],
+  ['Спринты',                      'sprintsCount'],
+  ['Интенсивный бег',              'intenseRunning'],
+  ['Средняя скорость, м/с',        'averageSpeed'],
+];
+
+// Splits picked for HalfTimeBars (1 vs 2 тайм dashboard).
+const HALFTIME_KEYS = [
+  'Pass', 'Shot', 'Tackle', 'Pressing',
+  'Sprint forward', 'Recovery', 'Goal actions', 'Interception', 'Cross', 'Duel',
+];
+
+const RADAR_PALETTE = ['#ffd000', '#7cb342', '#42a5f5', '#ef5350', '#ab47bc', '#26a69a', '#ff9800', '#03a9f4'];
+
+function num(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'object') {
+    if (v.value !== undefined) return Number(v.value);
+    if (v.pct !== undefined) return Number(v.pct);
+    return null;
+  }
+  return Number(v);
+}
+
+function fmtNum(v, digits = 0) {
+  const n = num(v);
+  if (n === null || isNaN(n)) return '—';
+  if (Number.isInteger(n) && digits === 0) return n.toString();
+  return n.toFixed(digits);
+}
+
+function deltaArrow(first, second) {
+  const f = num(first);
+  const s = num(second);
+  if (f === null || s === null || isNaN(f) || isNaN(s)) return null;
+  if (Math.abs(s - f) < 0.001) return { dir: 'eq', text: '=' };
+  if (s > f) return { dir: 'up', text: `+${(s - f).toFixed(s - f >= 1 ? 0 : 1)}` };
+  return { dir: 'down', text: `${(s - f).toFixed(s - f <= -1 ? 0 : 1)}` };
+}
+
+export default function PlayerDetail() {
+  const { playerId } = useParams();
+  const navigate = useNavigate();
+  const { user, isPlayer } = useAuth();
+
+  useEffect(() => {
+    if (isPlayer && user?.playerId && user.playerId !== playerId) {
+      navigate(`/players/${user.playerId}`, { replace: true });
+    }
+  }, [isPlayer, user, playerId, navigate]);
+
+  const matchesRes = useApi(fetchMatches, []);
+  const lastMatchId = matchesRes.data?.matches?.[0]?.id;
+  const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
+  const metricsRes = useApi(fetchMetrics, []);
+
+  const match = matchRes.data;
+  const metrics = metricsRes.data || {};
+  const radarAxes = metrics.radarAxes || [];
+  const labels = metrics.metricLabels || {};
+
+  const player = useMemo(
+    () => (match?.players || []).find((p) => p.id === playerId),
+    [match, playerId]
+  );
+
+  const samePos = useMemo(() => {
+    if (!match || !player) return [];
+    return match.players.filter((p) => p.position === player.position);
+  }, [match, player]);
+
+  const playerLine = useMemo(() => (player ? lineOf(player) : null), [player]);
+
+  const lineMates = useMemo(() => {
+    if (!match || !playerLine) return [];
+    return match.players.filter((p) => playerLine.match(p));
+  }, [match, playerLine]);
+
+  const lineLeader = useMemo(() => {
+    if (!lineMates.length) return null;
+    return [...lineMates].sort((a, b) => (b.ratings?.overall ?? 0) - (a.ratings?.overall ?? 0))[0];
+  }, [lineMates]);
+
+  const badges = useMemo(() => {
+    if (!match || !player) return [];
+    const all = match.players;
+    const out = [];
+    for (const m of RANK_METRICS) {
+      const ranked = [...all]
+        .map((p) => ({ p, v: num(m.getter(p)) }))
+        .filter((r) => r.v !== null && !isNaN(r.v) && r.v > 0)
+        .sort((a, b) => b.v - a.v);
+      const idx = ranked.findIndex((r) => r.p.id === player.id);
+      if (idx >= 0 && idx < 3) {
+        const my = ranked[idx];
+        out.push({
+          rank: idx + 1,
+          label: m.label,
+          value: my.v,
+          icon: RANK_ICONS[idx],
+        });
+      }
+    }
+    return out.sort((a, b) => a.rank - b.rank);
+  }, [match, player]);
+
+  if (matchesRes.loading || matchRes.loading) return <div className="empty-state">Загрузка…</div>;
+  if (!match) return <div className="empty-state">Нет данных о матче</div>;
+  if (!player) return <div className="empty-state">Игрок не найден</div>;
+
+  const ratings = player.ratings || {};
+  const teamAvg = match.teamAvgRatings || {};
+  const splits = player.splits || {};
+  const fitnessStats = player.stats?.fitness || {};
+
+  const attackRows = ATTACK_SPLIT_KEYS.filter((k) => splits[k]);
+  const defenceRows = DEFENCE_SPLIT_KEYS.filter((k) => splits[k]);
+
+  const ratingAxes = [
+    { key: 'overall', label: 'Общий' },
+    { key: 'fitness', label: 'Фитнес' },
+    { key: 'attack',  label: 'Атака' },
+    { key: 'defence', label: 'Защита' },
+  ];
+
+  return (
+    <div className="page player-detail">
+      <div className="player-detail__topbar">
+        <button className="player-detail__back" onClick={() => navigate('/players')}>
+          ← К списку
+        </button>
+        <button className="player-detail__back" onClick={() => navigate(`/matches/${match.id}`)}>
+          К матчу
+        </button>
+        <button className="player-detail__download" disabled title="Скоро будет доступно">
+          ↓ Скачать карточку
+        </button>
+      </div>
+
+      {/* HEADER */}
+      <div className="card player-detail__hero">
+        <PlayerPhoto player={player} size={132} />
+        <div className="player-detail__hero-info">
+          <div className="player-detail__hero-pos">№{player.number} · {player.positionFull}</div>
+          <h1 className="player-detail__hero-name">{player.fullName}</h1>
+          <div className="player-detail__hero-meta">
+            <span>Минут на поле: <b>{player.minutes ?? '—'}</b></span>
+            <span>Голы: <b>{num(player.stats?.attack4?.goal) ?? 0}</b></span>
+            <span>Ассисты: <b>{num(player.stats?.attack1?.assist) ?? 0}</b></span>
+            <span>Перехваты: <b>{num(player.stats?.defence1?.interception) ?? 0}</b></span>
+          </div>
+        </div>
+        <div className="player-detail__hero-rating">
+          <RatingPill value={ratings.overall} size="xl" />
+          <div className="player-detail__hero-rating-100">
+            {ratings.overall ? Math.round(ratings.overall * 10) : '—'}/100
+          </div>
+        </div>
+      </div>
+
+      {/* 4 RATING CARDS */}
+      <div className="player-detail__ratings">
+        <RatingCard label="Общий" value={ratings.overall} />
+        <RatingCard label="Фитнес" value={ratings.fitness} />
+        <RatingCard label="Атака" value={ratings.attack} />
+        <RatingCard label="Защита" value={ratings.defence} />
+      </div>
+
+      {/* RIBBON: Лучший в команде */}
+      {badges.length > 0 && (
+        <div className="card player-detail__ribbon">
+          <div className="page-section-title">Лучший в команде</div>
+          <div className="player-detail__ribbon-row">
+            {badges.map((b, i) => (
+              <div className={`badge badge--rank-${b.rank}`} key={i}>
+                <span className="badge__icon">{b.icon}</span>
+                <div className="badge__body">
+                  <div className="badge__rank">
+                    {b.rank === 1 ? 'Лучший по' : `#${b.rank} по`}
+                  </div>
+                  <div className="badge__label">{b.label}</div>
+                </div>
+                <div className="badge__value">{Number.isInteger(b.value) ? b.value : b.value.toFixed(1)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* LINE COMPARISON */}
+      {playerLine && lineLeader && lineLeader.id !== player.id && (
+        <div className="card player-detail__line">
+          <div className="page-section-title">Линия: {playerLine.label} — сравнение с лидером</div>
+          <div className="player-detail__line-row">
+            <div className="player-detail__line-pair">
+              <PlayerPhoto player={player} size={56} />
+              <div className="player-detail__line-info">
+                <div className="player-detail__line-name">{player.fullName}</div>
+                <div className="player-detail__line-pos">текущий игрок</div>
+              </div>
+              <RatingPill value={ratings.overall} size="md" />
+            </div>
+            <span className="player-detail__line-vs">vs</span>
+            <div className="player-detail__line-pair player-detail__line-pair--leader" onClick={() => navigate(`/players/${lineLeader.id}`)}>
+              <PlayerPhoto player={lineLeader} size={56} />
+              <div className="player-detail__line-info">
+                <div className="player-detail__line-name">{lineLeader.fullName}</div>
+                <div className="player-detail__line-pos">лидер линии</div>
+              </div>
+              <RatingPill value={lineLeader.ratings?.overall} size="md" />
+            </div>
+          </div>
+        </div>
+      )}
+      {playerLine && lineLeader && lineLeader.id === player.id && (
+        <div className="card player-detail__line">
+          <div className="page-section-title">Линия: {playerLine.label}</div>
+          <div className="player-detail__line-self">
+            <span className="badge__icon">🏆</span>
+            <span>Лидер линии — {player.fullName} ({lineMates.length} игр.)</span>
+          </div>
+        </div>
+      )}
+
+      {/* RADAR + PLAYER-vs-TEAM */}
+      <div className="player-detail__radars">
+        <div className="card">
+          <div className="page-section-title">Радарная диаграмма (14 осей)</div>
+          {radarAxes.length ? (
+            <RadarChart
+              axes={radarAxes}
+              series={[{ name: player.lastName || player.fullName, values: player.radar || {}, color: '#ffd000' }]}
+              max={10}
+              height={420}
+            />
+          ) : <div className="empty-state">Нет осей</div>}
+        </div>
+
+        <div className="card" id="vs-team">
+          <div className="page-section-title">Игрок vs средние по команде</div>
+          <RadarChart
+            axes={ratingAxes}
+            series={[
+              { name: 'Команда (среднее)', values: teamAvg, color: '#7e7eff', fillOpacity: 0.18 },
+              { name: player.lastName || player.fullName, values: ratings, color: '#ffd000', fillOpacity: 0.35 },
+            ]}
+            max={10}
+            height={320}
+          />
+        </div>
+      </div>
+
+      {/* POSITION RADAR */}
+      {samePos.length > 1 && (
+        <div className="card" id="by-position">
+          <div className="page-section-title">
+            Сравнение по позиции — {player.positionFull} ({samePos.length} игр.)
+          </div>
+          <RadarChart
+            axes={ratingAxes}
+            series={samePos.map((p, i) => ({
+              name: `${p.lastName} (${p.ratings?.overall ?? '—'})`,
+              values: p.ratings || {},
+              color: p.id === player.id ? '#ffd000' : RADAR_PALETTE[(i + 1) % RADAR_PALETTE.length],
+              fillOpacity: p.id === player.id ? 0.4 : 0.08,
+            }))}
+            max={10}
+            height={360}
+          />
+        </div>
+      )}
+
+      {/* HALFTIME BARS */}
+      <div className="card" id="halftime">
+        <HalfTimeBars
+          splits={splits}
+          metrics={HALFTIME_KEYS}
+          metricLabels={labels}
+          title="1 тайм vs 2 тайм — ключевые метрики"
+        />
+      </div>
+
+      {/* MAPS */}
+      <div className="player-detail__maps">
+        <div className="card">
+          <SoccerFieldImageMap
+            src={player.maps?.attackMap}
+            title="Карта пасов и ударов"
+            height={420}
+          />
+        </div>
+        <div className="card">
+          <SoccerFieldImageMap
+            src={player.maps?.fitnessHeatmap}
+            title="Тепловая карта движения"
+            height={420}
+          />
+        </div>
+      </div>
+
+      {/* FITNESS */}
+      <div className="card">
+        <div className="page-section-title">Фитнес</div>
+        <div className="player-detail__fitness-grid">
+          {FITNESS_ROWS.map(([label, key]) => (
+            <div className="fitness-cell" key={key}>
+              <div className="fitness-cell__value">
+                {fmtNum(fitnessStats[key], key === 'averageSpeed' || key === 'intenseRunning' ? 2 : 0)}
+              </div>
+              <div className="fitness-cell__label">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ATTACK SPLITS */}
+      <SplitsTable
+        title="Атака — раскладка по таймам"
+        keys={attackRows}
+        splits={splits}
+        labels={labels}
+      />
+
+      {/* DEFENCE SPLITS */}
+      <SplitsTable
+        title="Защита — раскладка по таймам"
+        keys={defenceRows}
+        splits={splits}
+        labels={labels}
+      />
+    </div>
+  );
+}
+
+function SplitsTable({ title, keys, splits, labels }) {
+  if (!keys.length) return null;
+  return (
+    <div className="card splits-table">
+      <div className="page-section-title">{title}</div>
+      <div className="splits-table__head">
+        <span>Метрика</span>
+        <span>Матч</span>
+        <span>1 тайм</span>
+        <span>2 тайм</span>
+        <span>Δ</span>
+      </div>
+      <div className="splits-table__body">
+        {keys.map((k) => {
+          const row = splits[k];
+          const m = num(row.match);
+          const f = num(row.first);
+          const s = num(row.second);
+          const d = deltaArrow(row.first, row.second);
+          return (
+            <div className="splits-table__row" key={k}>
+              <span className="splits-table__label">{labels[k] || k}</span>
+              <span className="splits-table__val splits-table__val--match">{m === null || isNaN(m) ? '—' : m}</span>
+              <span className="splits-table__val">{f === null || isNaN(f) ? '—' : f}</span>
+              <span className="splits-table__val">{s === null || isNaN(s) ? '—' : s}</span>
+              <span className={`splits-table__delta splits-table__delta--${d?.dir || 'eq'}`}>
+                {d ? d.text : '—'}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

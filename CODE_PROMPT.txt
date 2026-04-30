@@ -1,0 +1,32 @@
+Реализуй MVP по TASK_SPEC_FOR_CODE.md в этой папке.
+
+ОБЯЗАТЕЛЬНО прочитай в порядке:
+  1. START_HERE.md
+  2. TASK_SPEC_FOR_CODE.md
+  3. DATA_DICTIONARY.md
+  4. GAP_ANALYSIS.md
+  5. ../Экран клуба/TASK_SPEC_MVP.md и ../Экран клуба/frontend/src/ — паттерн UX, читать но не менять
+
+КРИТИЧНО: seed-данные уже готовы в backend/data/ и frontend/public/assets/ — НЕ перегенерируй их. Парсеры в backend/parsers/ — рабочие, не переписывай без необходимости. 15 фото игроков и 76 PNG-карт уже на месте.
+
+Порядок реализации (см. §16 TASK_SPEC):
+  1. Скаффолд проекта (Vite + Express)
+  2. Backend API endpoints для чтения JSON
+  3. Frontend MainLayout + sidebar + header АванData × Легирус
+  4. analytics-overview (самый простой экран)
+  5. match-detail + FormationField (новый SVG-компонент) + map rendering через SoccerFieldImageMap
+  6. players-leaders
+  7. players-detail (золотой профиль) + 3 league-replacement дашборда (игрок vs команда, по позиции, 1 vs 2 тайм) + карты
+  8. Screen Agent (rule-based, не LLM): POST /api/agent/insight → {important, meaning, nextStep}
+  9. PDF Upload endpoint: POST /api/upload-pdf → child_process к Python скриптам в backend/parsers/
+  10. Deploy: vercel.json для frontend, render.yaml для backend (с persistent disk + apt-get install poppler-utils python3-full)
+
+Ограничения:
+  - Не выдумывать данные. Если в JSON нет — показывать «Нет данных».
+  - Все тексты на русском.
+  - Desktop only (min 1536px).
+  - Visual fidelity к паттерну «Экран клуба» — header, sidebar, layout, spacing, типографика.
+  - Стабильные ID игроков (p17-turapin, не autoincrement).
+  - PDF-генерации НЕТ. PDF — это вход, не выход.
+
+Начни с прочтения spec и краткого отчёта (≤200 слов), что понял и какой будет первый файл/компонент. Потом начинай скаффолд.

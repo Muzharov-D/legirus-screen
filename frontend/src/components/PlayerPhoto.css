@@ -1,0 +1,19 @@
+.player-photo {
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1a1a4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.player-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.player-photo--fallback {
+  background: linear-gradient(135deg, #2a2a6a, #1a1a4a);
+  color: #ffd000;
+  font-weight: 700;
+}

@@ -1,0 +1,226 @@
+.matches-dashboard__topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.matches-dashboard__title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+/* HERO */
+.matches-dashboard__hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  background:
+    linear-gradient(120deg, rgba(8, 8, 32, 0.85) 0%, rgba(26, 75, 160, 0.55) 60%, rgba(8, 8, 32, 0.55) 100%),
+    url('/assets/logos/fon-3_Монтажная область 1.jpg') center / cover no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+.matches-dashboard__hero-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255, 208, 0, 0.85);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.matches-dashboard__hero-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.matches-dashboard__hero-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+}
+
+/* LAST MATCH SUMMARY */
+.matches-dashboard__last-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+.matches-dashboard__last-date {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.matches-dashboard__last-teams {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+}
+.matches-dashboard__last-team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.matches-dashboard__last-team.away { justify-content: flex-end; }
+.matches-dashboard__last-team img { width: 40px; height: 40px; object-fit: contain; }
+.matches-dashboard__last-placeholder {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 700;
+}
+.matches-dashboard__last-score {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 36px; font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+.matches-dashboard__last-score .win { color: #ffd000; }
+.matches-dashboard__last-score .sep { color: rgba(255, 255, 255, 0.3); }
+.matches-dashboard__last-btn {
+  align-self: flex-start;
+  background: linear-gradient(135deg, #1a4ba0, #2c66c7);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.15s;
+  font-family: inherit;
+}
+.matches-dashboard__last-btn:hover {
+  background: linear-gradient(135deg, #2c66c7, #4a86e8);
+  transform: translateY(-1px);
+}
+
+/* TOP SCORERS */
+.matches-dashboard__scorers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.scorer-row {
+  display: grid;
+  grid-template-columns: 22px auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.scorer-row:hover {
+  border-color: rgba(255, 208, 0, 0.4);
+  transform: translateX(2px);
+}
+.scorer-row__rank {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffd000;
+  text-align: center;
+}
+.scorer-row__name { font-size: 14px; font-weight: 700; color: #fff; }
+.scorer-row__pos { font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 2px; }
+.scorer-row__stats {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.scorer-row__stats b {
+  color: #ffd000;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.matches-dashboard__upload {
+  background: linear-gradient(135deg, #ffd000, #ffae00);
+  color: #0e0e2a;
+  border: none;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.matches-dashboard__upload:hover {
+  filter: brightness(1.05);
+}
+
+.matches-dashboard__grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+}
+
+.matches-dashboard__col-left,
+.matches-dashboard__col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.matches-dashboard__season {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.season-stat {
+  background: rgba(20,20,60,0.5);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+.season-stat__value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffd000;
+}
+.season-stat__label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.matches-dashboard__hint {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.7);
+}
+.matches-dashboard__hint b { color: #ffd000; }
+
+.scorer-row--locked {
+  cursor: default;
+  opacity: 0.55;
+}
+.scorer-row--locked:hover {
+  border-color: rgba(255, 255, 255, 0.05);
+  background: transparent;
+  transform: none;
+}

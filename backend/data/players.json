@@ -1,0 +1,19 @@
+{
+  "players": [
+    {"id":"p17-turapin","number":17,"firstName":"Матвей","lastName":"Турапин","fullName":"Матвей Турапин","position":"ЦП","positionFull":"Центральный атакующий полузащитник","photo":"p17-turapin.png","teamId":"legirus-2010"},
+    {"id":"p05-galitsky","number":5,"firstName":"Михаил","lastName":"Галицкий","fullName":"Михаил Галицкий","position":"ЗАЩ","positionFull":"Центральный защитник","photo":"p05-galitsky.png","teamId":"legirus-2010"},
+    {"id":"p08-zakusilov","number":8,"firstName":"Артем","lastName":"Закусилов","fullName":"Артем Закусилов","position":"ЦП","positionFull":"Правый полузащитник","photo":"p08-zakusilov.png","teamId":"legirus-2010"},
+    {"id":"p02-oktyabrev","number":2,"firstName":"Арсений","lastName":"Октябрев","fullName":"Арсений Октябрев","position":"ЗАЩ","positionFull":"Центральный защитник","photo":"p02-oktyabrev.png","teamId":"legirus-2010"},
+    {"id":"p19-bondar","number":19,"firstName":"Даниил","lastName":"Бондарь","fullName":"Даниил Бондарь","position":"ЗАЩ","positionFull":"Левый защитник","photo":"p19-bondar.png","teamId":"legirus-2010"},
+    {"id":"p21-bobin","number":21,"firstName":"Денис","lastName":"Бобин","fullName":"Денис Бобин","position":"ЦП","positionFull":"Центральный атакующий полузащитник","photo":"p21-bobin.png","teamId":"legirus-2010"},
+    {"id":"p09-voronkov","number":9,"firstName":"Владимир","lastName":"Воронков","fullName":"Владимир Воронков","position":"НАП","positionFull":"Центральный нападающий","photo":"p09-voronkov.png","teamId":"legirus-2010"},
+    {"id":"p33-makarov","number":33,"firstName":"Кузьма","lastName":"Макаров","fullName":"Кузьма Макаров","position":"ЦП","positionFull":"Левый полузащитник","photo":"p33-makarov.png","teamId":"legirus-2010"},
+    {"id":"p52-tatarchenko","number":52,"firstName":"Георгий","lastName":"Татарченко","fullName":"Георгий Татарченко","position":"ВР","positionFull":"Вратарь","photo":"p52-tatarchenko.png","teamId":"legirus-2010"},
+    {"id":"p12-klebanov","number":12,"firstName":"Семён","lastName":"Клебанов","fullName":"Семён Клебанов","position":"ЗАЩ","positionFull":"Правый защитник","photo":"p12-klebanov.png","teamId":"legirus-2010"},
+    {"id":"p15-dutil","number":15,"firstName":"Андрей","lastName":"Дютиль","fullName":"Андрей Дютиль","position":"ЦП","positionFull":"Центральный атакующий полузащитник","photo":"p15-dutil.png","teamId":"legirus-2010"},
+    {"id":"p31-bezborodkin","number":31,"firstName":"Дмитрий","lastName":"Безбородкин","fullName":"Дмитрий Безбородкин","position":"SUB","positionFull":"Правый защитник","photo":"p31-bezborodkin.png","teamId":"legirus-2010"},
+    {"id":"p23-ahmadov","number":23,"firstName":"Джайхун","lastName":"Ахмадов","fullName":"Джайхун Ахмадов","position":"SUB","positionFull":"Центральный полузащитник","photo":"p23-ahmadov.png","teamId":"legirus-2010"},
+    {"id":"p01-maksim","number":1,"firstName":"Максим","lastName":"Семёнов","fullName":"Максим Семёнов","position":"SUB","positionFull":"Вратарь","photo":"p01-maksim.png","teamId":"legirus-2010"},
+    {"id":"p22-kondakov","number":22,"firstName":"Алексей","lastName":"Кондаков","fullName":"Алексей Кондаков","position":"SUB","positionFull":"Центральный атакующий полузащитник","photo":"p22-kondakov.png","teamId":"legirus-2010"}
+  ]
+}
