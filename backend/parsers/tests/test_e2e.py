@@ -37,8 +37,8 @@ FLOAT_TOL = 0.05
 SKIP_PATHS = {
     ".formation",
     ".source",
-    ".teamAggregates",       # v1: stub (only mapImage paths emitted)
-    ".teamSummaryStats",     # v1: page1 partial (score/teams/date already covered by metadata test)
+    ".teamAggregates",       # v2: aggregate numbers parsed in next iteration; mapImage already correct
+    # ".teamSummaryStats" — now fully parsed by parse_page1
 }
 SKIP_KEY_NAMES = {
     "splits",      # players[*].splits — minimal closure

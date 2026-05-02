@@ -1,26 +1,23 @@
-"""Team aggregates parser (v1).
+"""Team aggregates parser (v1 stub: mapImage paths only).
 
-Each section returns a dict with:
-  - mapImage: path to the rendered PNG (created by crop_maps.py)
-  - <metric numbers>: parsed from PDF text where extractable; left at 0 otherwise
-
-v1 ships only the mapImage paths so the UI can render heatmaps. Numerical
-fields will be filled in v2 (per-section regex parsing on pages 12-20).
+Real numeric extraction from pages 12-20 deferred to v2 (FS truncation
+blocks larger writes on the workspace mount). Visual heatmaps render via
+crop_maps.py PNGs, mapImage paths below are sufficient for the UI.
 """
 
 
 def parse(pdf_path, match_id):
-    prefix = f"/assets/maps/{match_id}-team-"
+    p = f"/assets/maps/{match_id}-team-"
     return {
-        "shooting":              {"mapImage": f"{prefix}shooting-map.png"},
-        "setPieces":             {"mapImage": f"{prefix}set-pieces-map.png"},
-        "possession":            {"mapImage": f"{prefix}possession-map.png"},
-        "passes":                {"mapImage": f"{prefix}passes-map.png"},
-        "attacks":               {"mapImage": f"{prefix}attacks-map.png"},
-        "recoveriesAndTackling": {"mapImage": f"{prefix}recoveries-map.png"},
-        "duels":                 {"mapImage": f"{prefix}duels-map.png"},
-        "pressing":              {"mapImage": f"{prefix}pressing-map.png"},
-        "positioning":           {"mapImage": f"{prefix}positioning-map.png"},
+        "shooting":              {"mapImage": f"{p}shooting-map.png"},
+        "setPieces":             {"mapImage": f"{p}set-pieces-map.png"},
+        "possession":            {"mapImage": f"{p}possession-map.png"},
+        "passes":                {"mapImage": f"{p}passes-map.png"},
+        "attacks":               {"mapImage": f"{p}attacks-map.png"},
+        "recoveriesAndTackling": {"mapImage": f"{p}recoveries-map.png"},
+        "duels":                 {"mapImage": f"{p}duels-map.png"},
+        "pressing":              {"mapImage": f"{p}pressing-map.png"},
+        "positioning":           {"mapImage": f"{p}positioning-map.png"},
     }
 
 

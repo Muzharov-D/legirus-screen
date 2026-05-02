@@ -24,15 +24,15 @@
         "accuracy": 55,
         "onTarget": 6
       },
-      "expectedGoals": 4.0,
+      "expectedGoals": 2.2,
       "passes": {
         "total": 219,
         "accuracy": 56,
         "successful": 122
       },
-      "freeKickShots": 0,
+      "freeKickShots": 5,
       "corners": {
-        "total": 0,
+        "total": 2,
         "accuracy": 0,
         "successful": 0
       },
@@ -48,17 +48,17 @@
         "accuracy": 24,
         "onTarget": 4
       },
-      "expectedGoals": 219.0,
+      "expectedGoals": 3.2,
       "passes": {
         "total": 378,
         "accuracy": 74,
         "successful": 281
       },
-      "freeKickShots": 0,
+      "freeKickShots": 14,
       "corners": {
-        "total": 0,
-        "accuracy": 0,
-        "successful": 0
+        "total": 6,
+        "accuracy": 50,
+        "successful": 3
       },
       "fouls": 8,
       "offsides": 1,
