@@ -10,7 +10,6 @@ import RadarChart from '../components/RadarChart';
 import HalfTimeBars from '../components/HalfTimeBars';
 import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
 import { ratingColor } from '../utils/colors';
-import { lineOf } from '../utils/lines';
 import './PlayerDetail.css';
 
 // Ключевые метрики для бейджей "Лучший в команде" — топ-3 ранг по матчу.
@@ -133,18 +132,6 @@ export default function PlayerDetail() {
     return match.players.filter((p) => p.position === player.position);
   }, [match, player]);
 
-  const playerLine = useMemo(() => (player ? lineOf(player) : null), [player]);
-
-  const lineMates = useMemo(() => {
-    if (!match || !playerLine) return [];
-    return match.players.filter((p) => playerLine.match(p));
-  }, [match, playerLine]);
-
-  const lineLeader = useMemo(() => {
-    if (!lineMates.length) return null;
-    return [...lineMates].sort((a, b) => (b.ratings?.overall ?? 0) - (a.ratings?.overall ?? 0))[0];
-  }, [lineMates]);
-
   const badges = useMemo(() => {
     if (!match || !player) return [];
     const all = match.players;
@@ -247,41 +234,6 @@ export default function PlayerDetail() {
                 <div className="badge__value">{Number.isInteger(b.value) ? b.value : b.value.toFixed(1)}</div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* LINE COMPARISON */}
-      {playerLine && lineLeader && lineLeader.id !== player.id && (
-        <div className="card player-detail__line">
-          <div className="page-section-title">Линия: {playerLine.label} — сравнение с лидером</div>
-          <div className="player-detail__line-row">
-            <div className="player-detail__line-pair">
-              <PlayerPhoto player={player} size={56} />
-              <div className="player-detail__line-info">
-                <div className="player-detail__line-name">{player.fullName}</div>
-                <div className="player-detail__line-pos">текущий игрок</div>
-              </div>
-              <RatingPill value={ratings.overall} size="md" />
-            </div>
-            <span className="player-detail__line-vs">vs</span>
-            <div className="player-detail__line-pair player-detail__line-pair--leader" onClick={() => navigate(`/players/${lineLeader.id}`)}>
-              <PlayerPhoto player={lineLeader} size={56} />
-              <div className="player-detail__line-info">
-                <div className="player-detail__line-name">{lineLeader.fullName}</div>
-                <div className="player-detail__line-pos">лидер линии</div>
-              </div>
-              <RatingPill value={lineLeader.ratings?.overall} size="md" />
-            </div>
-          </div>
-        </div>
-      )}
-      {playerLine && lineLeader && lineLeader.id === player.id && (
-        <div className="card player-detail__line">
-          <div className="page-section-title">Линия: {playerLine.label}</div>
-          <div className="player-detail__line-self">
-            <span className="badge__icon">🏆</span>
-            <span>Лидер линии — {player.fullName} ({lineMates.length} игр.)</span>
           </div>
         </div>
       )}

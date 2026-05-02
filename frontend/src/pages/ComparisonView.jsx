@@ -64,84 +64,6 @@ function getDeep(obj, keys) {
   return keys.reduce((acc, k) => (acc == null ? acc : acc[k]), obj);
 }
 
-export default function ComparisonView() {
-  const matchesRes = useApi(fetchMatches, []);
-  const lastMatchId = matchesRes.data?.matches?.[0]?.id;
-  const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
-  const [tone, setTone] = useState('positive');
-
-  const match = matchRes.data;
-  const ta = match?.teamAggregates || {};
-  const metrics = tone === 'positive' ? POSITIVE_METRICS : NEGATIVE_METRICS;
-
-  if (matchRes.loading || matchesRes.loading) return <div className="empty-state">Загрузка…</div>;
-  if (!match) return <div className="empty-state">Нет данных о матчах</div>;
-
-  return (
-    <div className="page comparison-view">
-      <div className="comparison-view__topbar">
-        <SectionTabs tabs={TONE_TABS} active={tone} onChange={setTone} />
-        <span className="comparison-view__hint">Источник: {match.homeTeam?.name} vs {match.awayTeam?.name}</span>
-      </div>
-
-      <div className="card">
-        <div className="page-section-title">
-          {tone === 'positive' ? 'Положительные метрики команды' : 'Отрицательные метрики команды'}
-        </div>
-        <div className="comparison-view__metrics">
-          {metrics.map(([label, path], i) => {
-            const v = getDeep(ta, path);
-            return (
-              <div className="comparison-metric" key={i}>
-                <span className="comparison-metric__label">{label}</span>
-                <span className={`comparison-metric__value comparison-metric__value--${tone}`}>
-                  {fmtVal(v)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="page-section-title comparison-view__sections-title">
-        Командные дашборды (9 секций · pages 12-20 PDF)
-      </div>
-      <div className="comparison-view__sections">
-        {SECTIONS.map((sec) => {
-          const data = ta[sec.id];
-          const map = data?.mapImage;
-          return (
-            <div className="card comparison-section" key={sec.id}>
-              <div className="comparison-section__head">
-                <span className="comparison-section__title">{sec.title}</span>
-              </div>
-              <div className="comparison-section__body">
-                <div className="comparison-section__metrics">
-                  {data ? (
-                    Object.entries(data)
-                      .filter(([k]) => k !== 'mapImage')
-                      .map(([k, v]) => (
-                        <div className="comparison-section__row" key={k}>
-                          <span className="comparison-section__row-label">{prettyKey(k)}</span>
-                          <span className="comparison-section__row-value">{fmtVal(v)}</span>
-                        </div>
-                      ))
-                  ) : (
-                    <div className="empty-state">Нет данных</div>
-                  )}
-                </div>
-                {map && (
-                  <SoccerFieldImageMap src={map} title="Карта" height={280} />
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 const AGG_KEY_LABELS = {
   // shooting (page 12)
   totalShots: 'Удары всего',
@@ -225,7 +147,85 @@ const AGG_KEY_LABELS = {
 
 function prettyKey(k) {
   if (AGG_KEY_LABELS[k]) return AGG_KEY_LABELS[k];
-  // fallback: camelCase → "Camel case" (как раньше) — на случай новых ключей
+  // fallback: camelCase → "Camel case" — на случай новых ключей
   const s = String(k).replace(/([a-z])([A-Z])/g, '$1 $2');
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export default function ComparisonView() {
+  const matchesRes = useApi(fetchMatches, []);
+  const lastMatchId = matchesRes.data?.matches?.[0]?.id;
+  const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
+  const [tone, setTone] = useState('positive');
+
+  const match = matchRes.data;
+  const ta = match?.teamAggregates || {};
+  const metrics = tone === 'positive' ? POSITIVE_METRICS : NEGATIVE_METRICS;
+
+  if (matchRes.loading || matchesRes.loading) return <div className="empty-state">Загрузка…</div>;
+  if (!match) return <div className="empty-state">Нет данных о матчах</div>;
+
+  return (
+    <div className="page comparison-view">
+      <div className="comparison-view__topbar">
+        <SectionTabs tabs={TONE_TABS} active={tone} onChange={setTone} />
+        <span className="comparison-view__hint">Источник: {match.homeTeam?.name} vs {match.awayTeam?.name}</span>
+      </div>
+
+      <div className="card">
+        <div className="page-section-title">
+          {tone === 'positive' ? 'Положительные метрики команды' : 'Отрицательные метрики команды'}
+        </div>
+        <div className="comparison-view__metrics">
+          {metrics.map(([label, path], i) => {
+            const v = getDeep(ta, path);
+            return (
+              <div className="comparison-metric" key={i}>
+                <span className="comparison-metric__label">{label}</span>
+                <span className={`comparison-metric__value comparison-metric__value--${tone}`}>
+                  {fmtVal(v)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="page-section-title comparison-view__sections-title">
+        Командные дашборды (9 секций · pages 12-20 PDF)
+      </div>
+      <div className="comparison-view__sections">
+        {SECTIONS.map((sec) => {
+          const data = ta[sec.id];
+          const map = data?.mapImage;
+          return (
+            <div className="card comparison-section" key={sec.id}>
+              <div className="comparison-section__head">
+                <span className="comparison-section__title">{sec.title}</span>
+              </div>
+              <div className="comparison-section__body">
+                <div className="comparison-section__metrics">
+                  {data ? (
+                    Object.entries(data)
+                      .filter(([k]) => k !== 'mapImage')
+                      .map(([k, v]) => (
+                        <div className="comparison-section__row" key={k}>
+                          <span className="comparison-section__row-label">{prettyKey(k)}</span>
+                          <span className="comparison-section__row-value">{fmtVal(v)}</span>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="empty-state">Нет данных</div>
+                  )}
+                </div>
+                {map && (
+                  <SoccerFieldImageMap src={map} title="Карта" height={280} />
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
