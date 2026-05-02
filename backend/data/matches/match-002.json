@@ -72,7 +72,7 @@
       "mapImage": "/assets/maps/match-002-team-shooting-map.png"
     },
     "setPieces": {
-      "mapImage": "/assets/maps/match-002-team-setpieces-map.png"
+      "mapImage": "/assets/maps/match-002-team-set-pieces-map.png"
     },
     "possession": {
       "mapImage": "/assets/maps/match-002-team-possession-map.png"
