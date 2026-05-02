@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { fetchMatch, fetchPlayers } from '../services/api';
+import { useTeam } from '../contexts/TeamContext';
 import SectionTabs from '../components/SectionTabs';
 import FormationField from '../components/FormationField';
 import StatCompareBar from '../components/StatCompareBar';
@@ -65,8 +66,9 @@ export default function MatchDetail() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('overall');
 
+  const { selectedTeamId } = useTeam();
   const matchRes = useApi(() => fetchMatch(matchId), [matchId]);
-  const playersRes = useApi(fetchPlayers, []);
+  const playersRes = useApi(() => fetchPlayers(selectedTeamId), [selectedTeamId]);
 
   const match = matchRes.data;
   const players = playersRes.data?.players || [];

@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
 import { uploadPdf } from '../services/api';
+import { useTeam } from '../contexts/TeamContext';
 import './PdfUploadDialog.css';
 
 export default function PdfUploadDialog({ onClose, onSuccess }) {
   const inputRef = useRef(null);
+  const { selectedTeamId, selectedTeam } = useTeam();
   const [file, setFile] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -18,12 +20,16 @@ export default function PdfUploadDialog({ onClose, onSuccess }) {
 
   async function handleSubmit() {
     if (!file) return;
+    if (!selectedTeamId) {
+      setError('Не выбрана команда. Выберите команду в шапке и попробуйте снова.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      const res = await uploadPdf(file);
+      const res = await uploadPdf(file, selectedTeamId);
       setResult(res);
-      onSuccess?.(res);
+      onSuccess?.(res?.matchId);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -42,6 +48,11 @@ export default function PdfUploadDialog({ onClose, onSuccess }) {
           <p className="upload-dialog__hint">
             Принимается PDF-отчёт Sportvisor (35 страниц). После загрузки парсер автоматически извлечёт данные матча, командные дашборды и индивидуальные карты.
           </p>
+          {selectedTeam && (
+            <p className="upload-dialog__hint">
+              Команда: <b>{selectedTeam.name}</b>{selectedTeam.ageGroup ? ` · ${selectedTeam.ageGroup}` : ''}
+            </p>
+          )}
 
           <button
             className="upload-dialog__pick"
@@ -58,10 +69,11 @@ export default function PdfUploadDialog({ onClose, onSuccess }) {
             onChange={handlePick}
           />
 
+          {busy && <div className="upload-dialog__progress">Парсинг… это может занять до минуты.</div>}
           {error && <div className="upload-dialog__error">Ошибка: {error}</div>}
           {result && (
             <div className="upload-dialog__success">
-              Матч {result.matchId} обработан. Перезагрузите страницу, чтобы увидеть его в списке.
+              Матч {result.matchId} обработан. Перезагружаем страницу…
             </div>
           )}
 
@@ -70,7 +82,7 @@ export default function PdfUploadDialog({ onClose, onSuccess }) {
             <button
               className="upload-dialog__submit"
               onClick={handleSubmit}
-              disabled={!file || busy}
+              disabled={!file || busy || !selectedTeamId}
             >
               {busy ? 'Парсинг…' : 'Загрузить и разобрать'}
             </button>

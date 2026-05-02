@@ -5,6 +5,7 @@ import LeaderMetricCard from '../components/LeaderMetricCard';
 import PlayerPhoto from '../components/PlayerPhoto';
 import RatingPill from '../components/RatingPill';
 import { useAuth } from '../contexts/AuthContext';
+import { useTeam } from '../contexts/TeamContext';
 import './PlayersLeaders.css';
 import './PlayersRating.css';
 
@@ -24,7 +25,8 @@ function maxBy(items, getter) {
 export default function PlayersLeaders() {
   const navigate = useNavigate();
   const { canSeePlayer } = useAuth();
-  const matchesRes = useApi(fetchMatches, []);
+  const { selectedTeamId } = useTeam();
+  const matchesRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
   const lastMatchId = matchesRes.data?.matches?.[0]?.id;
   const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
 

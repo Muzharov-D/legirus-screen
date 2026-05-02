@@ -34,7 +34,7 @@ app.use('/api/auth', authRoutes);
 // Protected
 app.use('/api/data', authenticate, dataRoutes);
 app.use('/api/agent', authenticate, agentRoutes);
-app.use('/api/upload-pdf', authenticate, authorize('coach'), uploadRoutes);
+app.use('/api/upload-pdf', authenticate, authorize('head_coach', 'team_coach'), uploadRoutes);
 
 ensureMatchesDir();
 

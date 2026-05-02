@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { TeamProvider } from './contexts/TeamContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import Login from './pages/Login';
@@ -18,20 +19,22 @@ export default function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-              <Route path="/" element={<Navigate to="/analytics" replace />} />
-              <Route path="/analytics" element={<ClubOverview />} />
-              <Route path="/analytics/team" element={<ComparisonView />} />
-              <Route path="/matches" element={<MatchesDashboard />} />
-              <Route path="/matches/:matchId" element={<MatchDetail />} />
-              <Route path="/players" element={<PlayersLeaders />} />
-              <Route path="/players/rating" element={<PlayersRating />} />
-              <Route path="/players/:playerId" element={<PlayerDetail />} />
-              <Route path="*" element={<Navigate to="/analytics" replace />} />
-            </Route>
-          </Routes>
+          <TeamProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                <Route path="/" element={<Navigate to="/analytics" replace />} />
+                <Route path="/analytics" element={<ClubOverview />} />
+                <Route path="/analytics/team" element={<ComparisonView />} />
+                <Route path="/matches" element={<MatchesDashboard />} />
+                <Route path="/matches/:matchId" element={<MatchDetail />} />
+                <Route path="/players" element={<PlayersLeaders />} />
+                <Route path="/players/rating" element={<PlayersRating />} />
+                <Route path="/players/:playerId" element={<PlayerDetail />} />
+                <Route path="*" element={<Navigate to="/analytics" replace />} />
+              </Route>
+            </Routes>
+          </TeamProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

@@ -5,6 +5,7 @@ import { fetchMatch, fetchMatches } from '../services/api';
 import PlayerPhoto from '../components/PlayerPhoto';
 import RatingPill from '../components/RatingPill';
 import { useAuth } from '../contexts/AuthContext';
+import { useTeam } from '../contexts/TeamContext';
 import { ratingColor } from '../utils/colors';
 import './PlayersRating.css';
 
@@ -55,7 +56,8 @@ function fmt(value, digits, unit) {
 export default function PlayersRating() {
   const navigate = useNavigate();
   const { canSeePlayer } = useAuth();
-  const matchesRes = useApi(fetchMatches, []);
+  const { selectedTeamId } = useTeam();
+  const matchesRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
   const lastMatchId = matchesRes.data?.matches?.[0]?.id;
   const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
 

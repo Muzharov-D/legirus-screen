@@ -6,10 +6,14 @@
       "season": "2025-2026",
       "homeTeamId": "legirus-2010",
       "awayTeamId": "porohovchanin-2010",
-      "score": { "home": 4, "away": 0 },
+      "score": {
+        "home": 4,
+        "away": 0
+      },
       "status": "analyzed",
       "statusLabel": "МАТЧ РАЗОБРАН",
-      "detailsRef": "matches/match-001.json"
+      "detailsRef": "matches/match-001.json",
+      "teamId": "legirus-2010"
     }
   ]
 }

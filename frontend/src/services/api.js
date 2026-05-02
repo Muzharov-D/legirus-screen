@@ -54,8 +54,10 @@ export function logout() { setToken(null); }
 
 // Data
 export const fetchTeams = () => fetchJson('/data/teams');
-export const fetchPlayers = () => fetchJson('/data/players');
-export const fetchMatches = () => fetchJson('/data/matches');
+export const fetchPlayers = (teamId) =>
+  fetchJson(`/data/players${teamId ? `?teamId=${encodeURIComponent(teamId)}` : ''}`);
+export const fetchMatches = (teamId) =>
+  fetchJson(`/data/matches${teamId ? `?teamId=${encodeURIComponent(teamId)}` : ''}`);
 export const fetchMatch = (id) => fetchJson(`/data/match/${id}`);
 export const fetchMetrics = () => fetchJson('/data/metrics');
 
@@ -67,9 +69,10 @@ export async function fetchAgentInsight(screenId, context) {
   });
 }
 
-export async function uploadPdf(file) {
+export async function uploadPdf(file, teamId) {
   const fd = new FormData();
   fd.append('file', file);
+  if (teamId) fd.append('teamId', teamId);
   const headers = {};
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -81,7 +84,9 @@ export async function uploadPdf(file) {
   }
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(text || `Upload failed: ${res.status}`);
+    let msg = `Upload failed: ${res.status}`;
+    try { msg = JSON.parse(text).error || msg; } catch (_) { if (text) msg = text; }
+    throw new Error(msg);
   }
   return res.json();
 }

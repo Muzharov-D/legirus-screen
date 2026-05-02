@@ -1,5 +1,13 @@
 // Запуск:  node scripts/seed-users.js
-// Создаёт users.json (тренер + 15 игроков) с bcrypt-хэшами и выводит пары login:password.
+// Создаёт users.json со всеми тренерами и игроками клуба и выводит
+// пары login:password в credentials.txt. Скрипт прерывается, если
+// users.json уже существует — переcоздавать существующих пользователей
+// не нужно (используется только для первичного засева).
+//
+// Поддерживает три роли:
+//   head_coach — главный тренер академии (teamId=null, видит все команды)
+//   team_coach — тренер конкретной команды (teamId=<...>, видит только свою)
+//   player     — игрок (teamId=<...> + playerId)
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
@@ -37,23 +45,49 @@ async function main() {
   }
 
   const playersPath = path.join(DATA_DIR, 'players.json');
+  const teamsPath = path.join(DATA_DIR, 'teams.json');
   const players = JSON.parse(fs.readFileSync(playersPath, 'utf-8'));
+  const teamsData = JSON.parse(fs.readFileSync(teamsPath, 'utf-8'));
 
   const users = [];
   const credentials = [];
+  const usedUsernames = new Set();
 
-  const coachPwd = genPassword();
+  // 1) Главный тренер академии — head_coach (teamId=null, видит всё).
+  const headPwd = genPassword();
   users.push({
-    id: 'u-coach',
+    id: 'u-head-coach',
     username: 'coach',
-    passwordHash: bcrypt.hashSync(coachPwd, 10),
-    role: 'coach',
-    fullName: 'Главный тренер',
+    passwordHash: bcrypt.hashSync(headPwd, 10),
+    role: 'head_coach',
+    teamId: null,
+    fullName: 'Главный тренер академии',
     createdAt: new Date().toISOString(),
   });
-  credentials.push({ login: 'coach', password: coachPwd, role: 'coach', name: 'Главный тренер' });
+  credentials.push({ login: 'coach', password: headPwd, role: 'head_coach', name: 'Главный тренер академии' });
+  usedUsernames.add('coach');
 
-  const usedUsernames = new Set(['coach']);
+  // 2) По одному тренеру команды на каждую активную команду.
+  const ourTeams = (teamsData.teams || []).filter((t) => t.isOurTeam);
+  for (const team of ourTeams) {
+    if (!team.active) continue; // на старте создаём только для уже наполненных команд
+    const username = `coach${team.year || team.yearGroup || team.id}`;
+    if (usedUsernames.has(username)) continue;
+    const pwd = genPassword();
+    users.push({
+      id: `u-team-coach-${team.year || team.yearGroup || team.id}`,
+      username,
+      passwordHash: bcrypt.hashSync(pwd, 10),
+      role: 'team_coach',
+      teamId: team.id,
+      fullName: `Тренер ${team.name}`,
+      createdAt: new Date().toISOString(),
+    });
+    credentials.push({ login: username, password: pwd, role: 'team_coach', teamId: team.id, name: `Тренер ${team.name}` });
+    usedUsernames.add(username);
+  }
+
+  // 3) Игроки. Каждому — playerId, teamId (берём из players.json).
   for (const p of players.players) {
     let base = transliterate(p.lastName || p.fullName || p.id);
     if (!base) base = p.id.replace(/[^a-z0-9]/g, '');
@@ -70,11 +104,12 @@ async function main() {
       username,
       passwordHash: bcrypt.hashSync(pwd, 10),
       role: 'player',
+      teamId: p.teamId || null,
       playerId: p.id,
       fullName: p.fullName,
       createdAt: new Date().toISOString(),
     });
-    credentials.push({ login: username, password: pwd, role: 'player', playerId: p.id, name: p.fullName });
+    credentials.push({ login: username, password: pwd, role: 'player', teamId: p.teamId || null, playerId: p.id, name: p.fullName });
   }
 
   const dir = path.dirname(USERS_PATH);
@@ -83,12 +118,12 @@ async function main() {
 
   const credPath = path.join(dir, 'credentials.txt');
   const credText = [
-    '# Учётные записи Легирус 2010 — сгенерированы автоматически',
+    '# Учётные записи академии Легирус — сгенерированы автоматически',
     `# Дата: ${new Date().toISOString()}`,
     '# ВАЖНО: после раздачи учёток удалите этот файл.',
     '',
     ...credentials.map((c) =>
-      `${c.role.padEnd(7)}  ${c.login.padEnd(20)}  ${c.password}  ${c.playerId || ''}  ${c.name}`
+      `${c.role.padEnd(11)}  ${c.login.padEnd(20)}  ${c.password}  ${(c.teamId || '').padEnd(16)}  ${c.playerId || ''}  ${c.name}`
     ),
     '',
   ].join('\n');

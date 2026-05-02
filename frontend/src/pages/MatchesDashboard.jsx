@@ -7,6 +7,7 @@ import PdfUploadDialog from '../components/PdfUploadDialog';
 import PlayerPhoto from '../components/PlayerPhoto';
 import RatingPill from '../components/RatingPill';
 import { useAuth } from '../contexts/AuthContext';
+import { useTeam } from '../contexts/TeamContext';
 import './MatchesDashboard.css';
 
 function num(v) {
@@ -28,14 +29,16 @@ function fmtDate(iso) {
 
 export default function MatchesDashboard() {
   const navigate = useNavigate();
-  const { isCoach, canSeePlayer } = useAuth();
-  const matchesRes = useApi(fetchMatches, []);
+  const { user, canSeePlayer } = useAuth();
+  const { selectedTeamId, selectedTeam } = useTeam();
+  const canUpload = user?.role === 'head_coach' || user?.role === 'team_coach';
+  const matchesRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
   const teamsRes = useApi(fetchTeams, []);
   const [uploadOpen, setUploadOpen] = useState(false);
 
   const matches = matchesRes.data?.matches || [];
   const teams = teamsRes.data?.teams || [];
-  const ourTeam = teams.find((t) => t.isOurTeam);
+  const ourTeam = selectedTeam || teams.find((t) => t.id === selectedTeamId) || teams.find((t) => t.isOurTeam);
   const lastMatchEntry = matches[0] || null;
   const lastMatchRes = useApi(
     () => (lastMatchEntry?.id ? fetchMatch(lastMatchEntry.id) : Promise.resolve(null)),
@@ -75,7 +78,7 @@ export default function MatchesDashboard() {
             ФК {ourTeam?.name?.toUpperCase() || 'Легирус 2010'} · {totalGames} матч{totalGames === 1 ? '' : 'ей'} разобран{totalGames === 1 ? '' : 'о'}
           </div>
         </div>
-        {isCoach && (
+        {canUpload && (
           <button className="matches-dashboard__upload" onClick={() => setUploadOpen(true)}>
             + Загрузить отчёт Sportvisor
           </button>
@@ -163,7 +166,7 @@ export default function MatchesDashboard() {
             </div>
           )}
 
-          {isCoach && (
+          {canUpload && (
             <div className="card">
               <div className="page-section-title">Подсказка</div>
               <div className="matches-dashboard__hint">
@@ -177,7 +180,7 @@ export default function MatchesDashboard() {
       {uploadOpen && (
         <PdfUploadDialog
           onClose={() => setUploadOpen(false)}
-          onSuccess={() => { matchesRes.data && (matchesRes.data.matches = null); window.location.reload(); }}
+          onSuccess={() => window.location.reload()}
         />
       )}
     </div>

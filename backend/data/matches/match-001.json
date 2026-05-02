@@ -99,7 +99,7 @@
       {
         "number": 33,
         "shortName": "К. Макаров",
-        "rating": 8.0,
+        "rating": 8,
         "goals": 0,
         "positionSlot": "Левый полузащитник"
       },
@@ -120,7 +120,7 @@
       {
         "number": 2,
         "shortName": "А. Октябрев",
-        "rating": 9.0,
+        "rating": 9,
         "goals": 1,
         "positionSlot": "Центральный защитник"
       },
@@ -2337,7 +2337,7 @@
       "positionFull": "Центральный защитник",
       "minutes": 84,
       "ratings": {
-        "overall": 9.0,
+        "overall": 9,
         "fitness": 8.1,
         "attack": 7.6,
         "defence": 8.2
@@ -6235,7 +6235,7 @@
           "minutes": 84,
           "fitnessTotal": 7.7,
           "totalDistance": 11779.28,
-          "speed_4_5_5": 967.0,
+          "speed_4_5_5": 967,
           "speed_5_5_7": 460.93,
           "speed_7plus": 1155.56,
           "intenseRunning": 8.07,
@@ -7175,7 +7175,7 @@
         "overall": 8.1,
         "fitness": 6.4,
         "attack": 5.7,
-        "defence": 8.0
+        "defence": 8
       },
       "radar": {
         "tackling": 8,
@@ -7189,7 +7189,7 @@
         "dribbling": 0,
         "shooting": 0,
         "setPiece": 6,
-        "defenceTotal": 8.0,
+        "defenceTotal": 8,
         "fitnessTotal": 6.4,
         "attackTotal": 5.7,
         "speed": 5,
@@ -7395,7 +7395,7 @@
             "pct": null
           },
           "defenceTotal": {
-            "value": 8.0,
+            "value": 8,
             "pct": null
           },
           "tackle": {
@@ -8139,8 +8139,8 @@
       "positionFull": "Левый полузащитник",
       "minutes": 84,
       "ratings": {
-        "overall": 8.0,
-        "fitness": 8.0,
+        "overall": 8,
+        "fitness": 8,
         "attack": 6.7,
         "defence": 7.2
       },
@@ -8157,7 +8157,7 @@
         "shooting": 0,
         "setPiece": 0,
         "defenceTotal": 7.2,
-        "fitnessTotal": 8.0,
+        "fitnessTotal": 8,
         "attackTotal": 6.7,
         "speed": 6,
         "goalkeeping": 0
@@ -8167,7 +8167,7 @@
           "name": "Макаров К.",
           "position": "ЦП",
           "minutes": 84,
-          "fitnessTotal": 8.0,
+          "fitnessTotal": 8,
           "totalDistance": 12568.23,
           "speed_4_5_5": 1153.47,
           "speed_5_5_7": 551.34,
@@ -11069,7 +11069,7 @@
           "position": "ЦП",
           "minutes": 84,
           "fitnessTotal": 8.2,
-          "totalDistance": 11978.0,
+          "totalDistance": 11978,
           "speed_4_5_5": 1012.48,
           "speed_5_5_7": 555.37,
           "speed_7plus": 1481.19,
@@ -13973,10 +13973,10 @@
           "totalDistance": 560.48,
           "speed_4_5_5": 23.96,
           "speed_5_5_7": 12.61,
-          "speed_7plus": 0.0,
-          "intenseRunning": 0.0,
+          "speed_7plus": 0,
+          "intenseRunning": 0,
           "sprintsCount": 0,
-          "sprintDistance": 0.0,
+          "sprintDistance": 0,
           "averageSpeed": 0.22
         },
         "attack1": {
@@ -14909,5 +14909,6 @@
     "fitness": 7.63,
     "attack": 6.85,
     "defence": 7.14
-  }
+  },
+  "teamId": "legirus-2010"
 }

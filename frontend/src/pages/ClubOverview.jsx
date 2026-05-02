@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useApi } from '../hooks/useApi';
 import { fetchTeams, fetchMatches, fetchMatch } from '../services/api';
+import { useTeam } from '../contexts/TeamContext';
 import SectionTabs from '../components/SectionTabs';
 import MatchList from '../components/MatchList';
 import RatingCard from '../components/RatingCard';
@@ -55,13 +56,14 @@ function teamSplitSum(match, key, half) {
 export default function ClubOverview() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('overall');
+  const { selectedTeamId, selectedTeam } = useTeam();
   const teamsRes = useApi(fetchTeams, []);
-  const matchesRes = useApi(fetchMatches, []);
+  const matchesRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
   const lastMatchId = matchesRes.data?.matches?.[0]?.id;
   const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
 
   const teams = teamsRes.data?.teams || [];
-  const ourTeam = teams.find((t) => t.isOurTeam);
+  const ourTeam = selectedTeam || teams.find((t) => t.id === selectedTeamId) || teams.find((t) => t.isOurTeam);
   const matches = matchesRes.data?.matches || [];
   const match = matchRes.data;
   const home = match?.teamSummaryStats?.home || {};

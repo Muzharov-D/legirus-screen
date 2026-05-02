@@ -3,6 +3,8 @@ import { fetchMe, login as apiLogin, logout as apiLogout, getToken } from '../se
 
 const AuthCtx = createContext(null);
 
+const COACH_ROLES = new Set(['head_coach', 'team_coach', 'coach']);
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,14 +17,22 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
+  const isCoach = user ? COACH_ROLES.has(user.role) : false;
+  const isPlayer = user?.role === 'player';
+  const isHeadCoach = user?.role === 'head_coach';
+  const isTeamCoach = user?.role === 'team_coach';
+
   const value = {
     user,
     loading,
     isAuthenticated: !!user,
-    isCoach: user?.role === 'coach',
-    isPlayer: user?.role === 'player',
+    isCoach,
+    isPlayer,
+    isHeadCoach,
+    isTeamCoach,
     canSeePlayer: (playerId) =>
-      user?.role === 'coach' || (user?.role === 'player' && user.playerId === playerId),
+      (user ? COACH_ROLES.has(user.role) : false) ||
+      (user?.role === 'player' && user.playerId === playerId),
     login: async (u, p) => {
       const usr = await apiLogin(u, p);
       setUser(usr);

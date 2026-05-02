@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { fetchMatch, fetchMatches, fetchMetrics } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useTeam } from '../contexts/TeamContext';
 import PlayerPhoto from '../components/PlayerPhoto';
 import RatingCard from '../components/RatingCard';
 import RatingPill from '../components/RatingPill';
@@ -112,7 +113,8 @@ export default function PlayerDetail() {
     }
   }, [isPlayer, user, playerId, navigate]);
 
-  const matchesRes = useApi(fetchMatches, []);
+  const { selectedTeamId } = useTeam();
+  const matchesRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
   const lastMatchId = matchesRes.data?.matches?.[0]?.id;
   const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
   const metricsRes = useApi(fetchMetrics, []);

@@ -1,22 +1,85 @@
 {
+  "club": {
+    "id": "legirus",
+    "name": "Легирус",
+    "logo": "/assets/logos/legirus.png"
+  },
   "teams": [
+    {
+      "id": "legirus-2009",
+      "name": "Легирус 2009",
+      "shortName": "Легирус",
+      "ageGroup": "U-17",
+      "year": 2009,
+      "yearGroup": 2009,
+      "isOurTeam": true,
+      "logo": "legirus.png",
+      "colors": { "primary": "#1a4ba0", "accent": "#ffd000" },
+      "headCoach": null,
+      "active": false
+    },
     {
       "id": "legirus-2010",
       "name": "Легирус 2010",
       "shortName": "Легирус",
+      "ageGroup": "U-16",
+      "year": 2010,
       "yearGroup": 2010,
       "isOurTeam": true,
       "logo": "legirus.png",
       "colors": { "primary": "#1a4ba0", "accent": "#ffd000" },
-      "headCoach": null
+      "headCoach": null,
+      "active": true
+    },
+    {
+      "id": "legirus-2011",
+      "name": "Легирус 2011",
+      "shortName": "Легирус",
+      "ageGroup": "U-15",
+      "year": 2011,
+      "yearGroup": 2011,
+      "isOurTeam": true,
+      "logo": "legirus.png",
+      "colors": { "primary": "#1a4ba0", "accent": "#ffd000" },
+      "headCoach": null,
+      "active": false
+    },
+    {
+      "id": "legirus-2012",
+      "name": "Легирус 2012",
+      "shortName": "Легирус",
+      "ageGroup": "U-14",
+      "year": 2012,
+      "yearGroup": 2012,
+      "isOurTeam": true,
+      "logo": "legirus.png",
+      "colors": { "primary": "#1a4ba0", "accent": "#ffd000" },
+      "headCoach": null,
+      "active": false
+    },
+    {
+      "id": "legirus-2013",
+      "name": "Легирус 2013",
+      "shortName": "Легирус",
+      "ageGroup": "U-13",
+      "year": 2013,
+      "yearGroup": 2013,
+      "isOurTeam": true,
+      "logo": "legirus.png",
+      "colors": { "primary": "#1a4ba0", "accent": "#ffd000" },
+      "headCoach": null,
+      "active": false
     },
     {
       "id": "porohovchanin-2010",
       "name": "Пороховчанин 2010",
       "shortName": "Пороховчанин",
+      "ageGroup": "U-16",
+      "year": 2010,
       "yearGroup": 2010,
       "isOurTeam": false,
-      "logo": "porohovchanin.png"
+      "logo": "porohovchanin.png",
+      "active": false
     }
   ]
 }

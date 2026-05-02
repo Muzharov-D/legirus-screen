@@ -21,6 +21,7 @@ export function authenticate(req, res, next) {
       id: user.id,
       username: user.username,
       role: user.role,
+      teamId: user.teamId ?? null,
       playerId: user.playerId || null,
       fullName: user.fullName,
     };
@@ -37,6 +38,16 @@ export function authorize(...roles) {
       return res.status(403).json({ error: 'Доступ запрещён' });
     }
     next();
+  };
+}
+
+// Главный тренер видит все команды; остальные — только ту, к которой привязаны.
+export function authorizeTeam(teamId) {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ error: 'Требуется авторизация' });
+    if (req.user.role === 'head_coach') return next();
+    if (req.user.teamId && req.user.teamId === teamId) return next();
+    return res.status(403).json({ error: 'Команда недоступна' });
   };
 }
 

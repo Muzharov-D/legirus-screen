@@ -42,11 +42,12 @@ function runPython(script, args, cwd = PARSERS_DIR) {
   });
 }
 
-export async function processPdf(pdfPath) {
+export async function processPdf(pdfPath, opts = {}) {
   if (!fs.existsSync(pdfPath)) {
     throw new Error('PDF файл не найден');
   }
-  const matchId = nextMatchId();
+  const teamId = opts.teamId || 'legirus-2010';
+  const matchId = opts.matchId || nextMatchId();
   const outJson = path.join(PATHS.MATCHES_DIR, `${matchId}.json`);
   const mapsDir = process.env.MAPS_DIR || path.resolve(__dirname, '..', '..', 'frontend', 'public', 'assets', 'maps');
   if (!fs.existsSync(mapsDir)) fs.mkdirSync(mapsDir, { recursive: true });
@@ -56,17 +57,17 @@ export async function processPdf(pdfPath) {
     throw new Error('Парсер build_match.py не найден');
   }
 
-  await runPython(buildScript, [pdfPath, outJson, '--match-id', matchId]).catch((err) => {
+  await runPython(buildScript, [pdfPath, outJson, teamId, matchId]).catch((err) => {
     throw new Error(`Ошибка парсинга PDF: ${err.message}`);
   });
 
   const cropTeam = path.join(PARSERS_DIR, 'crop_maps.py');
   if (fs.existsSync(cropTeam)) {
-    await runPython(cropTeam, [pdfPath, mapsDir, '--match-id', matchId]).catch(() => {});
+    await runPython(cropTeam, [pdfPath, mapsDir, matchId]).catch(() => {});
   }
   const cropPlayer = path.join(PARSERS_DIR, 'crop_player_maps.py');
   if (fs.existsSync(cropPlayer)) {
-    await runPython(cropPlayer, [pdfPath, mapsDir, '--match-id', matchId]).catch(() => {});
+    await runPython(cropPlayer, [pdfPath, mapsDir, matchId]).catch(() => {});
   }
 
   invalidateCache(outJson);
@@ -77,11 +78,19 @@ export async function processPdf(pdfPath) {
     throw new Error('Парсер не создал JSON-файл матча');
   }
 
+  // Гарантируем поля teamId/id даже если парсер не проставил их.
+  if (!matchData.teamId) {
+    matchData.teamId = teamId;
+    fs.writeFileSync(outJson, JSON.stringify(matchData, null, 2), 'utf-8');
+    invalidateCache(outJson);
+  }
+
   const entry = {
     id: matchData.id || matchId,
+    teamId: matchData.teamId || teamId,
     date: matchData.date || new Date().toISOString().slice(0, 10),
     season: matchData.season || '',
-    homeTeamId: matchData.homeTeam?.id || 'legirus-2010',
+    homeTeamId: matchData.homeTeam?.id || teamId,
     awayTeamId: matchData.awayTeam?.id || 'unknown',
     score: matchData.score || { home: 0, away: 0 },
     status: 'analyzed',

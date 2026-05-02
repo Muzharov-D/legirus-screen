@@ -29,10 +29,24 @@ const upload = multer({
 router.post('/', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Файл не передан (поле file)' });
-    const result = await processPdf(req.file.path);
+
+    // teamId — из form-data; для team_coach должен совпадать с собственной
+    // привязкой, для head_coach допустима любая команда.
+    const teamId = req.body.teamId || req.user?.teamId || null;
+    if (!teamId) {
+      fs.unlink(req.file.path, () => {});
+      return res.status(400).json({ error: 'teamId обязателен' });
+    }
+    if (req.user?.role === 'team_coach' && req.user.teamId !== teamId) {
+      fs.unlink(req.file.path, () => {});
+      return res.status(403).json({ error: 'Можно загружать только для своей команды' });
+    }
+
+    const result = await processPdf(req.file.path, { teamId });
     fs.unlink(req.file.path, () => {});
     res.json(result);
   } catch (e) {
+    if (req.file?.path) fs.unlink(req.file.path, () => {});
     res.status(500).json({ error: e.message });
   }
 });

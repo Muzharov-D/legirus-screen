@@ -35,6 +35,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       id: user.id,
       username: user.username,
       role: user.role,
+      teamId: user.teamId ?? null,
       playerId: user.playerId || null,
       fullName: user.fullName,
     },
