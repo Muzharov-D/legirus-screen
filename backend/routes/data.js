@@ -35,10 +35,16 @@ router.get('/match/:matchId', (req, res) => {
 
     if (req.user?.role === 'player') {
       const ownId = req.user.playerId;
-      const owned = (match.players || []).find((p) => p.id === ownId);
+
+      const sanitize = (p) => {
+        if (p.id === ownId) return p;
+        const { splits, radar, maps, ...publicFields } = p;
+        return publicFields;
+      };
+
       const filtered = {
         ...match,
-        players: owned ? [owned] : [],
+        players: (match.players || []).map(sanitize),
         _filteredFor: ownId,
       };
       return res.json(filtered);
