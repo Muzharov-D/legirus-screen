@@ -69,30 +69,224 @@
   "formation": null,
   "teamAggregates": {
     "shooting": {
+      "totalShots": {
+        "value": 11,
+        "pct": 55,
+        "onTarget": 6
+      },
+      "avgShotDistance": 7.4,
+      "shotsOnTarget": {
+        "value": 6,
+        "pct": 100,
+        "successful": 6
+      },
+      "expectedGoals": 2.1,
       "mapImage": "/assets/maps/match-002-team-shooting-map.png"
     },
     "setPieces": {
+      "throwIns": {
+        "value": 17,
+        "pct": 59,
+        "successful": 10
+      },
+      "freeKicks": {
+        "value": 5,
+        "pct": 60,
+        "successful": 3
+      },
+      "freeKicksWithShot": {
+        "value": 0,
+        "pct": 0,
+        "successful": 0
+      },
+      "penalty": {
+        "value": 0,
+        "pct": 0,
+        "successful": 0
+      },
+      "penaltyWithShot": {
+        "value": 0,
+        "pct": 0,
+        "successful": 0
+      },
+      "corners": {
+        "value": 2,
+        "pct": 0,
+        "successful": 0
+      },
+      "offsides": {
+        "value": 1,
+        "pct": 0,
+        "successful": 0
+      },
       "mapImage": "/assets/maps/match-002-team-set-pieces-map.png"
     },
     "possession": {
+      "possessionsCount": 55,
+      "losses": 75,
+      "byThird": {
+        "first": {
+          "possessions": 55,
+          "losses": 20
+        },
+        "second": {
+          "possessions": 55,
+          "losses": 17
+        },
+        "third": {
+          "possessions": 55,
+          "losses": 38
+        }
+      },
       "mapImage": "/assets/maps/match-002-team-possession-map.png"
     },
     "passes": {
+      "forward": {
+        "value": 400,
+        "pct": 0,
+        "successful": 0
+      },
+      "back": {
+        "value": 100,
+        "pct": 0,
+        "successful": 0
+      },
+      "sideways": {
+        "value": 82,
+        "pct": 67,
+        "successful": 55
+      },
+      "short": {
+        "value": 63,
+        "pct": 48,
+        "successful": 30
+      },
+      "middle": {
+        "value": 137,
+        "pct": 63,
+        "successful": 86
+      },
+      "long": {
+        "value": 19,
+        "pct": 32,
+        "successful": 6
+      },
+      "progressive": {
+        "value": 121,
+        "pct": 45,
+        "successful": 55
+      },
+      "toFinalThird": {
+        "value": 100,
+        "pct": 0,
+        "successful": 0
+      },
+      "crosses": {
+        "value": 1,
+        "pct": 100,
+        "successful": 1
+      },
+      "goalKicks": {
+        "value": 14,
+        "pct": 79,
+        "successful": 11
+      },
+      "oppda": 1.6,
+      "passesPerMinute": 3,
       "mapImage": "/assets/maps/match-002-team-passes-map.png"
     },
     "attacks": {
+      "positional": {
+        "count": 6,
+        "withShot": 0,
+        "withGoal": 0
+      },
+      "counterattacks": {
+        "count": 11,
+        "withShot": 4,
+        "withGoal": 0
+      },
+      "defenceBreakthroughs": 15,
+      "crossingMidfield": 29,
       "mapImage": "/assets/maps/match-002-team-attacks-map.png"
     },
     "recoveriesAndTackling": {
+      "recoveriesAndTackling": {
+        "value": 160,
+        "pct": 23,
+        "successful": 37
+      },
+      "inFirstThird": {
+        "value": 45,
+        "pct": 16,
+        "successful": 7
+      },
+      "inSecondThird": {
+        "value": 20,
+        "pct": 0,
+        "successful": 0
+      },
+      "inThirdThird": {
+        "value": 29,
+        "pct": 0,
+        "successful": 0
+      },
+      "slidingTackles": {
+        "value": 2,
+        "pct": 50,
+        "successful": 1
+      },
+      "returns": 74,
+      "returnsByThird": {
+        "first": 0,
+        "second": 0,
+        "third": 0
+      },
+      "tacklesLine": 0.0,
       "mapImage": "/assets/maps/match-002-team-recoveries-map.png"
     },
     "duels": {
+      "totalDuels": {
+        "value": 68,
+        "pct": 57,
+        "successful": 39
+      },
+      "aerialDuels": {
+        "value": 14,
+        "pct": 57,
+        "successful": 8
+      },
       "mapImage": "/assets/maps/match-002-team-duels-map.png"
     },
     "pressing": {
+      "pressing": 57,
+      "counterpressing": 22,
+      "averagePPDA": 3.4,
       "mapImage": "/assets/maps/match-002-team-pressing-map.png"
     },
     "positioning": {
+      "shotsAgainst": {
+        "value": 0,
+        "pct": 0,
+        "successful": 0
+      },
+      "interceptions": 83,
+      "clearance": {
+        "value": 28,
+        "pct": 21,
+        "successful": 6
+      },
+      "fouls": 10,
+      "yellowCard": {
+        "value": 4,
+        "pct": 0,
+        "successful": 0
+      },
+      "redCard": {
+        "value": 0,
+        "pct": 0,
+        "successful": 0
+      },
       "mapImage": "/assets/maps/match-002-team-positioning-map.png"
     }
   },
