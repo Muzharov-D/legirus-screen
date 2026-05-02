@@ -26,6 +26,14 @@ import parse_team_aggregates
 
 def _maps_prefix():
     return os.environ.get("MAPS_PREFIX", "/assets/maps").rstrip("/")
+
+
+def _formation(pdf_path, team_id):
+    try:
+        from aggregates import formation as _f
+        return _f.parse(pdf_path, team_id)
+    except Exception:
+        return None
 import parse_player_splits
 
 LOG = logging.getLogger("parser.build")
@@ -192,7 +200,7 @@ def main():
             "home": page1.get("homeStats") or {},
             "away": page1.get("awayStats") or {},
         },
-        "formation": page1.get("formation"),
+        "formation": _formation(args.input_pdf, args.team_id) or page1.get("formation"),
         "teamAggregates": aggregates,
         "players": players,
         "guestTeamPlaceholder": page1.get("guestTeamPlaceholder"),
