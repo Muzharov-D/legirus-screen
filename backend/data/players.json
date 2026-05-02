@@ -14,6 +14,20 @@
     {"id":"p31-bezborodkin","number":31,"firstName":"Дмитрий","lastName":"Безбородкин","fullName":"Дмитрий Безбородкин","position":"SUB","positionFull":"Правый защитник","photo":"p31-bezborodkin.png","teamId":"legirus-2010"},
     {"id":"p23-ahmadov","number":23,"firstName":"Джайхун","lastName":"Ахмадов","fullName":"Джайхун Ахмадов","position":"SUB","positionFull":"Центральный полузащитник","photo":"p23-ahmadov.png","teamId":"legirus-2010"},
     {"id":"p01-maksim","number":1,"firstName":"Максим","lastName":"Семёнов","fullName":"Максим Семёнов","position":"SUB","positionFull":"Вратарь","photo":"p01-maksim.png","teamId":"legirus-2010"},
-    {"id":"p22-kondakov","number":22,"firstName":"Алексей","lastName":"Кондаков","fullName":"Алексей Кондаков","position":"SUB","positionFull":"Центральный атакующий полузащитник","photo":"p22-kondakov.png","teamId":"legirus-2010"}
+    {"id":"p22-kondakov","number":22,"firstName":"Алексей","lastName":"Кондаков","fullName":"Алексей Кондаков","position":"SUB","positionFull":"Центральный атакующий полузащитник","photo":"p22-kondakov.png","teamId":"legirus-2010"},
+    {"id":"p11-ozdemir-2011","number":11,"firstName":"Эрдем","lastName":"Ёздемир","fullName":"Эрдем Ёздемир","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p28-vasilyev-2011","number":28,"firstName":"Олег","lastName":"Васильев","fullName":"Олег Васильев","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p45-volkov-2011","number":45,"firstName":"Артемий","lastName":"Волков","fullName":"Артемий Волков","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p23-volodin-2011","number":23,"firstName":"Артем","lastName":"Володин","fullName":"Артем Володин","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p09-ermolaev-2011","number":9,"firstName":"Дмитрий","lastName":"Ермолаев","fullName":"Дмитрий Ермолаев","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p03-efimov-2011","number":3,"firstName":"Даниил","lastName":"Ефимов","fullName":"Даниил Ефимов","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p01-zorenko-2011","number":1,"firstName":"Иван","lastName":"Зоренко","fullName":"Иван Зоренко","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p46-karasev-2011","number":46,"firstName":"Александр","lastName":"Карасев","fullName":"Александр Карасев","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p06-makuha-2011","number":6,"firstName":"Иван","lastName":"Макуха","fullName":"Иван Макуха","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p33-nikolaev-2011","number":33,"firstName":"Вячеслав","lastName":"Николаев","fullName":"Вячеслав Николаев","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p13-saharov-2011","number":13,"firstName":"Иван","lastName":"Сахаров","fullName":"Иван Сахаров","position":"","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p05-arusson-2011","number":5,"firstName":"Никита","lastName":"Аруссон","fullName":"Никита Аруссон","position":"SUB","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p07-dmitriev-2011","number":7,"firstName":"Матвей","lastName":"Дмитриев","fullName":"Матвей Дмитриев","position":"SUB","positionFull":"","photo":null,"teamId":"legirus-2011"},
+    {"id":"p25-semin-2011","number":25,"firstName":"Сергей","lastName":"Семин","fullName":"Сергей Семин","position":"SUB","positionFull":"","photo":null,"teamId":"legirus-2011"}
   ]
 }

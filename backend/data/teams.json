@@ -42,7 +42,7 @@
       "logo": "legirus.png",
       "colors": { "primary": "#1a4ba0", "accent": "#ffd000" },
       "headCoach": null,
-      "active": false
+      "active": true
     },
     {
       "id": "legirus-2012",
@@ -77,6 +77,17 @@
       "ageGroup": "U-16",
       "year": 2010,
       "yearGroup": 2010,
+      "isOurTeam": false,
+      "logo": "porohovchanin.png",
+      "active": false
+    },
+    {
+      "id": "porohovchanin-2011",
+      "name": "Пороховчанин 2011",
+      "shortName": "Пороховчанин",
+      "ageGroup": "U-15",
+      "year": 2011,
+      "yearGroup": 2011,
       "isOurTeam": false,
       "logo": "porohovchanin.png",
       "active": false
