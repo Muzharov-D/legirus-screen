@@ -1,0 +1,4253 @@
+{
+  "id": "match-002",
+  "date": "2026-04-19",
+  "season": "2025-2026",
+  "homeTeam": {
+    "id": "legirus-2011",
+    "name": "Легирус 2011",
+    "isOurTeam": true
+  },
+  "awayTeam": {
+    "id": "porohovchanin-2011",
+    "name": "Пороховчанин 2011",
+    "isOurTeam": false
+  },
+  "score": {
+    "home": 1,
+    "away": 1
+  },
+  "teamSummaryStats": {
+    "home": {
+      "possessionPct": 35,
+      "shots": {
+        "total": 11,
+        "accuracy": 55,
+        "onTarget": 6
+      },
+      "expectedGoals": 4.0,
+      "passes": {
+        "total": 219,
+        "accuracy": 56,
+        "successful": 122
+      },
+      "freeKickShots": 0,
+      "corners": {
+        "total": 0,
+        "accuracy": 0,
+        "successful": 0
+      },
+      "fouls": 10,
+      "offsides": 1,
+      "yellowCards": 4,
+      "redCards": 0
+    },
+    "away": {
+      "possessionPct": 65,
+      "shots": {
+        "total": 17,
+        "accuracy": 24,
+        "onTarget": 4
+      },
+      "expectedGoals": 219.0,
+      "passes": {
+        "total": 378,
+        "accuracy": 74,
+        "successful": 281
+      },
+      "freeKickShots": 0,
+      "corners": {
+        "total": 0,
+        "accuracy": 0,
+        "successful": 0
+      },
+      "fouls": 8,
+      "offsides": 1,
+      "yellowCards": 0,
+      "redCards": 0
+    }
+  },
+  "formation": null,
+  "teamAggregates": {
+    "shooting": {
+      "mapImage": "/assets/maps/match-002-team-shooting-map.png"
+    },
+    "setPieces": {
+      "mapImage": "/assets/maps/match-002-team-setpieces-map.png"
+    },
+    "possession": {
+      "mapImage": "/assets/maps/match-002-team-possession-map.png"
+    },
+    "passes": {
+      "mapImage": "/assets/maps/match-002-team-passes-map.png"
+    },
+    "attacks": {
+      "mapImage": "/assets/maps/match-002-team-attacks-map.png"
+    },
+    "recoveriesAndTackling": {
+      "mapImage": "/assets/maps/match-002-team-recoveries-map.png"
+    },
+    "duels": {
+      "mapImage": "/assets/maps/match-002-team-duels-map.png"
+    },
+    "pressing": {
+      "mapImage": "/assets/maps/match-002-team-pressing-map.png"
+    },
+    "positioning": {
+      "mapImage": "/assets/maps/match-002-team-positioning-map.png"
+    }
+  },
+  "players": [
+    {
+      "id": "p45-volkov-2011",
+      "number": 45,
+      "fullName": "Артемий Волков",
+      "lastName": "Волков",
+      "firstName": "Артемий",
+      "shortName": "Артемий В.",
+      "position": "ЦН",
+      "positionFull": "",
+      "minutes": 71,
+      "ratings": {
+        "overall": 7.4,
+        "fitness": 7.4,
+        "attack": 7.4,
+        "defence": 6.4
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 5,
+        "duels": 6,
+        "pressing": 10,
+        "distance": 8,
+        "intensity": 7,
+        "forwardPlay": 6,
+        "possession": 6,
+        "dribbling": 0,
+        "shooting": 8,
+        "setPiece": 5,
+        "defenceTotal": 6.4,
+        "fitnessTotal": 7.4,
+        "attackTotal": 7.4,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Артемий В.",
+          "position": "ЦН",
+          "minutes": 71,
+          "fitnessTotal": 7.4,
+          "totalDistance": 9375.22,
+          "speed_4_5_5": 659.47,
+          "speed_5_5_7": 380.21,
+          "speed_7plus": 737.94,
+          "intenseRunning": 4.86,
+          "sprintsCount": 25,
+          "sprintDistance": 737.94,
+          "averageSpeed": 2.18
+        },
+        "attack1": {
+          "name": "Артемий В.",
+          "position": "ЦН",
+          "minutes": 71,
+          "attackTotal": 7.4,
+          "goalActions": 1,
+          "xG": 0.586,
+          "xA": 0.198,
+          "keyPass": 1,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 1,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 1,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 1,
+            "pct": 100
+          },
+          "cross": {
+            "value": 1,
+            "pct": 100
+          },
+          "passPacking": {
+            "value": 1,
+            "pct": 100
+          },
+          "throughPass": {
+            "value": 1,
+            "pct": 0
+          },
+          "progressivePass": {
+            "value": 3,
+            "pct": 67
+          },
+          "passToFinalThird": {
+            "value": 1,
+            "pct": 0
+          },
+          "progressiveRun": {
+            "value": 1,
+            "pct": null
+          },
+          "pass": {
+            "value": 13,
+            "pct": 38
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 8,
+            "pct": 25
+          },
+          "passBack": {
+            "value": 2,
+            "pct": 50
+          },
+          "passSideways": {
+            "value": 3,
+            "pct": 67
+          },
+          "passShort": {
+            "value": 5,
+            "pct": 20
+          },
+          "passMiddle": {
+            "value": 7,
+            "pct": 57
+          },
+          "passLong": {
+            "value": 1,
+            "pct": 0
+          },
+          "touchesInPenArea": {
+            "value": 3,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 17,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 1,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 3,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 5,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 12,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 0,
+            "pct": null
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 5,
+            "pct": 100
+          },
+          "goal": {
+            "value": 1,
+            "pct": null
+          },
+          "shot": {
+            "value": 3,
+            "pct": 67
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 1,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 5,
+            "pct": 0
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Артемий В.",
+          "position": "ЦН",
+          "minutes": {
+            "value": 71,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 6.4,
+            "pct": null
+          },
+          "tackle": {
+            "value": 14,
+            "pct": 36
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 18,
+            "pct": null
+          },
+          "interception": {
+            "value": 2,
+            "pct": null
+          },
+          "recovery": {
+            "value": 4,
+            "pct": null
+          },
+          "clearance": {
+            "value": 0,
+            "pct": null
+          },
+          "blockedShot": {
+            "value": 1,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 7,
+            "pct": 29
+          },
+          "aerialDuel": {
+            "value": 0,
+            "pct": null
+          },
+          "pressing": {
+            "value": 10,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 5,
+            "pct": null
+          },
+          "foul": {
+            "value": 1,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 1,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 5,
+            "pct": 100
+          },
+          "return": {
+            "value": 5,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 6,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p45-volkov-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p45-volkov-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p46-karasev-2011",
+      "number": 46,
+      "fullName": "Александр Карасев",
+      "lastName": "Карасев",
+      "firstName": "Александр",
+      "shortName": "Александр К.",
+      "position": "ЛЦП",
+      "positionFull": "",
+      "minutes": 72,
+      "ratings": {
+        "overall": 7.3,
+        "fitness": 7.8,
+        "attack": 6.4,
+        "defence": 7.8
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 10,
+        "duels": 9,
+        "pressing": 7,
+        "distance": 9,
+        "intensity": 8,
+        "forwardPlay": 7,
+        "possession": 7,
+        "dribbling": 0,
+        "shooting": 7,
+        "setPiece": 5,
+        "defenceTotal": 7.8,
+        "fitnessTotal": 7.8,
+        "attackTotal": 6.4,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Александр К.",
+          "position": "ЛЦП",
+          "minutes": 72,
+          "fitnessTotal": 7.8,
+          "totalDistance": 10985.46,
+          "speed_4_5_5": 1087.49,
+          "speed_5_5_7": 683.59,
+          "speed_7plus": 712.31,
+          "intenseRunning": 4.5,
+          "sprintsCount": 28,
+          "sprintDistance": 712.31,
+          "averageSpeed": 2.55
+        },
+        "attack1": {
+          "name": "Александр К.",
+          "position": "ЛЦП",
+          "minutes": 72,
+          "attackTotal": 6.4,
+          "goalActions": 0,
+          "xG": 0.399,
+          "xA": 0.212,
+          "keyPass": 1,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 1,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 1,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 2,
+            "pct": 0
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 11,
+            "pct": 27
+          },
+          "throughPass": {
+            "value": 6,
+            "pct": 50
+          },
+          "progressivePass": {
+            "value": 5,
+            "pct": 40
+          },
+          "passToFinalThird": {
+            "value": 5,
+            "pct": 60
+          },
+          "progressiveRun": {
+            "value": 2,
+            "pct": null
+          },
+          "pass": {
+            "value": 24,
+            "pct": 58
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 12,
+            "pct": 42
+          },
+          "passBack": {
+            "value": 1,
+            "pct": 100
+          },
+          "passSideways": {
+            "value": 11,
+            "pct": 73
+          },
+          "passShort": {
+            "value": 8,
+            "pct": 75
+          },
+          "passMiddle": {
+            "value": 13,
+            "pct": 54
+          },
+          "passLong": {
+            "value": 3,
+            "pct": 33
+          },
+          "touchesInPenArea": {
+            "value": 2,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 30,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 0,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 3,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 5,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 9,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 1,
+            "pct": null
+          },
+          "dribble": {
+            "value": 0,
+            "pct": null
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 6,
+            "pct": 50
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 2,
+            "pct": 100
+          },
+          "freeKick": {
+            "value": 1,
+            "pct": 0
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 1,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 2,
+            "pct": 0
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Александр К.",
+          "position": "ЛЦП",
+          "minutes": {
+            "value": 72,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 7.8,
+            "pct": null
+          },
+          "tackle": {
+            "value": 12,
+            "pct": 33
+          },
+          "slidingTackles": {
+            "value": 1,
+            "pct": 0
+          },
+          "tackleAndRecovery": {
+            "value": 15,
+            "pct": null
+          },
+          "interception": {
+            "value": 11,
+            "pct": null
+          },
+          "recovery": {
+            "value": 3,
+            "pct": null
+          },
+          "clearance": {
+            "value": 1,
+            "pct": 0
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 7,
+            "pct": 86
+          },
+          "aerialDuel": {
+            "value": 1,
+            "pct": 100
+          },
+          "pressing": {
+            "value": 7,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 5,
+            "pct": null
+          },
+          "foul": {
+            "value": 0,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 6,
+            "pct": 50
+          },
+          "return": {
+            "value": 9,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 5,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p46-karasev-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p46-karasev-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p23-volodin-2011",
+      "number": 23,
+      "fullName": "Артем Володин",
+      "lastName": "Володин",
+      "firstName": "Артем",
+      "shortName": "Артем В.",
+      "position": "ЦЗ",
+      "positionFull": "",
+      "minutes": 71,
+      "ratings": {
+        "overall": 6.9,
+        "fitness": 6.7,
+        "attack": 6.2,
+        "defence": 7.7
+      },
+      "radar": {
+        "tackling": 8,
+        "positioning": 9,
+        "duels": 9,
+        "pressing": 5,
+        "distance": 8,
+        "intensity": 6,
+        "forwardPlay": 6,
+        "possession": 6,
+        "dribbling": 0,
+        "shooting": 0,
+        "setPiece": 0,
+        "defenceTotal": 7.7,
+        "fitnessTotal": 6.7,
+        "attackTotal": 6.2,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Артем В.",
+          "position": "ЦЗ",
+          "minutes": 71,
+          "fitnessTotal": 6.7,
+          "totalDistance": 8620.3,
+          "speed_4_5_5": 676.47,
+          "speed_5_5_7": 292.97,
+          "speed_7plus": 155.99,
+          "intenseRunning": 1.61,
+          "sprintsCount": 8,
+          "sprintDistance": 155.99,
+          "averageSpeed": 2.0
+        },
+        "attack1": {
+          "name": "Артем В.",
+          "position": "ЦЗ",
+          "minutes": 71,
+          "attackTotal": 6.2,
+          "goalActions": 0,
+          "xG": 0,
+          "xA": 0,
+          "keyPass": 0,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 19,
+            "pct": 26
+          },
+          "throughPass": {
+            "value": 3,
+            "pct": 67
+          },
+          "progressivePass": {
+            "value": 3,
+            "pct": 33
+          },
+          "passToFinalThird": {
+            "value": 2,
+            "pct": 0
+          },
+          "progressiveRun": {
+            "value": 0,
+            "pct": null
+          },
+          "pass": {
+            "value": 23,
+            "pct": 78
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 10,
+            "pct": 80
+          },
+          "passBack": {
+            "value": 3,
+            "pct": 100
+          },
+          "passSideways": {
+            "value": 10,
+            "pct": 70
+          },
+          "passShort": {
+            "value": 7,
+            "pct": 57
+          },
+          "passMiddle": {
+            "value": 16,
+            "pct": 88
+          },
+          "passLong": {
+            "value": 0,
+            "pct": null
+          },
+          "touchesInPenArea": {
+            "value": 1,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 26,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 0,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 2,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 0,
+            "pct": null
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 4,
+            "pct": 75
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 1,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Артем В.",
+          "position": "ЦЗ",
+          "minutes": {
+            "value": 71,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 7.7,
+            "pct": null
+          },
+          "tackle": {
+            "value": 8,
+            "pct": 63
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 13,
+            "pct": null
+          },
+          "interception": {
+            "value": 12,
+            "pct": null
+          },
+          "recovery": {
+            "value": 5,
+            "pct": null
+          },
+          "clearance": {
+            "value": 11,
+            "pct": 18
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 6,
+            "pct": 83
+          },
+          "aerialDuel": {
+            "value": 3,
+            "pct": 67
+          },
+          "pressing": {
+            "value": 5,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 0,
+            "pct": null
+          },
+          "foul": {
+            "value": 0,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 4,
+            "pct": 75
+          },
+          "return": {
+            "value": 12,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p23-volodin-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p23-volodin-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p05-arusson-2011",
+      "number": 5,
+      "fullName": "Никита Аруссон",
+      "lastName": "Аруссон",
+      "firstName": "Никита",
+      "shortName": "Никита А.",
+      "position": "ЛЗ",
+      "positionFull": "",
+      "minutes": 36,
+      "ratings": {
+        "overall": 6.9,
+        "fitness": 7.2,
+        "attack": 5.8,
+        "defence": 7.9
+      },
+      "radar": {
+        "tackling": 9,
+        "positioning": 8,
+        "duels": 8,
+        "pressing": 0,
+        "distance": 7,
+        "intensity": 7,
+        "forwardPlay": 5,
+        "possession": 6,
+        "dribbling": 0,
+        "shooting": 6,
+        "setPiece": 6,
+        "defenceTotal": 7.9,
+        "fitnessTotal": 7.2,
+        "attackTotal": 5.8,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Никита А.",
+          "position": "ЛЗ",
+          "minutes": 36,
+          "fitnessTotal": 7.2,
+          "totalDistance": 4434.88,
+          "speed_4_5_5": 598.58,
+          "speed_5_5_7": 226.53,
+          "speed_7plus": 298.26,
+          "intenseRunning": 2.13,
+          "sprintsCount": 11,
+          "sprintDistance": 298.26,
+          "averageSpeed": 2.08
+        },
+        "attack1": {
+          "name": "Никита А.",
+          "position": "ЛЗ",
+          "minutes": 36,
+          "attackTotal": 5.8,
+          "goalActions": 0,
+          "xG": 0.187,
+          "xA": 0,
+          "keyPass": 0,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 0,
+            "pct": null
+          },
+          "throughPass": {
+            "value": 0,
+            "pct": null
+          },
+          "progressivePass": {
+            "value": 4,
+            "pct": 50
+          },
+          "passToFinalThird": {
+            "value": 4,
+            "pct": 50
+          },
+          "progressiveRun": {
+            "value": 0,
+            "pct": null
+          },
+          "pass": {
+            "value": 11,
+            "pct": 45
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 7,
+            "pct": 43
+          },
+          "passBack": {
+            "value": 1,
+            "pct": 100
+          },
+          "passSideways": {
+            "value": 3,
+            "pct": 33
+          },
+          "passShort": {
+            "value": 4,
+            "pct": 50
+          },
+          "passMiddle": {
+            "value": 6,
+            "pct": 50
+          },
+          "passLong": {
+            "value": 1,
+            "pct": 0
+          },
+          "touchesInPenArea": {
+            "value": 2,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 12,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 1,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 2,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 3,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 0,
+            "pct": null
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 1,
+            "pct": 0
+          },
+          "freeKick": {
+            "value": 1,
+            "pct": 0
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 0,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 1,
+            "pct": 0
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 4,
+            "pct": 100
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Никита А.",
+          "position": "ЛЗ",
+          "minutes": {
+            "value": 36,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 7.9,
+            "pct": null
+          },
+          "tackle": {
+            "value": 3,
+            "pct": 100
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 3,
+            "pct": null
+          },
+          "interception": {
+            "value": 4,
+            "pct": null
+          },
+          "recovery": {
+            "value": 0,
+            "pct": null
+          },
+          "clearance": {
+            "value": 1,
+            "pct": 100
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 2,
+            "pct": 100
+          },
+          "aerialDuel": {
+            "value": 0,
+            "pct": null
+          },
+          "pressing": {
+            "value": 0,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 0,
+            "pct": null
+          },
+          "foul": {
+            "value": 1,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "return": {
+            "value": 3,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 1,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p05-arusson-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p05-arusson-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p06-makuha-2011",
+      "number": 6,
+      "fullName": "Иван Макуха",
+      "lastName": "Макуха",
+      "firstName": "Иван",
+      "shortName": "Иван М.",
+      "position": "ПЗ",
+      "positionFull": "",
+      "minutes": 72,
+      "ratings": {
+        "overall": 6.8,
+        "fitness": 7.2,
+        "attack": 6.3,
+        "defence": 7.0
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 9,
+        "duels": 7,
+        "pressing": 6,
+        "distance": 8,
+        "intensity": 7,
+        "forwardPlay": 6,
+        "possession": 6,
+        "dribbling": 0,
+        "shooting": 0,
+        "setPiece": 6,
+        "defenceTotal": 7.0,
+        "fitnessTotal": 7.2,
+        "attackTotal": 6.3,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Иван М.",
+          "position": "ПЗ",
+          "minutes": 72,
+          "fitnessTotal": 7.2,
+          "totalDistance": 9199.15,
+          "speed_4_5_5": 807.87,
+          "speed_5_5_7": 476.3,
+          "speed_7plus": 442.75,
+          "intenseRunning": 5.11,
+          "sprintsCount": 16,
+          "sprintDistance": 442.75,
+          "averageSpeed": 2.13
+        },
+        "attack1": {
+          "name": "Иван М.",
+          "position": "ПЗ",
+          "minutes": 72,
+          "attackTotal": 6.3,
+          "goalActions": 0,
+          "xG": 0,
+          "xA": 0,
+          "keyPass": 0,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 13,
+            "pct": 23
+          },
+          "throughPass": {
+            "value": 5,
+            "pct": 60
+          },
+          "progressivePass": {
+            "value": 7,
+            "pct": 43
+          },
+          "passToFinalThird": {
+            "value": 5,
+            "pct": 40
+          },
+          "progressiveRun": {
+            "value": 1,
+            "pct": null
+          },
+          "pass": {
+            "value": 17,
+            "pct": 47
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 12,
+            "pct": 33
+          },
+          "passBack": {
+            "value": 0,
+            "pct": null
+          },
+          "passSideways": {
+            "value": 5,
+            "pct": 80
+          },
+          "passShort": {
+            "value": 5,
+            "pct": 60
+          },
+          "passMiddle": {
+            "value": 11,
+            "pct": 36
+          },
+          "passLong": {
+            "value": 1,
+            "pct": 100
+          },
+          "touchesInPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 23,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 1,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 1,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 3,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 5,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 0,
+            "pct": null
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 7,
+            "pct": 100
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKick": {
+            "value": 1,
+            "pct": 100
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 0,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 2,
+            "pct": 50
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Иван М.",
+          "position": "ПЗ",
+          "minutes": {
+            "value": 72,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 7.0,
+            "pct": null
+          },
+          "tackle": {
+            "value": 7,
+            "pct": 43
+          },
+          "slidingTackles": {
+            "value": 1,
+            "pct": 100
+          },
+          "tackleAndRecovery": {
+            "value": 9,
+            "pct": null
+          },
+          "interception": {
+            "value": 12,
+            "pct": null
+          },
+          "recovery": {
+            "value": 2,
+            "pct": null
+          },
+          "clearance": {
+            "value": 4,
+            "pct": 0
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 8,
+            "pct": 50
+          },
+          "aerialDuel": {
+            "value": 1,
+            "pct": 100
+          },
+          "pressing": {
+            "value": 6,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 1,
+            "pct": null
+          },
+          "foul": {
+            "value": 0,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 7,
+            "pct": 100
+          },
+          "return": {
+            "value": 9,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 1,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p06-makuha-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p06-makuha-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p33-nikolaev-2011",
+      "number": 33,
+      "fullName": "Вячеслав Николаев",
+      "lastName": "Николаев",
+      "firstName": "Вячеслав",
+      "shortName": "Вячеслав Н.",
+      "position": "ЦЗ",
+      "positionFull": "",
+      "minutes": 73,
+      "ratings": {
+        "overall": 6.6,
+        "fitness": 7.1,
+        "attack": 6.0,
+        "defence": 6.7
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 9,
+        "duels": 5,
+        "pressing": 0,
+        "distance": 8,
+        "intensity": 7,
+        "forwardPlay": 6,
+        "possession": 6,
+        "dribbling": 0,
+        "shooting": 0,
+        "setPiece": 0,
+        "defenceTotal": 6.7,
+        "fitnessTotal": 7.1,
+        "attackTotal": 6.0,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Вячеслав Н.",
+          "position": "ЦЗ",
+          "minutes": 73,
+          "fitnessTotal": 7.1,
+          "totalDistance": 9065.37,
+          "speed_4_5_5": 733.62,
+          "speed_5_5_7": 344.32,
+          "speed_7plus": 177.68,
+          "intenseRunning": 1.85,
+          "sprintsCount": 7,
+          "sprintDistance": 177.68,
+          "averageSpeed": 2.1
+        },
+        "attack1": {
+          "name": "Вячеслав Н.",
+          "position": "ЦЗ",
+          "minutes": 73,
+          "attackTotal": 6.0,
+          "goalActions": 0,
+          "xG": 0,
+          "xA": 0,
+          "keyPass": 1,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 15,
+            "pct": 20
+          },
+          "throughPass": {
+            "value": 4,
+            "pct": 75
+          },
+          "progressivePass": {
+            "value": 5,
+            "pct": 80
+          },
+          "passToFinalThird": {
+            "value": 3,
+            "pct": 67
+          },
+          "progressiveRun": {
+            "value": 0,
+            "pct": null
+          },
+          "pass": {
+            "value": 21,
+            "pct": 57
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 14,
+            "pct": 57
+          },
+          "passBack": {
+            "value": 0,
+            "pct": null
+          },
+          "passSideways": {
+            "value": 7,
+            "pct": 57
+          },
+          "passShort": {
+            "value": 6,
+            "pct": 33
+          },
+          "passMiddle": {
+            "value": 14,
+            "pct": 64
+          },
+          "passLong": {
+            "value": 1,
+            "pct": 100
+          },
+          "touchesInPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 24,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 0,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 3,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 3,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 0,
+            "pct": null
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 1,
+            "pct": 0
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 0,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Вячеслав Н.",
+          "position": "ЦЗ",
+          "minutes": {
+            "value": 73,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 6.7,
+            "pct": null
+          },
+          "tackle": {
+            "value": 1,
+            "pct": 100
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 6,
+            "pct": null
+          },
+          "interception": {
+            "value": 12,
+            "pct": null
+          },
+          "recovery": {
+            "value": 5,
+            "pct": null
+          },
+          "clearance": {
+            "value": 4,
+            "pct": 25
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 7,
+            "pct": 29
+          },
+          "aerialDuel": {
+            "value": 2,
+            "pct": 0
+          },
+          "pressing": {
+            "value": 0,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 0,
+            "pct": null
+          },
+          "foul": {
+            "value": 0,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 1,
+            "pct": 0
+          },
+          "return": {
+            "value": 5,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 1,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p33-nikolaev-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p33-nikolaev-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p09-ermolaev-2011",
+      "number": 9,
+      "fullName": "Дмитрий Ермолаев",
+      "lastName": "Ермолаев",
+      "firstName": "Дмитрий",
+      "shortName": "Дмитрий Е.",
+      "position": "ЛЗ",
+      "positionFull": "",
+      "minutes": 37,
+      "ratings": {
+        "overall": 6.6,
+        "fitness": 6.0,
+        "attack": 6.6,
+        "defence": 7.3
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 7,
+        "duels": 8,
+        "pressing": 8,
+        "distance": 8,
+        "intensity": 5,
+        "forwardPlay": 7,
+        "possession": 6,
+        "dribbling": 7,
+        "shooting": 0,
+        "setPiece": 6,
+        "defenceTotal": 7.3,
+        "fitnessTotal": 6.0,
+        "attackTotal": 6.6,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Дмитрий Е.",
+          "position": "ЛЗ",
+          "minutes": 37,
+          "fitnessTotal": 6.0,
+          "totalDistance": 4823.2,
+          "speed_4_5_5": 407.58,
+          "speed_5_5_7": 171.75,
+          "speed_7plus": 50.06,
+          "intenseRunning": 0.67,
+          "sprintsCount": 4,
+          "sprintDistance": 50.06,
+          "averageSpeed": 2.23
+        },
+        "attack1": {
+          "name": "Дмитрий Е.",
+          "position": "ЛЗ",
+          "minutes": 37,
+          "attackTotal": 6.6,
+          "goalActions": 0,
+          "xG": 0,
+          "xA": 0,
+          "keyPass": 0,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 2,
+            "pct": 0
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 12,
+            "pct": 25
+          },
+          "throughPass": {
+            "value": 3,
+            "pct": 33
+          },
+          "progressivePass": {
+            "value": 3,
+            "pct": 67
+          },
+          "passToFinalThird": {
+            "value": 3,
+            "pct": 33
+          },
+          "progressiveRun": {
+            "value": 0,
+            "pct": null
+          },
+          "pass": {
+            "value": 13,
+            "pct": 46
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 6,
+            "pct": 50
+          },
+          "passBack": {
+            "value": 2,
+            "pct": 50
+          },
+          "passSideways": {
+            "value": 5,
+            "pct": 40
+          },
+          "passShort": {
+            "value": 7,
+            "pct": 29
+          },
+          "passMiddle": {
+            "value": 5,
+            "pct": 80
+          },
+          "passLong": {
+            "value": 1,
+            "pct": 0
+          },
+          "touchesInPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 13,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 0,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 4,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 5,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 1,
+            "pct": 100
+          },
+          "dribblePacking": {
+            "value": 1,
+            "pct": 100
+          },
+          "dribbleAgainst": {
+            "value": 2,
+            "pct": 50
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 0,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 6,
+            "pct": 83
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Дмитрий Е.",
+          "position": "ЛЗ",
+          "minutes": {
+            "value": 37,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 7.3,
+            "pct": null
+          },
+          "tackle": {
+            "value": 2,
+            "pct": 50
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 3,
+            "pct": null
+          },
+          "interception": {
+            "value": 4,
+            "pct": null
+          },
+          "recovery": {
+            "value": 1,
+            "pct": null
+          },
+          "clearance": {
+            "value": 0,
+            "pct": null
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 4,
+            "pct": 75
+          },
+          "aerialDuel": {
+            "value": 1,
+            "pct": 0
+          },
+          "pressing": {
+            "value": 8,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 2,
+            "pct": null
+          },
+          "foul": {
+            "value": 0,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 2,
+            "pct": 50
+          },
+          "return": {
+            "value": 3,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 4,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p09-ermolaev-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p09-ermolaev-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p03-efimov-2011",
+      "number": 3,
+      "fullName": "Даниил Ефимов",
+      "lastName": "Ефимов",
+      "firstName": "Даниил",
+      "shortName": "Даниил Е.",
+      "position": "ЦН",
+      "positionFull": "",
+      "minutes": 73,
+      "ratings": {
+        "overall": 6.4,
+        "fitness": 7.7,
+        "attack": 6.4,
+        "defence": 6.0
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 5,
+        "duels": 6,
+        "pressing": 8,
+        "distance": 9,
+        "intensity": 7,
+        "forwardPlay": 7,
+        "possession": 6,
+        "dribbling": 6,
+        "shooting": 7,
+        "setPiece": 0,
+        "defenceTotal": 6.0,
+        "fitnessTotal": 7.7,
+        "attackTotal": 6.4,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Даниил Е.",
+          "position": "ЦН",
+          "minutes": 73,
+          "fitnessTotal": 7.7,
+          "totalDistance": 10763.57,
+          "speed_4_5_5": 702.12,
+          "speed_5_5_7": 502.2,
+          "speed_7plus": 967.31,
+          "intenseRunning": 5.66,
+          "sprintsCount": 35,
+          "sprintDistance": 967.31,
+          "averageSpeed": 2.51
+        },
+        "attack1": {
+          "name": "Даниил Е.",
+          "position": "ЦН",
+          "minutes": 73,
+          "attackTotal": 6.4,
+          "goalActions": 0,
+          "xG": 0.585,
+          "xA": 0,
+          "keyPass": 1,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 1,
+            "pct": 0
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 0,
+            "pct": null
+          },
+          "throughPass": {
+            "value": 1,
+            "pct": 0
+          },
+          "progressivePass": {
+            "value": 5,
+            "pct": 0
+          },
+          "passToFinalThird": {
+            "value": 3,
+            "pct": 0
+          },
+          "progressiveRun": {
+            "value": 4,
+            "pct": null
+          },
+          "pass": {
+            "value": 15,
+            "pct": 13
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 8,
+            "pct": 0
+          },
+          "passBack": {
+            "value": 1,
+            "pct": 0
+          },
+          "passSideways": {
+            "value": 6,
+            "pct": 33
+          },
+          "passShort": {
+            "value": 4,
+            "pct": 25
+          },
+          "passMiddle": {
+            "value": 8,
+            "pct": 13
+          },
+          "passLong": {
+            "value": 3,
+            "pct": 0
+          },
+          "touchesInPenArea": {
+            "value": 6,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 22,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 2,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 3,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 3,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 13,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 5,
+            "pct": 20
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 1,
+            "pct": 0
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 3,
+            "pct": 67
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 4,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Даниил Е.",
+          "position": "ЦН",
+          "minutes": {
+            "value": 73,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 6.0,
+            "pct": null
+          },
+          "tackle": {
+            "value": 9,
+            "pct": 33
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 12,
+            "pct": null
+          },
+          "interception": {
+            "value": 2,
+            "pct": null
+          },
+          "recovery": {
+            "value": 3,
+            "pct": null
+          },
+          "clearance": {
+            "value": 1,
+            "pct": 0
+          },
+          "blockedShot": {
+            "value": 1,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 9,
+            "pct": 44
+          },
+          "aerialDuel": {
+            "value": 1,
+            "pct": 0
+          },
+          "pressing": {
+            "value": 8,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 3,
+            "pct": null
+          },
+          "foul": {
+            "value": 0,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 1,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 1,
+            "pct": 0
+          },
+          "return": {
+            "value": 4,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 4,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p03-efimov-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p03-efimov-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p13-saharov-2011",
+      "number": 13,
+      "fullName": "Иван Сахаров",
+      "lastName": "Сахаров",
+      "firstName": "Иван",
+      "shortName": "Иван С.",
+      "position": "ЦОП",
+      "positionFull": "",
+      "minutes": 73,
+      "ratings": {
+        "overall": 6.3,
+        "fitness": 7.3,
+        "attack": 6.1,
+        "defence": 6.1
+      },
+      "radar": {
+        "tackling": 8,
+        "positioning": 7,
+        "duels": 6,
+        "pressing": 5,
+        "distance": 8,
+        "intensity": 7,
+        "forwardPlay": 5,
+        "possession": 7,
+        "dribbling": 6,
+        "shooting": 6,
+        "setPiece": 0,
+        "defenceTotal": 6.1,
+        "fitnessTotal": 7.3,
+        "attackTotal": 6.1,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Иван С.",
+          "position": "ЦОП",
+          "minutes": 73,
+          "fitnessTotal": 7.3,
+          "totalDistance": 10688.32,
+          "speed_4_5_5": 711.13,
+          "speed_5_5_7": 394.64,
+          "speed_7plus": 347.36,
+          "intenseRunning": 1.83,
+          "sprintsCount": 13,
+          "sprintDistance": 347.36,
+          "averageSpeed": 2.49
+        },
+        "attack1": {
+          "name": "Иван С.",
+          "position": "ЦОП",
+          "minutes": 73,
+          "attackTotal": 6.1,
+          "goalActions": 0,
+          "xG": 0.209,
+          "xA": 0,
+          "keyPass": 0,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 1,
+            "pct": 0
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 7,
+            "pct": 29
+          },
+          "throughPass": {
+            "value": 3,
+            "pct": 67
+          },
+          "progressivePass": {
+            "value": 5,
+            "pct": 60
+          },
+          "passToFinalThird": {
+            "value": 3,
+            "pct": 67
+          },
+          "progressiveRun": {
+            "value": 0,
+            "pct": null
+          },
+          "pass": {
+            "value": 17,
+            "pct": 76
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 11,
+            "pct": 73
+          },
+          "passBack": {
+            "value": 0,
+            "pct": null
+          },
+          "passSideways": {
+            "value": 6,
+            "pct": 83
+          },
+          "passShort": {
+            "value": 4,
+            "pct": 50
+          },
+          "passMiddle": {
+            "value": 11,
+            "pct": 100
+          },
+          "passLong": {
+            "value": 2,
+            "pct": 0
+          },
+          "touchesInPenArea": {
+            "value": 1,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 18,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 0,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 2,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 2,
+            "pct": 0
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 1,
+            "pct": 0
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 0,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Иван С.",
+          "position": "ЦОП",
+          "minutes": {
+            "value": 73,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 6.1,
+            "pct": null
+          },
+          "tackle": {
+            "value": 5,
+            "pct": 80
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 8,
+            "pct": null
+          },
+          "interception": {
+            "value": 5,
+            "pct": null
+          },
+          "recovery": {
+            "value": 3,
+            "pct": null
+          },
+          "clearance": {
+            "value": 0,
+            "pct": null
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 2,
+            "pct": 50
+          },
+          "aerialDuel": {
+            "value": 1,
+            "pct": 0
+          },
+          "pressing": {
+            "value": 5,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 2,
+            "pct": null
+          },
+          "foul": {
+            "value": 2,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "return": {
+            "value": 7,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 5,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p13-saharov-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p13-saharov-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p28-vasilyev-2011",
+      "number": 28,
+      "fullName": "Олег Васильев",
+      "lastName": "Васильев",
+      "firstName": "Олег",
+      "shortName": "Олег В.",
+      "position": "ПЦП",
+      "positionFull": "",
+      "minutes": 73,
+      "ratings": {
+        "overall": 6.2,
+        "fitness": 7.0,
+        "attack": 6.2,
+        "defence": 6.4
+      },
+      "radar": {
+        "tackling": 7,
+        "positioning": 7,
+        "duels": 7,
+        "pressing": 6,
+        "distance": 7,
+        "intensity": 7,
+        "forwardPlay": 5,
+        "possession": 6,
+        "dribbling": 6,
+        "shooting": 0,
+        "setPiece": 7,
+        "defenceTotal": 6.4,
+        "fitnessTotal": 7.0,
+        "attackTotal": 6.2,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Олег В.",
+          "position": "ПЦП",
+          "minutes": 73,
+          "fitnessTotal": 7.0,
+          "totalDistance": 9397.12,
+          "speed_4_5_5": 848.97,
+          "speed_5_5_7": 437.55,
+          "speed_7plus": 366.59,
+          "intenseRunning": 4.43,
+          "sprintsCount": 15,
+          "sprintDistance": 366.59,
+          "averageSpeed": 2.17
+        },
+        "attack1": {
+          "name": "Олег В.",
+          "position": "ПЦП",
+          "minutes": 73,
+          "attackTotal": 6.2,
+          "goalActions": 0,
+          "xG": 0,
+          "xA": 0,
+          "keyPass": 0,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 0,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 2,
+            "pct": 0
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 0,
+            "pct": null
+          },
+          "throughPass": {
+            "value": 3,
+            "pct": 0
+          },
+          "progressivePass": {
+            "value": 5,
+            "pct": 0
+          },
+          "passToFinalThird": {
+            "value": 2,
+            "pct": 0
+          },
+          "progressiveRun": {
+            "value": 0,
+            "pct": null
+          },
+          "pass": {
+            "value": 15,
+            "pct": 33
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 9,
+            "pct": 22
+          },
+          "passBack": {
+            "value": 1,
+            "pct": 100
+          },
+          "passSideways": {
+            "value": 5,
+            "pct": 40
+          },
+          "passShort": {
+            "value": 4,
+            "pct": 25
+          },
+          "passMiddle": {
+            "value": 11,
+            "pct": 36
+          },
+          "passLong": {
+            "value": 0,
+            "pct": null
+          },
+          "touchesInPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 18,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 0,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 2,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 6,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 1,
+            "pct": 0
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 2,
+            "pct": 100
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKick": {
+            "value": 2,
+            "pct": 100
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 0,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Олег В.",
+          "position": "ПЦП",
+          "minutes": {
+            "value": 73,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 6.4,
+            "pct": null
+          },
+          "tackle": {
+            "value": 9,
+            "pct": 56
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 11,
+            "pct": null
+          },
+          "interception": {
+            "value": 6,
+            "pct": null
+          },
+          "recovery": {
+            "value": 2,
+            "pct": null
+          },
+          "clearance": {
+            "value": 3,
+            "pct": 33
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 10,
+            "pct": 40
+          },
+          "aerialDuel": {
+            "value": 1,
+            "pct": 100
+          },
+          "pressing": {
+            "value": 6,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 2,
+            "pct": null
+          },
+          "foul": {
+            "value": 3,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 2,
+            "pct": 100
+          },
+          "return": {
+            "value": 5,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 2,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p28-vasilyev-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p28-vasilyev-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p01-zorenko-2011",
+      "number": 1,
+      "fullName": "Иван Зоренко",
+      "lastName": "Зоренко",
+      "firstName": "Иван",
+      "shortName": "Иван З.",
+      "position": "ВР",
+      "positionFull": "",
+      "minutes": 73,
+      "ratings": {
+        "overall": 5.8,
+        "fitness": 5.2,
+        "attack": 6.4,
+        "defence": 5.9
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 5,
+        "duels": 6,
+        "pressing": 0,
+        "distance": 6,
+        "intensity": 5,
+        "forwardPlay": 6,
+        "possession": 7,
+        "dribbling": 0,
+        "shooting": 0,
+        "setPiece": 0,
+        "defenceTotal": 5.9,
+        "fitnessTotal": 5.2,
+        "attackTotal": 6.4,
+        "speed": 0,
+        "goalkeeping": 7
+      },
+      "stats": {
+        "fitness": {
+          "name": "Иван З.",
+          "position": "ВР",
+          "minutes": 73,
+          "fitnessTotal": 5.2,
+          "totalDistance": 4315.75,
+          "speed_4_5_5": 104.99,
+          "speed_5_5_7": 17.09,
+          "speed_7plus": 0.0,
+          "intenseRunning": 0.0,
+          "sprintsCount": 0,
+          "sprintDistance": 0.0,
+          "averageSpeed": 1.0
+        },
+        "attack1": {
+          "name": "Иван З.",
+          "position": "ВР",
+          "minutes": 73,
+          "attackTotal": 6.4,
+          "goalActions": 0,
+          "xG": 0,
+          "xA": 0.2,
+          "keyPass": 1,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 1,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 1,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 17,
+            "pct": 35
+          },
+          "throughPass": {
+            "value": 4,
+            "pct": 75
+          },
+          "progressivePass": {
+            "value": 7,
+            "pct": 29
+          },
+          "passToFinalThird": {
+            "value": 0,
+            "pct": null
+          },
+          "progressiveRun": {
+            "value": 0,
+            "pct": null
+          },
+          "pass": {
+            "value": 25,
+            "pct": 80
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 12,
+            "pct": 58
+          },
+          "passBack": {
+            "value": 0,
+            "pct": null
+          },
+          "passSideways": {
+            "value": 13,
+            "pct": 100
+          },
+          "passShort": {
+            "value": 2,
+            "pct": 100
+          },
+          "passMiddle": {
+            "value": 21,
+            "pct": 81
+          },
+          "passLong": {
+            "value": 2,
+            "pct": 50
+          },
+          "touchesInPenArea": {
+            "value": 0,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 12,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 0,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 4,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 4,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 1,
+            "pct": null
+          },
+          "dribble": {
+            "value": 0,
+            "pct": null
+          },
+          "dribblePacking": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 0,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Иван З.",
+          "position": "ВР",
+          "minutes": {
+            "value": 73,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 5.9,
+            "pct": null
+          },
+          "tackle": {
+            "value": 0,
+            "pct": null
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 1,
+            "pct": null
+          },
+          "interception": {
+            "value": 6,
+            "pct": null
+          },
+          "recovery": {
+            "value": 1,
+            "pct": null
+          },
+          "clearance": {
+            "value": 2,
+            "pct": 0
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 1,
+            "pct": 100
+          },
+          "aerialDuel": {
+            "value": 0,
+            "pct": null
+          },
+          "pressing": {
+            "value": 0,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 0,
+            "pct": null
+          },
+          "foul": {
+            "value": 0,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 0,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "return": {
+            "value": 4,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 3,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 17,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 14,
+            "pct": 79
+          },
+          "shortGoalKicks": {
+            "value": 1,
+            "pct": 100
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p01-zorenko-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p01-zorenko-2011-heatmap.png"
+      }
+    },
+    {
+      "id": "p11-ozdemir-2011",
+      "number": 11,
+      "fullName": "Эрдем Ёздемир",
+      "lastName": "Ёздемир",
+      "firstName": "Эрдем",
+      "shortName": "Эрдем Ё.",
+      "position": "ЦАП",
+      "positionFull": "",
+      "minutes": 73,
+      "ratings": {
+        "overall": 5.4,
+        "fitness": 7.6,
+        "attack": 6.0,
+        "defence": 5.0
+      },
+      "radar": {
+        "tackling": 6,
+        "positioning": 5,
+        "duels": 6,
+        "pressing": 5,
+        "distance": 9,
+        "intensity": 7,
+        "forwardPlay": 5,
+        "possession": 6,
+        "dribbling": 6,
+        "shooting": 6,
+        "setPiece": 0,
+        "defenceTotal": 5.0,
+        "fitnessTotal": 7.6,
+        "attackTotal": 6.0,
+        "speed": 0,
+        "goalkeeping": 0
+      },
+      "stats": {
+        "fitness": {
+          "name": "Эрдем Ё.",
+          "position": "ЦАП",
+          "minutes": 73,
+          "fitnessTotal": 7.6,
+          "totalDistance": 11148.07,
+          "speed_4_5_5": 1293.07,
+          "speed_5_5_7": 663.79,
+          "speed_7plus": 498.8,
+          "intenseRunning": 2.71,
+          "sprintsCount": 21,
+          "sprintDistance": 498.8,
+          "averageSpeed": 2.61
+        },
+        "attack1": {
+          "name": "Эрдем Ё.",
+          "position": "ЦАП",
+          "minutes": 73,
+          "attackTotal": 6.0,
+          "goalActions": 0,
+          "xG": 0.187,
+          "xA": 0.596,
+          "keyPass": 3,
+          "assist": 0,
+          "secondAssist": 0,
+          "thirdAssist": 0
+        },
+        "attack2": {
+          "shotAssist": {
+            "value": 3,
+            "pct": null
+          },
+          "shotOnTargetAssist": {
+            "value": 1,
+            "pct": null
+          },
+          "intoPenArea": {
+            "value": 1,
+            "pct": 100
+          },
+          "cross": {
+            "value": 0,
+            "pct": null
+          },
+          "passPacking": {
+            "value": 4,
+            "pct": 25
+          },
+          "throughPass": {
+            "value": 1,
+            "pct": 0
+          },
+          "progressivePass": {
+            "value": 7,
+            "pct": 43
+          },
+          "passToFinalThird": {
+            "value": 3,
+            "pct": 33
+          },
+          "progressiveRun": {
+            "value": 2,
+            "pct": null
+          },
+          "pass": {
+            "value": 25,
+            "pct": 56
+          }
+        },
+        "attack3": {
+          "passForward": {
+            "value": 12,
+            "pct": 42
+          },
+          "passBack": {
+            "value": 5,
+            "pct": 80
+          },
+          "passSideways": {
+            "value": 8,
+            "pct": 63
+          },
+          "passShort": {
+            "value": 7,
+            "pct": 57
+          },
+          "passMiddle": {
+            "value": 14,
+            "pct": 57
+          },
+          "passLong": {
+            "value": 4,
+            "pct": 50
+          },
+          "touchesInPenArea": {
+            "value": 5,
+            "pct": null
+          },
+          "receivedPass": {
+            "value": 28,
+            "pct": null
+          },
+          "foulsSuffered": {
+            "value": 3,
+            "pct": null
+          },
+          "technicalMistake": {
+            "value": 2,
+            "pct": null
+          }
+        },
+        "attack4": {
+          "loseOnOwnHalf": {
+            "value": 3,
+            "pct": null
+          },
+          "lostBall": {
+            "value": 11,
+            "pct": null
+          },
+          "dangerousLosesOnOwnHalf": {
+            "value": 0,
+            "pct": null
+          },
+          "dribble": {
+            "value": 4,
+            "pct": 50
+          },
+          "dribblePacking": {
+            "value": 1,
+            "pct": 100
+          },
+          "dribbleAgainst": {
+            "value": 2,
+            "pct": 50
+          },
+          "goal": {
+            "value": 0,
+            "pct": null
+          },
+          "shot": {
+            "value": 1,
+            "pct": 0
+          },
+          "freeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "attack5": {
+          "directFreeKick": {
+            "value": 0,
+            "pct": null
+          },
+          "freeKickWithShot": {
+            "value": 0,
+            "pct": null
+          },
+          "entriesInBox": {
+            "value": 2,
+            "pct": null
+          },
+          "offside": {
+            "value": 0,
+            "pct": null
+          },
+          "penalty": {
+            "value": 0,
+            "pct": null
+          },
+          "byHead": {
+            "value": 0,
+            "pct": null
+          },
+          "corner": {
+            "value": 0,
+            "pct": null
+          },
+          "throwing": {
+            "value": 0,
+            "pct": null
+          },
+          "acceleration": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence1": {
+          "name": "Эрдем Ё.",
+          "position": "ЦАП",
+          "minutes": {
+            "value": 73,
+            "pct": null
+          },
+          "defenceTotal": {
+            "value": 5.0,
+            "pct": null
+          },
+          "tackle": {
+            "value": 9,
+            "pct": 33
+          },
+          "slidingTackles": {
+            "value": 0,
+            "pct": null
+          },
+          "tackleAndRecovery": {
+            "value": 13,
+            "pct": null
+          },
+          "interception": {
+            "value": 7,
+            "pct": null
+          },
+          "recovery": {
+            "value": 4,
+            "pct": null
+          },
+          "clearance": {
+            "value": 1,
+            "pct": 100
+          },
+          "blockedShot": {
+            "value": 0,
+            "pct": null
+          }
+        },
+        "defence2": {
+          "duel": {
+            "value": 5,
+            "pct": 100
+          },
+          "aerialDuel": {
+            "value": 3,
+            "pct": 100
+          },
+          "pressing": {
+            "value": 5,
+            "pct": null
+          },
+          "counterpressing": {
+            "value": 2,
+            "pct": null
+          },
+          "foul": {
+            "value": 3,
+            "pct": null
+          },
+          "yellowCard": {
+            "value": 2,
+            "pct": null
+          },
+          "redCard": {
+            "value": 0,
+            "pct": null
+          },
+          "dribbleAgainst": {
+            "value": 2,
+            "pct": 50
+          },
+          "return": {
+            "value": 8,
+            "pct": null
+          },
+          "returnOnOppHalf": {
+            "value": 4,
+            "pct": null
+          }
+        },
+        "defence3": {
+          "save": {
+            "value": 0,
+            "pct": null
+          },
+          "goalkeeperExits": {
+            "value": 0,
+            "pct": null
+          },
+          "shotsAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "shotAgainst": {
+            "value": 0,
+            "pct": null
+          },
+          "goalKick": {
+            "value": 0,
+            "pct": null
+          },
+          "shortGoalKicks": {
+            "value": 0,
+            "pct": null
+          },
+          "longGoalKicks": {
+            "value": 0,
+            "pct": null
+          }
+        }
+      },
+      "splits": {},
+      "maps": {
+        "attackMap": "/assets/maps/match-002-p11-ozdemir-2011-attack-map.png",
+        "fitnessHeatmap": "/assets/maps/match-002-p11-ozdemir-2011-heatmap.png"
+      }
+    }
+  ],
+  "guestTeamPlaceholder": null,
+  "source": {
+    "file": "sportvisor_legirus2011_match002.pdf",
+    "tool": "Sportvisor"
+  },
+  "teamAvgRatings": {
+    "overall": 6.55,
+    "fitness": 7.02,
+    "attack": 6.32,
+    "defence": 6.68
+  },
+  "teamId": "legirus-2011"
+}

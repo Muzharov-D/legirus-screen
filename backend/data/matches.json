@@ -14,6 +14,21 @@
       "statusLabel": "МАТЧ РАЗОБРАН",
       "detailsRef": "matches/match-001.json",
       "teamId": "legirus-2010"
+    },
+    {
+      "id": "match-002",
+      "date": "2026-04-19",
+      "season": "2025-2026",
+      "homeTeamId": "legirus-2011",
+      "awayTeamId": "porohovchanin-2011",
+      "score": {
+        "home": 1,
+        "away": 1
+      },
+      "status": "analyzed",
+      "statusLabel": "МАТЧ РАЗОБРАН",
+      "detailsRef": "matches/match-002.json",
+      "teamId": "legirus-2011"
     }
   ]
 }
