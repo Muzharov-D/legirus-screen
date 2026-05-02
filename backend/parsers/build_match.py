@@ -22,6 +22,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import parse_team_tables
 import parse_page1
 import parse_team_aggregates
+
+
+def _maps_prefix():
+    return os.environ.get("MAPS_PREFIX", "/assets/maps").rstrip("/")
 import parse_player_splits
 
 LOG = logging.getLogger("parser.build")
@@ -96,8 +100,8 @@ def assemble_player(num, overall_row, tables, roster, match_id):
         },
         "splits": {},  # filled below if splits present
         "maps": {
-            "attackMap":     f"/assets/maps/{match_id}-{pid}-attack-map.png",
-            "fitnessHeatmap": f"/assets/maps/{match_id}-{pid}-heatmap.png",
+            "attackMap":     f"{_maps_prefix()}/{match_id}-{pid}-attack-map.png",
+            "fitnessHeatmap": f"{_maps_prefix()}/{match_id}-{pid}-heatmap.png",
         },
     }
 

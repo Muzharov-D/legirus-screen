@@ -24,6 +24,7 @@ const MAPS_DIR = process.env.MAPS_DIR
   ? path.resolve(process.env.MAPS_DIR)
   : path.join(ASSETS_DIR, 'maps');
 app.use('/assets/maps', express.static(MAPS_DIR));
+app.use('/api/maps', express.static(MAPS_DIR));
 app.use('/assets', express.static(ASSETS_DIR));
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
