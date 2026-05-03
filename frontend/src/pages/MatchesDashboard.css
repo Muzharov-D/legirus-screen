@@ -224,3 +224,14 @@
   background: transparent;
   transform: none;
 }
+
+@media (max-width: 768px) {
+  .matches-dashboard__hero { padding: 16px; }
+  .matches-dashboard__hero-title { font-size: 22px; }
+  .matches-dashboard__grid { grid-template-columns: 1fr; gap: 12px; }
+  .matches-dashboard__season {
+    grid-template-columns: repeat(2, 1fr); gap: 8px;
+  }
+  .season-stat__value { font-size: 18px; }
+  .season-stat__label { font-size: 11px; }
+}

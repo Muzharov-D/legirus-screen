@@ -124,3 +124,11 @@
   from { transform: scale(0.96); }
   to   { transform: scale(1); }
 }
+
+@media (max-width: 768px) {
+  .soccer-field-image-map img {
+    max-width: 100%;
+    height: auto;
+    touch-action: pinch-zoom;
+  }
+}

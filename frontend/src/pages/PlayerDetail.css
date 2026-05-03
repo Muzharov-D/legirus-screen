@@ -281,3 +281,17 @@
 .splits-table__delta--up   { color: #7cb342; }
 .splits-table__delta--down { color: #ef5350; }
 .splits-table__delta--eq   { color: rgba(255, 255, 255, 0.4); }
+
+@media (max-width: 768px) {
+  .player-detail__header { flex-direction: column; align-items: center; text-align: center; }
+  .player-detail__photo { width: 80px; height: 80px; }
+  .player-detail__name { font-size: 18px; }
+  .player-detail__pos { font-size: 13px; }
+  .player-detail__radar { height: 280px !important; }
+  .player-detail__maps { grid-template-columns: 1fr; }
+  /* Splits table — overflow scroll */
+  .player-splits-table,
+  .splits-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .player-splits-table table,
+  .splits-table table { min-width: 480px; font-size: 11px; }
+}

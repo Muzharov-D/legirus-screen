@@ -74,3 +74,16 @@
   padding: 24px;
   font-size: 14px;
 }
+
+/* === Mobile breakpoints === */
+@media (max-width: 768px) {
+  body, .page { font-size: 14px; }
+  .page { padding: 12px !important; }
+  .card { padding: 12px !important; border-radius: 10px; }
+  .page-section-title { font-size: 16px; }
+}
+@media (max-width: 480px) {
+  body, .page { font-size: 13px; }
+  .page { padding: 8px !important; }
+  .card { padding: 10px !important; }
+}

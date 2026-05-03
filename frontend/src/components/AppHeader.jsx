@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
@@ -16,9 +17,12 @@ export default function AppHeader() {
   const canSwitch = user?.role === 'head_coach';
   const activeTeams = (teams || []).filter((t) => t.active && t.isOurTeam !== false);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const closeMenu = () => setMobileMenuOpen(false);
+
   return (
-    <header className="app-header">
-      <div className="app-header__left" onClick={() => navigate('/analytics')}>
+    <header className={'app-header' + (mobileMenuOpen ? ' app-header--menu-open' : '')}>
+      <div className="app-header__left" onClick={() => { closeMenu(); navigate('/analytics'); }}>
         <img
           src="/assets/logos/log-3_white.png"
           alt="АванDата"
@@ -35,6 +39,14 @@ export default function AppHeader() {
           <span className="app-header__brand-sub">Золотой профиль спортсмена</span>
         </div>
       </div>
+      <button
+        className="app-header__burger"
+        aria-label="Меню"
+        aria-expanded={mobileMenuOpen}
+        onClick={() => setMobileMenuOpen((v) => !v)}
+      >
+        <span /><span /><span />
+      </button>
       <div className="app-header__right">
         {user && (
           <div className="app-header__user">
@@ -47,7 +59,7 @@ export default function AppHeader() {
         {user && (
           <button
             className="app-header__btn app-header__btn--logout"
-            onClick={() => logout()}
+            onClick={() => { closeMenu(); logout(); }}
             title="Выйти"
           >Выход</button>
         )}
@@ -56,7 +68,7 @@ export default function AppHeader() {
             <select
               className="app-header__team-select"
               value={selectedTeamId || ''}
-              onChange={(e) => select(e.target.value)}
+              onChange={(e) => { select(e.target.value); closeMenu(); }}
               disabled={activeTeams.length === 0}
             >
               {activeTeams.length === 0 && <option value="">Нет активных команд</option>}

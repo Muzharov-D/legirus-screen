@@ -202,3 +202,19 @@
   opacity: 0.55;
 }
 .players-rating__row--locked:hover { background: transparent; }
+
+@media (max-width: 768px) {
+  .players-rating__table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .players-rating__table table { min-width: 600px; font-size: 12px; }
+  /* Grid layout: drop photo/pos/minutes on mobile, keep rank/name/overall/metric */
+  .players-rating__head,
+  .players-rating__row {
+    grid-template-columns: 32px 1.4fr 70px 2fr;
+    gap: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .col-photo,
+  .col-pos,
+  .col-minutes { display: none; }
+}

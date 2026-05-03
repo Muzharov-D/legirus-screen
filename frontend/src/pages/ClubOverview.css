@@ -397,3 +397,12 @@
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
+
+@media (max-width: 768px) {
+  .club-overview__grid,
+  .club-overview__top { grid-template-columns: 1fr !important; gap: 12px; }
+  .club-overview__hero { padding: 14px; }
+  .club-overview__hero-title { font-size: 22px; }
+  .club-overview__table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .club-overview__table table { min-width: 600px; font-size: 12px; }
+}

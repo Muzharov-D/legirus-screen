@@ -242,3 +242,12 @@
   font-size: 11px;
   color: rgba(255,255,255,0.5);
 }
+
+@media (max-width: 768px) {
+  .match-detail__grid { grid-template-columns: 1fr !important; gap: 12px; }
+  .match-detail__hero-score { font-size: 28px; }
+  .match-detail__hero-team img { width: 32px; height: 32px; }
+  .formation__pitch-img { width: 100%; }
+  .team-summary-stats { font-size: 12px; }
+  .team-summary-stats__row { padding: 6px 0; }
+}
