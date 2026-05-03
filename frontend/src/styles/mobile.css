@@ -69,6 +69,13 @@ img, svg, video { max-width: 100%; height: auto; }
   .player-detail__ratings {
     grid-template-columns: 1fr !important;
   }
+  /* Баг 4 / Баг 5 — на узких экранах схлопываем top-players и leaders в 1 колонку */
+  [class*="top-players"],
+  [class*="players-row"],
+  [class*="leaders"],
+  [class*="line-leaders"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -103,5 +110,126 @@ img, svg, video { max-width: 100%; height: auto; }
   /* Любые элементы с inline-style width:NNNpx или старыми px-ширинами */
   [style*="width:"][style*="px"] {
     max-width: 100% !important;
+  }
+
+  /* Баг 1 — Halftime bars chart container и SVG в полную ширину */
+  [class*="halftime"],
+  [class*="halftime-bars"],
+  [class*="HalfTime"] {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  [class*="halftime"] svg,
+  [class*="halftime-bars"] svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Баг 2 — Ключевые показатели матча: 4 → 2 колонки */
+  [class*="metrics"],
+  [class*="key-stats"],
+  [class*="key_stats"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  [class*="metric-card"],
+  [class*="metrics__card"],
+  [class*="key-stat"] {
+    min-width: 0 !important;
+    overflow: hidden;
+  }
+
+  /* Баг 3 — «Лучший игрок матча» строка с метриками wrap */
+  [class*="motm"],
+  [class*="best-player"],
+  [class*="motm__stats"] {
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+  [class*="motm__stats"] > *,
+  [class*="motm__row"] > * {
+    flex: 0 0 auto;
+    margin-right: 8px;
+  }
+
+  /* Баг 4 — Топ-5 игроков матча: карусель → 2-колоночный grid */
+  [class*="top-players"],
+  [class*="top5"],
+  [class*="top-5"],
+  [class*="players-row"],
+  [class*="player-card-row"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+  [class*="top-player-card"],
+  [class*="player-card"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Баг 5 — Лидеры по линиям: то же что Топ-5 */
+  [class*="leaders"],
+  [class*="line-leaders"],
+  [class*="leaders-row"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+  [class*="leader-card"],
+  [class*="line-leader"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Баг 6 — большой rating-pill inline вместо absolute */
+  [class*="rating-pill--xl"],
+  [class*="rating-pill__big"],
+  [class*="player-detail__rating-pill"],
+  [class*="player-detail__overall"] {
+    position: static !important;
+    transform: none !important;
+    margin: 8px auto !important;
+    font-size: 24px !important;
+    width: 64px !important;
+    height: 64px !important;
+  }
+  .player-detail__header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+    gap: 10px;
+  }
+  .player-detail__name {
+    white-space: normal !important;
+    overflow: visible !important;
+    word-break: break-word;
+    font-size: 18px !important;
+  }
+
+  /* Баг 7 — кнопки «К списку / К матчу / Скачать карточку» wrap */
+  [class*="player-detail__nav-buttons"],
+  [class*="player-detail__back"],
+  [class*="back-buttons"] {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  [class*="player-detail__nav-buttons"] > *,
+  [class*="back-buttons"] > * {
+    flex: 1 1 auto;
+    min-width: 90px;
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+  [class*="player-detail__nav-buttons"] [class*="download"],
+  [class*="back-buttons"] [class*="download"] {
+    flex: 1 1 100%;
+    margin-top: 4px;
   }
 }
