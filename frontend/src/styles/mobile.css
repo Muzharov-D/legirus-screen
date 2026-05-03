@@ -232,4 +232,192 @@ img, svg, video { max-width: 100%; height: auto; }
     flex: 1 1 100%;
     margin-top: 4px;
   }
+
+  /* === SPEC_MOBILE_14 PR-1 — 13 targeted bugs (Bug 8 = HalfTimeBars, separate PR) === */
+
+  /* Bug 1 — «Информация о команде» left-align */
+  .club-overview__hero,
+  .matches-dashboard__hero,
+  [class*="info-team"],
+  [class*="team-info"] {
+    text-align: left !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Bug 2 — «Последний матч» под «Информацией о команде», не рядом */
+  .matches-dashboard__grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .matches-dashboard__col-left,
+  .matches-dashboard__col-right {
+    width: 100% !important;
+  }
+
+  /* Bug 3 — соперник в last-match wrap (real: .matches-dashboard__last) */
+  .matches-dashboard__last {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+  .matches-dashboard__last-team {
+    white-space: normal !important;
+    overflow: visible !important;
+    font-size: 13px !important;
+    min-width: 0 !important;
+  }
+
+  /* Bug 4 — «Лучший игрок матча» стек (real class: .best-player) */
+  .best-player,
+  .best-player__body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .best-player__rating { align-self: center; }
+  .best-player__stats {
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    font-size: 12px !important;
+    gap: 8px 12px !important;
+  }
+
+  /* Bug 5 — Топ-5 ClubOverview: горизонтальный свайп вместо grid */
+  .club-overview__top5 {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    gap: 10px !important;
+    padding-bottom: 6px !important;
+  }
+  .top5-card {
+    flex: 0 0 calc(80vw - 24px) !important;
+    scroll-snap-align: start !important;
+    min-width: 0 !important;
+  }
+
+  /* Bug 6 — убрать полоску снизу у RatingCard, только цифры */
+  .rating-card__bar,
+  [class*="rating-card__bar"],
+  [class*="rating-card__progress"] {
+    display: none !important;
+  }
+  .rating-card {
+    padding: 10px 8px !important;
+    text-align: center !important;
+  }
+
+  /* Bug 7 — компактнее ключевые показатели/комп.статы (универсально) */
+  [class*="metric-card"],
+  [class*="key-stat"],
+  [class*="stat-card"],
+  .line-card__metrics,
+  .comparison-view__metrics {
+    font-size: 14px !important;
+  }
+  [class*="metric-card__label"],
+  [class*="metric-card__title"],
+  .line-card__metric-label,
+  .comparison-metric__label {
+    font-size: 11px !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    line-height: 1.2 !important;
+  }
+  [class*="metric-card__value"],
+  .line-card__metric-val,
+  .comparison-metric__value {
+    font-size: 16px !important;
+  }
+
+  /* Bug 9 — Лидеры по линиям горизонтальный свайп */
+  .match-detail__leaders,
+  .club-overview__leaders,
+  .players-leaders__grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    gap: 10px !important;
+    padding-bottom: 6px !important;
+  }
+  .leader-card,
+  .club-overview__leader-card {
+    flex: 0 0 calc(80vw - 24px) !important;
+    scroll-snap-align: start !important;
+    min-width: 0 !important;
+  }
+
+  /* Bug 10 — Атака и Оборона друг под другом (real: .player-detail__radars) */
+  .player-detail__radars {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Bug 11 — счёт не залезает на название (real: .matches-dashboard__last-teams) */
+  .matches-dashboard__last-teams {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .matches-dashboard__last-score {
+    font-size: 22px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Bug 12 — оценка (rating-pill XL) inline в хедере профиля
+     real header class: .player-detail__hero (НЕ __header), name: .player-detail__hero-name */
+  .player-detail__hero {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 8px !important;
+  }
+  .player-detail__hero-info { text-align: center !important; min-width: 0 !important; }
+  .player-detail__hero-name {
+    white-space: normal !important;
+    overflow: visible !important;
+    word-break: break-word !important;
+    font-size: 18px !important;
+  }
+  .player-detail__hero .rating-pill--xl,
+  .player-detail__hero-rating .rating-pill--xl {
+    position: static !important;
+    transform: none !important;
+    margin: 8px auto !important;
+    font-size: 22px !important;
+    min-width: 56px !important;
+    padding: 8px 14px !important;
+  }
+
+  /* Bug 13 / 14 — splits и фитнес: overflow scroll внутри их карточек */
+  .splits-table,
+  .player-splits-table,
+  .player-detail__fitness-grid,
+  [class*="player-detail__fitness"],
+  [class*="player-detail__main-stats"],
+  [class*="stats-table"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    min-width: 0 !important;
+  }
+  .splits-table table,
+  .player-splits-table table,
+  [class*="stats-table"] table {
+    min-width: 480px;
+    font-size: 11px;
+  }
 }
