@@ -1,70 +1,119 @@
-/* ===== Mobile reset & forced overrides (≤ 768px) ===== */
-
-/* Глобально: убираем горизонтальный скролл и заставляем всё помещаться */
-*, *::before, *::after { box-sizing: border-box; }
+/* === GLOBAL — действует на всех экранах === */
 
 html, body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-img, svg, video, canvas {
-  max-width: 100%;
+*, *::before, *::after {
+  box-sizing: border-box !important;
+}
+
+img, svg, canvas, video, picture {
+  max-width: 100% !important;
   height: auto;
 }
 
-@media (max-width: 768px) {
-  /* === Layout === */
-  body { font-size: 14px; }
-  .app-body { flex-direction: column !important; }
-  .app-content { padding: 10px !important; max-width: 100vw !important; }
-  .page { padding: 10px !important; max-width: 100vw !important; }
+/* iOS auto-zoom prevention: input font-size ≥ 16px */
+input, select, textarea, button {
+  font-size: 16px;
+}
 
-  /* === Cards === */
-  .card {
-    padding: 12px !important;
+/* === MOBILE: ≤768px === */
+@media (max-width: 768px) {
+
+  body { font-size: 14px; }
+
+  /* App-level layout */
+  .app-body {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .app-content,
+  .page {
+    padding: 10px !important;
+    padding-bottom: 70px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* === Все cards и контейнеры — никогда не вылазят === */
+  .card,
+  [class*="-card"],
+  [class*="__card"],
+  [class*="-hero"],
+  [class*="__hero"] {
     min-width: 0 !important;
     max-width: 100% !important;
-    border-radius: 10px;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    word-break: break-word;
   }
-  .page-section-title { font-size: 15px !important; margin-bottom: 8px !important; }
 
-  /* === Force all grids to single column === */
-  .matches-dashboard__grid,
-  .match-detail__grid,
-  .player-detail__grid,
-  .club-overview__grid,
-  .players-leaders__grid,
-  .player-detail__maps,
-  .comparison-view__grid {
+  /* === Все grids → max 2 колонки === */
+  [class*="grid"],
+  [class*="-ratings"],
+  [class*="__ratings"],
+  [class*="-leaders"],
+  [class*="__leaders"],
+  [class*="-metrics"],
+  [class*="__metrics"],
+  [class*="-teams"],
+  [class*="__teams"],
+  [class*="-stats"],
+  [class*="__stats"],
+  [class*="-cards"],
+  [class*="__cards"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Special: hero score, header — single column */
+  [class*="-hero"],
+  [class*="__hero"],
+  [class*="-header"],
+  [class*="__header"],
+  [class*="-row"],
+  [class*="__row"] {
     grid-template-columns: 1fr !important;
-    gap: 10px !important;
   }
 
-  /* === Header — компактнее === */
+  /* Заголовки и текст — не обрезаем */
+  h1, h2, h3, h4, h5, h6,
+  .page-section-title,
+  [class*="title"],
+  [class*="__name"],
+  [class*="-name"],
+  [class*="hero-eyebrow"],
+  [class*="hero-sub"] {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* === Header (top app bar) === */
   .app-header {
     padding: 6px 10px !important;
     height: 52px !important;
     flex-wrap: wrap;
   }
-  .app-header__brand img,
-  .app-header__club img { height: 28px !important; width: auto !important; }
-  .app-header__brand span,
-  .app-header__brand-x { font-size: 12px !important; }
-  .app-header__user-name,
-  .app-header__user-role { font-size: 11px !important; }
-  .app-header__btn,
-  .app-header__logout,
-  .app-header__lang { padding: 4px 8px !important; font-size: 12px !important; }
 
-  /* === Sidebar -> bottom nav (если ещё не сделано) === */
+  /* === Sidebar → bottom nav === */
   .sidebar-nav {
     position: fixed !important;
     bottom: 0 !important; left: 0 !important; right: 0 !important; top: auto !important;
     width: 100% !important; height: 56px !important;
     flex-direction: row !important;
     border-right: none !important;
-    border-top: 1px solid var(--border, rgba(255,255,255,.1));
+    border-top: 1px solid rgba(255,255,255,0.1);
     z-index: 100;
     background: var(--card-bg, #0d1424);
   }
@@ -76,163 +125,50 @@ img, svg, video, canvas {
     text-align: center;
   }
   .sidebar-nav__icon { font-size: 20px !important; margin-bottom: 2px; }
-  .app-content { padding-bottom: 70px !important; }
 
-  /* === Hero blocks — уменьшаем === */
-  .matches-dashboard__hero,
-  .match-detail__hero,
-  .club-overview__hero {
-    padding: 14px !important;
-  }
-  .matches-dashboard__hero-title,
-  .match-detail__hero-title { font-size: 18px !important; }
-  .matches-dashboard__hero-eyebrow { font-size: 10px !important; }
+  /* === ИИ-агент скрыть === */
+  .agent-trigger,
+  .agent-card { display: none !important; }
 
-  /* === Match score — компактнее === */
-  .matches-dashboard__last-score,
-  .match-detail__hero-score { font-size: 24px !important; }
-  .matches-dashboard__last-team img,
-  .match-detail__hero-team img { width: 32px !important; height: 32px !important; }
-
-  /* === Season stats grid — 2 колонки === */
-  .matches-dashboard__season {
-    grid-template-columns: repeat(2, 1fr) !important;
+  /* === Лидеры / карусели — превращаем в snap-scroll или wrap === */
+  [class*="leaders"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 8px !important;
   }
-  .season-stat__value { font-size: 18px !important; }
-  .season-stat__label { font-size: 11px !important; }
 
-  /* === Players Rating — grid collapse === */
-  .players-rating__head,
-  .players-rating__row {
-    grid-template-columns: 28px 36px 1fr 56px !important;
-    gap: 8px !important;
-    font-size: 12px !important;
+  /* Кнопки — touch-friendly, wrap */
+  button, a.button, .btn,
+  [class*="nav-buttons"] {
+    flex-wrap: wrap !important;
   }
-  .col-photo { display: none !important; }
-  .col-pos, .col-minutes { display: none !important; }
-  .players-rating__chips { gap: 4px !important; }
-  .chip { padding: 4px 8px !important; font-size: 11px !important; }
 
-  /* === Player Detail — single column, compact === */
-  .player-detail__header {
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-    gap: 8px !important;
+  /* Recharts SVG fully responsive */
+  .recharts-wrapper,
+  .recharts-surface,
+  .recharts-responsive-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
   }
-  .player-detail__photo { width: 80px !important; height: 80px !important; }
-  .player-detail__name { font-size: 18px !important; }
-  .player-detail__pos { font-size: 12px !important; }
-  .player-detail__radar { height: 280px !important; }
 
-  /* === Tables (real <table>) — horizontal scroll === */
+  /* Любые таблицы — горизонтальный scroll внутри table-wrapper, не страницы */
   table {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     max-width: 100%;
-    font-size: 12px;
-  }
-
-  /* === Forms (login etc.) === */
-  .login__card { width: calc(100vw - 24px) !important; padding: 18px !important; }
-  .login__title { font-size: 18px !important; }
-
-  /* === Recharts SVG responsive === */
-  .recharts-wrapper,
-  .recharts-surface { max-width: 100% !important; height: auto !important; }
-
-  /* === Heatmap & formation images === */
-  .formation__pitch-img,
-  .soccer-field-image-map img,
-  .heatmap-card img { width: 100% !important; max-width: 100% !important; height: auto !important; }
-
-  /* === Buttons & links — touch-friendly === */
-  button, a.button, .btn {
-    min-height: 36px;
-    padding: 8px 12px !important;
-    font-size: 13px !important;
   }
 }
 
+/* === SMALL MOBILE: ≤480px === */
 @media (max-width: 480px) {
   body { font-size: 13px; }
-  .app-content, .page { padding: 6px !important; }
-  .card { padding: 10px !important; }
-  .matches-dashboard__hero-title,
-  .match-detail__hero-title { font-size: 16px !important; }
-  .players-rating__head,
-  .players-rating__row {
-    grid-template-columns: 24px 1fr 50px !important;
-    gap: 6px !important;
-  }
-  .col-photo, .col-pos, .col-minutes, .col-rank { display: none !important; }
-}
+  .page, .app-content { padding: 6px !important; padding-bottom: 70px !important; }
 
-@media (max-width: 768px) {
-  /* === ClubOverview ("Аналитика") === */
-  .club-overview { gap: 10px !important; }
-  .club-overview__hero { padding: 12px !important; }
-  .club-overview__hero-title { font-size: 18px !important; }
-  .club-overview__hero-sub { font-size: 12px !important; }
-  .club-overview__teams { grid-template-columns: 1fr !important; gap: 8px !important; }
-  .club-overview__team-card { padding: 10px !important; }
-  .club-overview__team-stats {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6px !important;
-    font-size: 11px !important;
-  }
-  .club-overview__metric-cards,
-  .club-overview__compare-grid { grid-template-columns: 1fr !important; }
-
-  /* === PlayerDetail ("Мой профиль") — усиление === */
-  .player-detail__radar,
-  .player-detail__progress,
-  .player-detail__compare {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-  }
-  .player-detail .recharts-wrapper {
-    width: 100% !important;
-    height: auto !important;
-  }
-  .player-detail__halftime-bars { font-size: 11px !important; }
-  .player-detail__splits {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100%;
-  }
-  .player-detail__splits table { min-width: 480px; font-size: 11px; }
-
-  /* Все cards — никогда не вылазят за viewport */
-  .card,
-  .player-detail .card,
-  .club-overview .card {
-    max-width: 100% !important;
-    min-width: 0 !important;
-    overflow: hidden;
-  }
-
-  /* Выпадашка/dropdown — не вылазит за экран */
-  .dropdown,
-  .menu,
-  [role="menu"] {
-    max-width: calc(100vw - 24px) !important;
-    right: 12px !important;
-    left: auto !important;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Любой текст-блок не имеет nowrap по умолчанию */
-  .card h1, .card h2, .card h3, .card h4,
-  .page-section-title,
-  .hero-eyebrow,
-  .info-row,
-  .stat-row {
-    white-space: normal !important;
-    overflow-wrap: anywhere;
+  /* На совсем узких экранах разрешаем 1 колонку для рейтингов если 2 не лезут */
+  [class*="-ratings"],
+  [class*="__ratings"] {
+    grid-template-columns: 1fr !important;
   }
 }
