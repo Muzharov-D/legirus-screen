@@ -23,7 +23,7 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/" element={<Navigate to="/analytics" replace />} />
+                <Route path="/" element={<Navigate to="/matches" replace />} />
                 <Route path="/analytics" element={<ClubOverview />} />
                 <Route path="/analytics/team" element={<ComparisonView />} />
                 <Route path="/matches" element={<MatchesDashboard />} />
@@ -31,7 +31,7 @@ export default function App() {
                 <Route path="/players" element={<PlayersLeaders />} />
                 <Route path="/players/rating" element={<PlayersRating />} />
                 <Route path="/players/:playerId" element={<PlayerDetail />} />
-                <Route path="*" element={<Navigate to="/analytics" replace />} />
+                <Route path="*" element={<Navigate to="/matches" replace />} />
               </Route>
             </Routes>
           </TeamProvider>
