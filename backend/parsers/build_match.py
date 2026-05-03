@@ -201,6 +201,8 @@ def main():
             "away": page1.get("awayStats") or {},
         },
         "formation": _formation(args.input_pdf, args.team_id) or page1.get("formation"),
+        "formationImage": f"{_maps_prefix()}/{args.match_id}-formation-map.png",
+        "formationImageFull": f"{_maps_prefix()}/{args.match_id}-formation-full.png",
         "teamAggregates": aggregates,
         "players": players,
         "guestTeamPlaceholder": page1.get("guestTeamPlaceholder"),
