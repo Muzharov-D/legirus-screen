@@ -142,7 +142,7 @@ def main():
 
     LOG.info("Stage 4/4: player splits (best-effort)")
     try:
-        splits = parse_player_splits.parse(args.input_pdf)
+        splits = parse_player_splits.parse(args.input_pdf, args.team_id)
     except Exception as e:
         LOG.warning("splits failed: %s — empty", e)
         splits = {}
