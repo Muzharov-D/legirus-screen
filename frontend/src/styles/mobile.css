@@ -70,3 +70,38 @@ img, svg, video { max-width: 100%; height: auto; }
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (max-width: 768px) {
+  /* Убрать двойной padding на mobile */
+  .app-content {
+    padding: 8px !important;
+    padding-bottom: 70px !important;
+  }
+  .page {
+    padding: 0 !important;
+  }
+  .app-header {
+    padding: 0 10px !important;
+  }
+
+  /* Дефолт для всех cards — не вылазят за родителя */
+  .card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Все прямые потомки контейнеров — обязательно сжимаются */
+  .app-content > *,
+  .page > *,
+  .card > * {
+    max-width: 100% !important;
+    min-width: 0;
+  }
+
+  /* Любые элементы с inline-style width:NNNpx или старыми px-ширинами */
+  [style*="width:"][style*="px"] {
+    max-width: 100% !important;
+  }
+}
