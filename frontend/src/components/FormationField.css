@@ -141,3 +141,17 @@
   font-weight: 600;
   margin-bottom: 2px;
 }
+
+.formation__pitch-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 600px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+.formation__pitch-wrap {
+  display: block;
+  text-align: center;
+  cursor: zoom-in;
+}

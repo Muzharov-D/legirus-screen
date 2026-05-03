@@ -61,10 +61,41 @@ function positionOrder(p) {
   return 1;
 }
 
-export default function FormationField({ formation, players, ourTeamName = 'Легирус 2010' }) {
+export default function FormationField({
+  formation,
+  players,
+  ourTeamName = 'Легирус 2010',
+  imageSrc,
+  imageFullSrc,
+}) {
   const navigate = useNavigate();
   const starters = formation?.starters || [];
   const subs = formation?.substitutes || [];
+
+  if (starters.length === 0 && imageSrc) {
+    return (
+      <div className="formation">
+        <div className="formation__head">
+          <span className="formation__title">Расстановка</span>
+          <span className="formation__team">{ourTeamName}</span>
+        </div>
+        <a
+          className="formation__pitch-wrap"
+          href={imageFullSrc || imageSrc}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Открыть в полном размере"
+        >
+          <img
+            src={imageSrc}
+            alt={`Расстановка ${ourTeamName}`}
+            className="formation__pitch-img"
+          />
+        </a>
+      </div>
+    );
+  }
+
   const placed = buildLayout(starters);
 
   function resolvePlayer(s) {

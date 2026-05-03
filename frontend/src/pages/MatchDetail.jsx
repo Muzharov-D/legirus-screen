@@ -127,7 +127,13 @@ export default function MatchDetail() {
 
       <div className="match-detail__grid">
         <div className="match-detail__left">
-          <FormationField formation={match.formation} players={players} ourTeamName={match.homeTeam?.name} />
+          <FormationField
+            formation={match.formation}
+            players={players}
+            ourTeamName={match.homeTeam?.name}
+            imageSrc={match.formationImage}
+            imageFullSrc={match.formationImageFull}
+          />
           <div className="card guest-placeholder">
             <div className="page-section-title">Состав соперника</div>
             <div className="guest-placeholder__msg">{match.guestTeamPlaceholder || 'Нет данных об игроках команды.'}</div>
