@@ -8,7 +8,6 @@ import PlayerPhoto from '../components/PlayerPhoto';
 import RatingCard from '../components/RatingCard';
 import RatingPill from '../components/RatingPill';
 import RadarChart from '../components/RadarChart';
-import HalfTimeBars from '../components/HalfTimeBars';
 import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
 import { ratingColor } from '../utils/colors';
 import './PlayerDetail.css';
@@ -287,16 +286,6 @@ export default function PlayerDetail() {
           />
         </div>
       )}
-
-      {/* HALFTIME BARS */}
-      <div className="card" id="halftime">
-        <HalfTimeBars
-          splits={splits}
-          metrics={HALFTIME_KEYS}
-          metricLabels={labels}
-          title="1 тайм vs 2 тайм — ключевые метрики"
-        />
-      </div>
 
       {/* MAPS */}
       <div className="player-detail__maps">
