@@ -169,3 +169,58 @@ img, svg, video, canvas {
   }
   .col-photo, .col-pos, .col-minutes, .col-rank { display: none !important; }
 }
+
+@media (max-width: 768px) {
+  /* === ClubOverview ("Аналитика") === */
+  .club-overview { gap: 10px !important; }
+  .club-overview__hero { padding: 12px !important; }
+  .club-overview__hero-title { font-size: 18px !important; }
+  .club-overview__hero-sub { font-size: 12px !important; }
+  .club-overview__teams { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .club-overview__team-card { padding: 10px !important; }
+  .club-overview__team-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    font-size: 11px !important;
+  }
+  .club-overview__metric-cards,
+  .club-overview__compare-grid { grid-template-columns: 1fr !important; }
+
+  /* === PlayerDetail ("Мой профиль") — усиление === */
+  .player-detail__radar,
+  .player-detail__progress,
+  .player-detail__compare {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  .player-detail .recharts-wrapper {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .player-detail__halftime-bars { font-size: 11px !important; }
+  .player-detail__splits {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+  .player-detail__splits table { min-width: 480px; font-size: 11px; }
+
+  /* Все cards — никогда не вылазят за viewport */
+  .card,
+  .player-detail .card,
+  .club-overview .card {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden;
+  }
+
+  /* Выпадашка/dropdown — не вылазит за экран */
+  .dropdown,
+  .menu,
+  [role="menu"] {
+    max-width: calc(100vw - 24px) !important;
+    right: 12px !important;
+    left: auto !important;
+  }
+}

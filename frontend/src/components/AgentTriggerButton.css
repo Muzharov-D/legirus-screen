@@ -19,3 +19,26 @@
 
 .agent-trigger:hover { transform: translateY(-1px); }
 .agent-trigger__bolt { font-size: 18px; }
+
+@media (max-width: 768px) {
+  .agent-trigger {
+    bottom: 72px !important;       /* 56px bottom-nav + 16px gap */
+    right: 12px !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(255, 208, 0, 0.35);
+  }
+  .agent-trigger__bolt { font-size: 14px !important; }
+  .agent-trigger span:not(.agent-trigger__bolt) {
+    /* На очень узких экранах оставить только иконку */
+    display: inline;
+  }
+}
+
+@media (max-width: 380px) {
+  .agent-trigger span:not(.agent-trigger__bolt) {
+    display: none;             /* только иконка ✦ на узких экранах */
+  }
+  .agent-trigger { padding: 8px 10px !important; min-width: 36px; }
+}
