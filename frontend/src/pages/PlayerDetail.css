@@ -295,3 +295,43 @@
   .player-splits-table table,
   .splits-table table { min-width: 480px; font-size: 11px; }
 }
+
+@media (max-width: 768px) {
+  /* Хедер игрока — фото + текст в стек */
+  .player-detail__header { grid-template-columns: 1fr !important; gap: 10px; text-align: center; }
+  .player-detail__name {
+    white-space: normal !important;
+    overflow: visible !important;
+    word-break: break-word;
+    font-size: 18px;
+  }
+  /* Кнопки «К списку / К матчу / Скачать карточку» — wrap */
+  .player-detail__nav-buttons {
+    flex-wrap: wrap !important;
+    gap: 6px;
+  }
+  .player-detail__nav-buttons button,
+  .player-detail__nav-buttons a {
+    flex: 1 1 auto;
+    min-width: 90px;
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+  /* Сводные рейтинги: 3 колонки → 2 */
+  .player-detail__ratings { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  /* «Лучший в команде» — стек */
+  .player-detail__best { grid-template-columns: 1fr !important; gap: 8px; }
+  /* Радарная диаграмма + сравнение по позиции — стек, не 2 колонки */
+  .player-detail__radar-row,
+  .player-detail__compare-row { grid-template-columns: 1fr !important; gap: 12px; }
+  /* Заголовки карточек — wrap */
+  .player-detail__section-title,
+  .page-section-title {
+    white-space: normal !important;
+    overflow: visible !important;
+    word-break: break-word;
+    font-size: 14px;
+  }
+  /* Карты атаки/тепловая — стек */
+  .player-detail__maps { grid-template-columns: 1fr !important; }
+}

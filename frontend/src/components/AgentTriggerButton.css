@@ -42,3 +42,7 @@
   }
   .agent-trigger { padding: 8px 10px !important; min-width: 36px; }
 }
+
+@media (max-width: 768px) {
+  .agent-trigger { display: none !important; }
+}

@@ -76,3 +76,7 @@
   cursor: not-allowed;
   filter: grayscale(0.4);
 }
+
+@media (max-width: 768px) {
+  .agent-card { display: none !important; }
+}

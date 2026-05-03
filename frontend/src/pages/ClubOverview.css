@@ -406,3 +406,29 @@
   .club-overview__table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .club-overview__table table { min-width: 600px; font-size: 12px; }
 }
+
+@media (max-width: 768px) {
+  /* Главный layout — был 320px sidebar + 1fr контент */
+  .club-overview { grid-template-columns: 1fr !important; gap: 12px; }
+  /* Карточки сводных рейтингов: было 4 колонки, делаем 2 */
+  .club-overview__ratings { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  /* «Ключевые показатели»: было 5 колонок, делаем 2 */
+  .club-overview__metrics { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  /* Лидеры по линиям — карусель → стек или snap-scroll */
+  .club-overview__leaders {
+    display: flex !important;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 10px;
+    padding-bottom: 8px;
+  }
+  .club-overview__leader-card {
+    flex: 0 0 calc(100vw - 48px);
+    scroll-snap-align: start;
+  }
+  /* Hero «лучший игрок матча» — стек, не grid */
+  .club-overview__motm { grid-template-columns: 1fr !important; }
+  .club-overview__motm-info { text-align: center; padding-top: 12px; }
+}
