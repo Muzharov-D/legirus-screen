@@ -79,10 +79,13 @@ export async function processPdf(pdfPath, opts = {}) {
   }
 
   // Гарантируем поля teamId/id даже если парсер не проставил их.
-  if (!matchData.teamId) {
-    matchData.teamId = teamId;
+  if (!matchData.teamId || matchData.teamId !== teamId) {
+    matchData.teamId = teamId;  // force-set, чтобы guard не падал
     fs.writeFileSync(outJson, JSON.stringify(matchData, null, 2), 'utf-8');
     invalidateCache(outJson);
+  }
+  if (!matchData.teamId) {
+    throw new Error(`Парсер не записал teamId в ${outJson} — миграция отказана`);
   }
 
   const entry = {
@@ -97,6 +100,7 @@ export async function processPdf(pdfPath, opts = {}) {
     statusLabel: 'МАТЧ РАЗОБРАН',
     detailsRef: `matches/${matchData.id || matchId}.json`,
   };
+  if (!entry.teamId) throw new Error('Match entry missing teamId — refusing to write index');
   appendMatchToIndex(entry);
 
   return { matchId: entry.id, status: 'ready' };
