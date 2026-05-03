@@ -1,5 +1,5 @@
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import './HalfTimeBars.css';
 
@@ -9,33 +9,67 @@ function num(v) {
   return Number(v) || 0;
 }
 
+const COLOR_FIRST = '#ffd000';   // 1 тайм — клубный жёлтый
+const COLOR_SECOND = '#5b6ee3';  // 2 тайм — синий
+
 export default function HalfTimeBars({ splits, metrics, metricLabels, title = '1 тайм vs 2 тайм' }) {
   const data = metrics
     .map((m) => {
       const split = splits?.[m];
       if (!split) return null;
-      const first = num(split.first);
-      const second = num(split.second);
-      return { metric: metricLabels?.[m] || m, first, second, delta: second - first };
+      return {
+        name: metricLabels?.[m] || m,
+        'I тайм':  num(split.first),
+        'II тайм': num(split.second),
+      };
     })
     .filter(Boolean);
 
   if (!data.length) return <div className="empty-state">Нет данных по таймовой разбивке</div>;
 
+  // Высота зависит от количества метрик: ~36 px на метрику + плавающий минимум для маленьких списков
+  const height = Math.max(240, data.length * 36 + 80);
+
   return (
     <div className="halftime-bars">
-      <div className="halftime-bars__title">{title}</div>
-      <ResponsiveContainer width="100%" height={340}>
-        <BarChart data={data} layout="vertical" margin={{ top: 6, right: 30, left: 110, bottom: 4 }}>
-          <CartesianGrid stroke="rgba(255,255,255,0.06)" />
-          <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }}/>
-          <YAxis dataKey="metric" type="category" width={110} tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11 }}/>
-          <Tooltip
-            contentStyle={{ background: '#14143c', border: '1px solid rgba(255,208,0,0.3)', borderRadius: 8, color: '#fff' }}
+      {title && <div className="halftime-bars__title">{title}</div>}
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart
+          data={data}
+          margin={{ top: 8, right: 12, left: 8, bottom: 56 }}
+          barCategoryGap={12}
+          barGap={4}
+        >
+          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+          <XAxis
+            dataKey="name"
+            tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 10 }}
+            angle={-30}
+            textAnchor="end"
+            interval={0}
+            height={56}
           />
-          <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }} />
-          <Bar dataKey="first" name="1 тайм" fill="#42a5f5" radius={[0, 4, 4, 0]} />
-          <Bar dataKey="second" name="2 тайм" fill="#ffd000" radius={[0, 4, 4, 0]} />
+          <YAxis
+            tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }}
+            allowDecimals={false}
+            width={32}
+          />
+          <Tooltip
+            contentStyle={{
+              background: '#14143c',
+              border: '1px solid rgba(255,208,0,0.3)',
+              borderRadius: 8,
+              color: '#fff',
+              fontSize: 12,
+            }}
+            cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+          />
+          <Legend
+            wrapperStyle={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, paddingTop: 4 }}
+            iconType="circle"
+          />
+          <Bar dataKey="I тайм"  fill={COLOR_FIRST}  radius={[4, 4, 0, 0]} maxBarSize={24} />
+          <Bar dataKey="II тайм" fill={COLOR_SECOND} radius={[4, 4, 0, 0]} maxBarSize={24} />
         </BarChart>
       </ResponsiveContainer>
     </div>
