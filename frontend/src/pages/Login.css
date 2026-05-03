@@ -12,7 +12,8 @@
 }
 
 .login-card {
-  width: 420px;
+  width: min(420px, calc(100vw - 24px));
+  max-width: 100%;
   background: rgba(20, 20, 60, 0.85);
   border: 1px solid rgba(255, 208, 0, 0.25);
   border-radius: 14px;

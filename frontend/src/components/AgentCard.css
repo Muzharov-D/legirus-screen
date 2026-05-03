@@ -2,7 +2,8 @@
   position: fixed;
   bottom: 84px;
   right: 28px;
-  width: 380px;
+  width: min(380px, calc(100vw - 24px));
+  max-width: 100%;
   background: rgba(20, 20, 60, 0.98);
   border: 1px solid rgba(255, 208, 0, 0.3);
   border-radius: 14px;

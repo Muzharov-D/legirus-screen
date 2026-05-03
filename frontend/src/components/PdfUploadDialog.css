@@ -9,7 +9,8 @@
 }
 
 .upload-dialog {
-  width: 480px;
+  width: min(480px, calc(100vw - 24px));
+  max-width: 100%;
   background: #14143c;
   border: 1px solid rgba(255,208,0,0.2);
   border-radius: 14px;

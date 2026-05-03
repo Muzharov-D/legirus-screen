@@ -155,3 +155,7 @@
   text-align: center;
   cursor: zoom-in;
 }
+
+@media (max-width: 768px) {
+  .formation__slot { width: clamp(72px, 22vw, 110px); }
+}
