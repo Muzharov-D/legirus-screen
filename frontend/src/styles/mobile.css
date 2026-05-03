@@ -1,174 +1,72 @@
-/* === GLOBAL — действует на всех экранах === */
-
+/* === Global === */
 html, body {
-  overflow-x: hidden !important;
-  max-width: 100vw !important;
+  overflow-x: hidden;
+  max-width: 100vw;
   -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
 }
+*, *::before, *::after { box-sizing: border-box; }
+img, svg, video { max-width: 100%; height: auto; }
 
-*, *::before, *::after {
-  box-sizing: border-box !important;
-}
-
-img, svg, canvas, video, picture {
-  max-width: 100% !important;
-  height: auto;
-}
-
-/* iOS auto-zoom prevention: input font-size ≥ 16px */
-input, select, textarea, button {
-  font-size: 16px;
-}
-
-/* === MOBILE: ≤768px === */
+/* iOS prevent autozoom on inputs */
 @media (max-width: 768px) {
+  input, select, textarea { font-size: 16px; }
+}
 
+/* === Mobile layout adaptations === */
+@media (max-width: 768px) {
   body { font-size: 14px; }
 
-  /* App-level layout */
-  .app-body {
-    flex-direction: column !important;
-    width: 100% !important;
-  }
-  .app-content,
-  .page {
-    padding: 10px !important;
+  .app-body { flex-direction: column !important; }
+  .app-content, .page {
+    padding: 12px !important;
     padding-bottom: 70px !important;
-    width: 100% !important;
     max-width: 100vw !important;
-    overflow-x: hidden !important;
   }
 
-  /* === Все cards и контейнеры — никогда не вылазят === */
-  .card,
-  [class*="-card"],
-  [class*="__card"],
-  [class*="-hero"],
-  [class*="__hero"] {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow-x: hidden !important;
-    word-break: break-word;
-  }
-
-  /* === Все grids → max 2 колонки === */
-  [class*="grid"],
-  [class*="-ratings"],
-  [class*="__ratings"],
-  [class*="-leaders"],
-  [class*="__leaders"],
-  [class*="-metrics"],
-  [class*="__metrics"],
-  [class*="-teams"],
-  [class*="__teams"],
-  [class*="-stats"],
-  [class*="__stats"],
-  [class*="-cards"],
-  [class*="__cards"] {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 8px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  /* Special: hero score, header — single column */
-  [class*="-hero"],
-  [class*="__hero"],
-  [class*="-header"],
-  [class*="__header"],
-  [class*="-row"],
-  [class*="__row"] {
+  /* Многоколоночные сетки → 1 или 2 */
+  .club-overview,
+  .matches-dashboard__grid,
+  .match-detail__grid,
+  .player-detail__grid,
+  .player-detail__maps,
+  .comparison-view__grid {
     grid-template-columns: 1fr !important;
   }
-
-  /* Заголовки и текст — не обрезаем */
-  h1, h2, h3, h4, h5, h6,
-  .page-section-title,
-  [class*="title"],
-  [class*="__name"],
-  [class*="-name"],
-  [class*="hero-eyebrow"],
-  [class*="hero-sub"] {
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-    max-width: 100% !important;
+  .club-overview__ratings,
+  .match-detail__ratings,
+  .player-detail__ratings,
+  .club-overview__metrics,
+  .match-detail__metrics,
+  .club-overview__leaders,
+  .match-detail__leaders {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
   }
 
-  /* === Header (top app bar) === */
-  .app-header {
-    padding: 6px 10px !important;
-    height: 52px !important;
-    flex-wrap: wrap;
-  }
-
-  /* === Sidebar → bottom nav === */
+  /* Sidebar → bottom nav */
   .sidebar-nav {
-    position: fixed !important;
-    bottom: 0 !important; left: 0 !important; right: 0 !important; top: auto !important;
-    width: 100% !important; height: 56px !important;
+    position: fixed; bottom: 0; left: 0; right: 0; top: auto;
+    width: 100%; height: 56px;
     flex-direction: row !important;
-    border-right: none !important;
+    border-right: none;
     border-top: 1px solid rgba(255,255,255,0.1);
     z-index: 100;
     background: var(--card-bg, #0d1424);
   }
   .sidebar-nav__item {
-    flex: 1 !important;
-    flex-direction: column !important;
-    padding: 6px 4px !important;
-    font-size: 10px !important;
+    flex: 1; flex-direction: column;
+    padding: 6px 4px; font-size: 10px;
     text-align: center;
   }
-  .sidebar-nav__icon { font-size: 20px !important; margin-bottom: 2px; }
+  .sidebar-nav__icon { font-size: 20px; }
 
-  /* === ИИ-агент скрыть === */
-  .agent-trigger,
-  .agent-card { display: none !important; }
-
-  /* === Лидеры / карусели — превращаем в snap-scroll или wrap === */
-  [class*="leaders"] {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 8px !important;
-  }
-
-  /* Кнопки — touch-friendly, wrap */
-  button, a.button, .btn,
-  [class*="nav-buttons"] {
-    flex-wrap: wrap !important;
-  }
-
-  /* Recharts SVG fully responsive */
-  .recharts-wrapper,
-  .recharts-surface,
-  .recharts-responsive-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
-  /* Любые таблицы — горизонтальный scroll внутри table-wrapper, не страницы */
-  table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100%;
-  }
+  .agent-trigger, .agent-card { display: none !important; }
 }
 
-/* === SMALL MOBILE: ≤480px === */
 @media (max-width: 480px) {
-  body { font-size: 13px; }
-  .page, .app-content { padding: 6px !important; padding-bottom: 70px !important; }
-
-  /* На совсем узких экранах разрешаем 1 колонку для рейтингов если 2 не лезут */
-  [class*="-ratings"],
-  [class*="__ratings"] {
+  .club-overview__ratings,
+  .match-detail__ratings,
+  .player-detail__ratings {
     grid-template-columns: 1fr !important;
   }
 }
