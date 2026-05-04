@@ -53,22 +53,38 @@ router.get('/metrics', (_req, res) => {
 });
 
 // Список матчей — фильтр по teamId / роли.
+function enrichMatch(m) {
+  if (m.homeTeamName && m.awayTeamName) return m;
+  try {
+    const detail = loadMatch(m.id);
+    return {
+      ...m,
+      homeTeamName: m.homeTeamName || detail?.homeTeam?.name || null,
+      awayTeamName: m.awayTeamName || detail?.awayTeam?.name || null,
+      tournament: m.tournament || 'league',
+    };
+  } catch (_e) {
+    return { ...m, tournament: m.tournament || 'league' };
+  }
+}
+
 router.get('/matches', (req, res) => {
   try {
     const all = loadMatchesIndex();
     const requestedTeamId = req.query.teamId;
 
+    let matches;
     if (req.user?.role === 'head_coach') {
-      const matches = requestedTeamId
+      matches = requestedTeamId
         ? (all.matches || []).filter((m) => m.teamId === requestedTeamId)
-        : all.matches;
-      return res.json({ matches });
+        : (all.matches || []);
+    } else {
+      const ownTeamId = req.user?.teamId;
+      if (!ownTeamId) return res.json({ matches: [] });
+      matches = (all.matches || []).filter((m) => m.teamId === ownTeamId);
     }
 
-    const ownTeamId = req.user?.teamId;
-    if (!ownTeamId) return res.json({ matches: [] });
-    const matches = (all.matches || []).filter((m) => m.teamId === ownTeamId);
-    res.json({ matches });
+    res.json({ matches: matches.map(enrichMatch) });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

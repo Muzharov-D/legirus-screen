@@ -42,6 +42,7 @@ function runPython(script, args, cwd = PARSERS_DIR) {
   });
 }
 
+// tournament: 'league' (Турнир) | 'cup' (Кубок)
 export async function processPdf(pdfPath, opts = {}) {
   if (!fs.existsSync(pdfPath)) {
     throw new Error('PDF файл не найден');
@@ -88,13 +89,20 @@ export async function processPdf(pdfPath, opts = {}) {
     throw new Error(`Парсер не записал teamId в ${outJson} — миграция отказана`);
   }
 
+  const tournament = ['league', 'cup'].includes((opts.tournament || '').toLowerCase())
+    ? opts.tournament.toLowerCase()
+    : 'league';
+
   const entry = {
     id: matchData.id || matchId,
     teamId: matchData.teamId || teamId,
     date: matchData.date || new Date().toISOString().slice(0, 10),
     season: matchData.season || '',
+    tournament,
     homeTeamId: matchData.homeTeam?.id || teamId,
     awayTeamId: matchData.awayTeam?.id || 'unknown',
+    homeTeamName: matchData.homeTeam?.name || null,
+    awayTeamName: matchData.awayTeam?.name || null,
     score: matchData.score || { home: 0, away: 0 },
     status: 'analyzed',
     statusLabel: 'МАТЧ РАЗОБРАН',

@@ -55,8 +55,23 @@ export default function MatchesDashboard() {
     (m.homeTeamId === ourTeam?.id ? m.score?.away : m.score?.home) === 0).length;
   const avgGoals = totalGames ? (goalsFor / totalGames).toFixed(2) : '—';
 
-  // Сезон — берём из первого матча
-  const season = matches[0]?.season || '2025-2026';
+  // Сезон — показываем как «год окончания» (2025-2026 → 2026)
+  const seasonRaw = matches[0]?.season || '2026';
+  const season = (() => {
+    const m = String(seasonRaw).match(/(\d{4})\s*[-–—]\s*(\d{4})/);
+    return m ? m[2] : seasonRaw;
+  })();
+
+  // Турнир / Кубок переключатель
+  const TOURNAMENTS = [
+    { id: 'league', label: 'Турнир' },
+    { id: 'cup',    label: 'Кубок' },
+  ];
+  const [tournament, setTournament] = useState('league');
+  const filteredMatches = useMemo(
+    () => matches.filter((m) => (m.tournament || 'league') === tournament),
+    [matches, tournament]
+  );
 
   // Накопленная сезонная статистика — догружаем ВСЕ матчи (детально), считаем средний рейтинг
   // по каждому игроку и тренд (последний матч vs среднее по предыдущим).
@@ -128,6 +143,17 @@ export default function MatchesDashboard() {
           <div className="matches-dashboard__hero-sub">
             ФК {ourTeam?.name?.toUpperCase() || 'Легирус 2010'} · {totalGames} матч{totalGames === 1 ? '' : 'ей'} разобран{totalGames === 1 ? '' : 'о'}
           </div>
+          <div className="tournament-switch">
+            {TOURNAMENTS.map((t) => (
+              <button
+                key={t.id}
+                className={'tournament-switch__btn' + (tournament === t.id ? ' tournament-switch__btn--active' : '')}
+                onClick={() => setTournament(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
         {canUpload && (
           <button className="matches-dashboard__upload" onClick={() => setUploadOpen(true)}>
@@ -138,7 +164,7 @@ export default function MatchesDashboard() {
 
       <div className="matches-dashboard__grid">
         <aside className="matches-dashboard__col-left">
-          <MatchList matches={matches} teams={teams} />
+          <MatchList matches={filteredMatches} teams={teams} />
         </aside>
 
         <section className="matches-dashboard__col-right">

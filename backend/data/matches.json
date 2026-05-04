@@ -4,8 +4,11 @@
       "id": "match-001",
       "date": "2026-04-19",
       "season": "2025-2026",
+      "tournament": "league",
       "homeTeamId": "legirus-2010",
       "awayTeamId": "porohovchanin-2010",
+      "homeTeamName": "Легирус 2010",
+      "awayTeamName": "Пороховчанин 2010",
       "score": {
         "home": 4,
         "away": 0
@@ -19,8 +22,11 @@
       "id": "match-002",
       "date": "2026-04-19",
       "season": "2025-2026",
+      "tournament": "league",
       "homeTeamId": "legirus-2011",
       "awayTeamId": "porohovchanin-2011",
+      "homeTeamName": "Легирус 2011",
+      "awayTeamName": "Пороховчанин 2011",
       "score": {
         "home": 1,
         "away": 1

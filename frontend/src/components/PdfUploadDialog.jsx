@@ -7,6 +7,7 @@ export default function PdfUploadDialog({ onClose, onSuccess }) {
   const inputRef = useRef(null);
   const { selectedTeamId, selectedTeam } = useTeam();
   const [file, setFile] = useState(null);
+  const [tournament, setTournament] = useState('league');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -24,10 +25,14 @@ export default function PdfUploadDialog({ onClose, onSuccess }) {
       setError('Не выбрана команда. Выберите команду в шапке и попробуйте снова.');
       return;
     }
+    if (!tournament) {
+      setError('Выберите турнир (Турнир или Кубок).');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      const res = await uploadPdf(file, selectedTeamId);
+      const res = await uploadPdf(file, selectedTeamId, tournament);
       setResult(res);
       onSuccess?.(res?.matchId);
     } catch (e) {
@@ -53,6 +58,26 @@ export default function PdfUploadDialog({ onClose, onSuccess }) {
               Команда: <b>{selectedTeam.name}</b>{selectedTeam.ageGroup ? ` · ${selectedTeam.ageGroup}` : ''}
             </p>
           )}
+
+          <div className="upload-dialog__tournament">
+            <div className="upload-dialog__tournament-label">Турнир:</div>
+            <div className="upload-dialog__tournament-buttons">
+              {[
+                { id: 'league', label: 'Турнир' },
+                { id: 'cup',    label: 'Кубок' },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={'upload-dialog__tournament-btn' + (tournament === t.id ? ' upload-dialog__tournament-btn--active' : '')}
+                  onClick={() => setTournament(t.id)}
+                  disabled={busy}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <button
             className="upload-dialog__pick"

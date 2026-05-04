@@ -69,10 +69,11 @@ export async function fetchAgentInsight(screenId, context) {
   });
 }
 
-export async function uploadPdf(file, teamId) {
+export async function uploadPdf(file, teamId, tournament) {
   const fd = new FormData();
   fd.append('file', file);
   if (teamId) fd.append('teamId', teamId);
+  if (tournament) fd.append('tournament', tournament);
   const headers = {};
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;

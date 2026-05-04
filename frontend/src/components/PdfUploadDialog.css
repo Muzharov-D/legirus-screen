@@ -51,6 +51,46 @@
   color: rgba(255,255,255,0.7);
 }
 
+.upload-dialog__tournament {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.upload-dialog__tournament-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+}
+.upload-dialog__tournament-buttons {
+  display: flex;
+  gap: 8px;
+}
+.upload-dialog__tournament-btn {
+  flex: 1;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.upload-dialog__tournament-btn:hover {
+  border-color: rgba(255, 208, 0, 0.5);
+  color: #fff;
+}
+.upload-dialog__tournament-btn--active {
+  background: linear-gradient(135deg, rgba(255, 208, 0, 0.2), rgba(255, 174, 0, 0.15));
+  border-color: #ffd000;
+  color: #ffd000;
+}
+.upload-dialog__tournament-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+
 .upload-dialog__pick {
   background: rgba(255,255,255,0.05);
   border: 1px dashed rgba(255,208,0,0.4);

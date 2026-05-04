@@ -14,17 +14,18 @@ export default function MatchList({ matches, teams, activeMatchId }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  function teamName(id) {
+  function teamName(id, fallback) {
     const t = teams?.find((x) => x.id === id);
-    return t?.shortName || t?.name || '—';
+    return t?.shortName || t?.name || fallback || '—';
   }
 
   return (
     <div className="match-list">
       <div className="match-list__title">Матчи</div>
       {(matches || []).map((m) => {
-        const home = teamName(m.homeTeamId);
-        const away = teamName(m.awayTeamId);
+        const home = teamName(m.homeTeamId, m.homeTeamName) || 'Команда';
+        const awayResolved = teamName(m.awayTeamId, m.awayTeamName);
+        const away = awayResolved === '—' ? (m.awayTeamName || 'Соперник') : awayResolved;
         const isActive = m.id === activeMatchId || pathname === `/matches/${m.id}`;
         return (
           <button

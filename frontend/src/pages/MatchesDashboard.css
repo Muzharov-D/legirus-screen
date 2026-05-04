@@ -49,6 +49,35 @@
   margin-top: 4px;
 }
 
+/* Tournament switcher */
+.tournament-switch {
+  display: inline-flex;
+  margin-top: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.tournament-switch__btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tournament-switch__btn:hover { color: #fff; }
+.tournament-switch__btn--active {
+  background: linear-gradient(135deg, #ffd000, #ffae00);
+  color: #0e0e2a;
+}
+.tournament-switch__btn--active:hover { color: #0e0e2a; }
+
 /* LAST MATCH SUMMARY */
 .matches-dashboard__last-body {
   display: flex;
