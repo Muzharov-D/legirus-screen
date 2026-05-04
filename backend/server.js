@@ -8,6 +8,7 @@ import uploadRoutes from './routes/upload.js';
 import authRoutes from './routes/auth.js';
 import { authenticate, authorize } from './middleware/auth.js';
 import { ensureMatchesDir } from './services/dataLoader.js';
+import { startStandingsCron } from './services/standingsService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,7 @@ app.use('/api/agent', authenticate, agentRoutes);
 app.use('/api/upload-pdf', authenticate, authorize('head_coach', 'team_coach'), uploadRoutes);
 
 ensureMatchesDir();
+startStandingsCron();
 
 app.listen(PORT, () => {
   console.log(`Backend listening on :${PORT}`);

@@ -88,7 +88,12 @@ export default function ClubPage() {
   const navigate = useNavigate();
   const { selectedTeam } = useTeam();
   const { canSeePlayer } = useAuth();
-  const ageGroup = String(selectedTeam?.year || '');
+  // Возраст для standings: пробуем year → парсим из id (legirus-2010 → 2010) → пустую строку
+  const ageGroup = String(
+    selectedTeam?.year
+    || (selectedTeam?.id || '').match(/(\d{4})/)?.[1]
+    || ''
+  );
 
   // Standings
   const standingsRes = useApi(
@@ -174,7 +179,9 @@ export default function ClubPage() {
         {standingsRes.loading && <div className="empty-state">Загрузка таблицы…</div>}
         {!standingsRes.loading && !standings && (
           <div className="empty-state">
-            Таблица для возраста {ageGroup || '—'} ещё не загружена. Парсер подключим, как только пришлёшь ссылку на источник.
+            Таблица для возраста <b>{ageGroup || '—'}</b> ещё не подгрузилась.
+            Парсер обновляется раз в сутки и при перезапуске сервера —
+            попробуй обновить страницу через минуту.
           </div>
         )}
         {standings && (

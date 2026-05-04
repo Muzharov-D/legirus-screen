@@ -5,7 +5,10 @@ import {
   loadMetrics,
   loadMatchesIndex,
   loadMatch,
+  loadStandings,
+  listStandings,
 } from '../services/dataLoader.js';
+import { refreshAge, refreshAll } from '../services/standingsService.js';
 
 const router = express.Router();
 
@@ -121,6 +124,50 @@ router.get('/match/:matchId', (req, res) => {
     res.json(match);
   } catch (e) {
     res.status(404).json({ error: `Матч ${req.params.matchId} не найден` });
+  }
+});
+
+// Турнирная таблица возрастной группы (Клубный зачёт)
+router.get('/standings/:ageGroup', (req, res) => {
+  try {
+    const data = loadStandings(req.params.ageGroup);
+    if (!data) return res.status(404).json({ error: `Таблица для возраста ${req.params.ageGroup} ещё не загружена` });
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get('/standings', (_req, res) => {
+  try {
+    res.json({ ageGroups: listStandings() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Ручное переобновление таблицы (только для тренеров) — полезно после правки конфига
+router.post('/standings/:ageGroup/refresh', async (req, res) => {
+  try {
+    if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
+      return res.status(403).json({ error: 'Доступ только для тренеров' });
+    }
+    const data = await refreshAge(req.params.ageGroup);
+    res.json({ ok: true, ageGroup: req.params.ageGroup, teams: data.table.length });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/standings/refresh', async (req, res) => {
+  try {
+    if (req.user?.role !== 'head_coach') {
+      return res.status(403).json({ error: 'Доступ только для главного тренера' });
+    }
+    const results = await refreshAll();
+    res.json({ ok: true, results });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 

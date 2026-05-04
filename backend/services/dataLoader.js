@@ -89,4 +89,18 @@ export function ensureMatchesDir() {
   }
 }
 
+export function loadStandings(ageGroup) {
+  const filePath = path.join(DATA_DIR, 'standings', `${ageGroup}.json`);
+  if (!fs.existsSync(filePath)) return null;
+  return readJson(filePath);
+}
+
+export function listStandings() {
+  const dir = path.join(DATA_DIR, 'standings');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => f.replace(/\.json$/, ''));
+}
+
 export const PATHS = { DATA_DIR, MATCHES_DIR };
