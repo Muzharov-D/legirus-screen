@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
-import { fetchMatch, fetchPlayers } from '../services/api';
+import { fetchMatch, fetchPlayers, fetchMatches } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
 import SectionTabs from '../components/SectionTabs';
 import FormationField from '../components/FormationField';
@@ -87,6 +87,42 @@ export default function MatchDetail() {
   const topGoals = useMemo(() => topByMetric(match?.players || [], (p) => p.stats?.attack4?.goal), [match]);
   const topAssists = useMemo(() => topByMetric(match?.players || [], (p) => p.stats?.attack1?.assist), [match]);
   const topTackles = useMemo(() => topByMetric(match?.players || [], (p) => p.stats?.defence1?.tackle), [match]);
+
+  // Накопленный сезонный средний — догружаем все матчи для сравнения с текущим
+  const matchesListRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
+  const seasonMatches = matchesListRes.data?.matches || [];
+  const seasonIdsKey = useMemo(() => seasonMatches.map((m) => m.id).join('|'), [seasonMatches]);
+  const [allMatchData, setAllMatchData] = useState([]);
+
+  useEffect(() => {
+    if (!seasonMatches.length) { setAllMatchData([]); return; }
+    let cancelled = false;
+    Promise.all(seasonMatches.map((m) => fetchMatch(m.id).catch(() => null)))
+      .then((results) => {
+        if (cancelled) return;
+        setAllMatchData(results.filter(Boolean));
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seasonIdsKey]);
+
+  const seasonAvg = useMemo(() => {
+    if (!allMatchData.length) return null;
+    const acc = { overall: [], fitness: [], attack: [], defence: [] };
+    allMatchData.forEach((m) => {
+      const t = m?.teamAvgRatings || {};
+      Object.keys(acc).forEach((k) => {
+        const v = num(t[k]);
+        if (v != null && !isNaN(v)) acc[k].push(v);
+      });
+    });
+    const out = {};
+    Object.entries(acc).forEach(([k, arr]) => {
+      out[k] = arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    });
+    out._games = allMatchData.length;
+    return out;
+  }, [allMatchData]);
 
   if (matchRes.error) return <div className="empty-state">Ошибка: {matchRes.error.message}</div>;
   if (!match) return <div className="empty-state">Загрузка матча…</div>;
@@ -197,13 +233,48 @@ export default function MatchDetail() {
               </div>
             </div>
           )}
-          <button className="card team-aggregates-cta" onClick={() => navigate('/analytics/team')}>
-            <div className="page-section-title">Командные дашборды</div>
-            <div className="team-aggregates-cta__body">
-              9 секций: удары, стандарты, владение, передачи, атаки, отборы, единоборства, прессинг, оборона
-              <span className="team-aggregates-cta__arrow">→</span>
+          {seasonAvg && (
+            <div className="card mvs">
+              <div className="page-section-title">
+                Этот матч vs средний по сезону
+                {seasonAvg._games > 1 && (
+                  <span className="mvs__hint"> · по {seasonAvg._games} матчам</span>
+                )}
+              </div>
+              <div className="mvs__list">
+                {[
+                  ['Общий', 'overall'],
+                  ['Фитнес', 'fitness'],
+                  ['Атака', 'attack'],
+                  ['Защита', 'defence'],
+                ].map(([label, key]) => {
+                  const m = num(teamRatings[key]);
+                  const s = seasonAvg[key];
+                  if (m == null || s == null) return null;
+                  const d = m - s;
+                  const dir = d > 0.1 ? 'up' : d < -0.1 ? 'down' : 'flat';
+                  const arrow = d > 0.1 ? '▲' : d < -0.1 ? '▼' : '=';
+                  return (
+                    <div className="mvs-row" key={key}>
+                      <div className="mvs-row__label">{label}</div>
+                      <div className="mvs-row__pair">
+                        <span className="mvs-row__cap">матч</span>
+                        <span className="mvs-row__val mvs-row__val--match">{m.toFixed(1)}</span>
+                      </div>
+                      <div className="mvs-row__pair">
+                        <span className="mvs-row__cap">сезон</span>
+                        <span className="mvs-row__val mvs-row__val--season">{s.toFixed(1)}</span>
+                      </div>
+                      <div className={`mvs-row__delta mvs-row__delta--${dir}`}>
+                        <span className="mvs-row__delta-arrow">{arrow}</span>
+                        <span>{d > 0 ? '+' : ''}{d.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </button>
+          )}
 
           <div className="card top-scorers">
             <div className="page-section-title">Топ по рейтингу</div>

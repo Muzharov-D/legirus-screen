@@ -220,6 +220,75 @@
   font-size: 18px;
 }
 
+/* MATCH vs SEASON */
+.mvs__hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.mvs__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.mvs-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+.mvs-row__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 700;
+}
+.mvs-row__pair {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.05;
+  gap: 1px;
+}
+.mvs-row__cap {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.4);
+}
+.mvs-row__val {
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.mvs-row__val--match  { color: #ffd000; }
+.mvs-row__val--season { color: rgba(255, 255, 255, 0.65); }
+.mvs-row__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-variant-numeric: tabular-nums;
+  min-width: 60px;
+  justify-content: center;
+}
+.mvs-row__delta--up    { color: #7cb342; background: rgba(124, 179, 66, 0.12); }
+.mvs-row__delta--down  { color: #ef5350; background: rgba(239, 83, 80, 0.12); }
+.mvs-row__delta--flat  { color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.04); }
+.mvs-row__delta-arrow  { font-size: 10px; }
+
 .top-scorers__row {
   display: flex;
   align-items: center;
@@ -291,4 +360,12 @@
   }
   /* Командные карты — 8 PNG-вырезок: на мобилке не нужны (оставляем только поле с рейтингами) */
   .match-detail__maps-card { display: none !important; }
+  /* Match vs season — 4 колонки тесновато на 360px, ужимаем */
+  .mvs-row {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .mvs-row__label { font-size: 10px; }
+  .mvs-row__val { font-size: 15px; }
+  .mvs-row__delta { font-size: 11px; padding: 2px 6px; min-width: 52px; }
 }

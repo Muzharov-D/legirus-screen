@@ -341,21 +341,34 @@
   .player-detail__maps { grid-template-columns: 1fr !important; }
   /* Скрываем «Карта пасов и ударов» — игроку на мобильном не нужно */
   .player-detail__map-card--attack { display: none !important; }
-  /* Тепловая карта — обрезаем плотнее: убираем боковые поля и пустоту вокруг поля */
+  /* Тепловая карта — обрезаем плотно по газону, скрываем легенду/брендинг по краям */
   .player-detail__map-card--heat .soccer-map__frame {
-    padding: 4px !important;
-    overflow: hidden;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    aspect-ratio: 5 / 3;
+    border-radius: 10px;
+    position: relative;
+    background: #1a6b3a;
   }
-  .player-detail__map-card--heat .soccer-map__frame img {
-    width: 118% !important;
-    height: auto !important;
+  .player-detail__map-card--heat .soccer-map__frame > img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
     max-width: none !important;
-    margin: -4% -9%;
-    object-fit: cover;
+    margin: 0 !important;
+    display: block !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    transform: scale(1.32);
+    transform-origin: center center;
+  }
+  /* Подсказка «Увеличить» — поднимаем над zoom-областью, не обрезаем transform-ом */
+  .player-detail__map-card--heat .soccer-map__zoom-hint {
+    top: 8px;
+    right: 8px;
+    opacity: 0.85;
+    z-index: 2;
   }
 }
