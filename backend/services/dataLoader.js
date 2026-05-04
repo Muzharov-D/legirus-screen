@@ -99,7 +99,7 @@ export function listStandings() {
   const dir = path.join(DATA_DIR, 'standings');
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
-    .filter((f) => f.endsWith('.json'))
+    .filter((f) => f.endsWith('.json') && !f.startsWith('_'))
     .map((f) => f.replace(/\.json$/, ''));
 }
 

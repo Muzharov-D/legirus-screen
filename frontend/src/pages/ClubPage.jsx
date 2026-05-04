@@ -27,6 +27,11 @@ function normalizeClubName(name) {
     .trim();
 }
 
+// Для отображения: "Кировского района" → "Кировского р-на"
+function displayTeamName(name) {
+  return String(name || '').replace(/\bрайона\b/gi, 'р-на');
+}
+
 const TOP_CATEGORIES = [
   { id: 'rating',   title: 'Топ-5 по рейтингу',          subtitle: 'средний за сезон',         getter: (p) => num(p.ratings?.overall),       aggregate: 'avg', digits: 2, suffix: '' },
   { id: 'goals',    title: 'Лидеры по голам',            subtitle: 'всего за сезон',           getter: (p) => num(p.stats?.attack4?.goal),   aggregate: 'sum', digits: 0, suffix: '' },
@@ -119,8 +124,10 @@ export default function ClubPage() {
     if (!ageTabAvailable && view === 'age') setView('club');
   }, [ageTabAvailable, view]);
 
-  // ----- Все матчи сезона — для агрегатов «Топ игроков» -----
-  const matchesRes = useApi(() => fetchMatches(selectedTeam?.id), [selectedTeam?.id]);
+  // ----- Все матчи КЛУБА (не только своей команды) — для агрегатов «Топ игроков» -----
+  // Без teamId фильтра: head_coach получит матчи всех команд, team_coach/player —
+  // backend всё равно режет по их teamId, что для них корректно.
+  const matchesRes = useApi(() => fetchMatches(), []);
   const matches = matchesRes.data?.matches || [];
   const matchIdsKey = useMemo(() => matches.map((m) => m.id).join('|'), [matches]);
 
@@ -231,7 +238,7 @@ export default function ClubPage() {
                     {clubStandings.map((row) => (
                       <tr key={row.club} className={row.isOurClub ? 'club-standings__row--ours' : ''}>
                         <td className="club-standings__pos">{row.pos}</td>
-                        <td className="club-standings__team">{row.club}</td>
+                        <td className="club-standings__team">{displayTeamName(row.club)}</td>
                         <td>{row.games}</td>
                         <td>{row.wins}</td>
                         <td>{row.draws}</td>
@@ -266,7 +273,7 @@ export default function ClubPage() {
                 {(ageStandings.table || []).map((row) => (
                   <tr key={row.pos} className={row.isOurClub ? 'club-standings__row--ours' : ''}>
                     <td className="club-standings__pos">{row.pos}</td>
-                    <td className="club-standings__team">{row.team}</td>
+                    <td className="club-standings__team">{displayTeamName(row.team)}</td>
                     <td>{row.games}</td>
                     <td>{row.wins}</td>
                     <td>{row.draws}</td>
