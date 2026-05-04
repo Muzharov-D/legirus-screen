@@ -48,3 +48,13 @@
   background: rgba(255, 255, 255, 0.18);
   height: 100%;
 }
+
+@media (max-width: 768px) {
+  .stat-compare { gap: 3px; padding: 3px 0; }
+  .stat-compare__row {
+    grid-template-columns: 48px 1fr 48px;
+    font-size: 12px;
+  }
+  .stat-compare__label { font-size: 10px; letter-spacing: 0.03em; }
+  .stat-compare__bar { height: 4px; }
+}

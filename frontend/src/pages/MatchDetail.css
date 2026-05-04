@@ -326,20 +326,16 @@
   .match-detail__grid { grid-template-columns: 1fr !important; gap: 12px; }
   /* Сводные рейтинги: 4 → 2 колонки */
   .match-detail__ratings { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
-  /* Лидеры: 3 → snap-scroll (видим целую карточку) */
-  .match-detail__leaders {
-    display: flex !important;
-    flex-direction: row;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 10px;
-    padding-bottom: 8px;
+  /* Лидеры матча — 3 колонки → 1 колонка стек */
+  .match-detail__breakdowns {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
-  .match-detail__leaders > * {
-    flex: 0 0 calc(100vw - 48px);
-    scroll-snap-align: start;
-  }
+  .player-breakdown__title { font-size: 11px; }
+  .player-breakdown__row { padding: 6px 8px; gap: 8px; }
+  .player-breakdown__name { font-size: 12px; }
+  .player-breakdown__pos { font-size: 10px; }
+  .player-breakdown__val { font-size: 16px; }
   /* Hero score — однострочный flex, без обрезаний */
   .match-detail__hero { grid-template-columns: 1fr !important; gap: 8px; }
   .match-detail__hero-team { justify-content: center; }
