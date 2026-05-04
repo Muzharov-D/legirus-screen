@@ -5,7 +5,7 @@ import { fetchMatches, fetchTeams, fetchMatch } from '../services/api';
 import MatchList from '../components/MatchList';
 import PdfUploadDialog from '../components/PdfUploadDialog';
 import PlayerPhoto from '../components/PlayerPhoto';
-import RatingPill from '../components/RatingPill';
+import { ratingColor, ratingTextColor } from '../utils/colors';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
 import './MatchesDashboard.css';
@@ -58,14 +58,65 @@ export default function MatchesDashboard() {
   // Сезон — берём из первого матча
   const season = matches[0]?.season || '2025-2026';
 
-  const topScorers = useMemo(() => {
-    if (!lastMatch?.players) return [];
-    return [...lastMatch.players]
-      .map((p) => ({ player: p, goals: num(p.stats?.attack4?.goal) || 0, assists: num(p.stats?.attack1?.assist) || 0 }))
-      .filter((r) => r.goals > 0 || r.assists > 0)
-      .sort((a, b) => (b.goals * 10 + b.assists) - (a.goals * 10 + a.assists))
-      .slice(0, 3);
-  }, [lastMatch]);
+  // Накопленная сезонная статистика — догружаем ВСЕ матчи (детально), считаем средний рейтинг
+  // по каждому игроку и тренд (последний матч vs среднее по предыдущим).
+  const [allMatches, setAllMatches] = useState([]);
+  const [allMatchesLoading, setAllMatchesLoading] = useState(false);
+  const matchIdsKey = useMemo(() => matches.map((m) => m.id).join('|'), [matches]);
+
+  useEffect(() => {
+    if (!matches.length) { setAllMatches([]); return; }
+    let cancelled = false;
+    setAllMatchesLoading(true);
+    Promise.all(matches.map((m) => fetchMatch(m.id).catch(() => null)))
+      .then((results) => {
+        if (cancelled) return;
+        setAllMatches(results.filter(Boolean));
+      })
+      .finally(() => { if (!cancelled) setAllMatchesLoading(false); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchIdsKey]);
+
+  const topRated = useMemo(() => {
+    if (!allMatches.length) return [];
+    const sorted = [...allMatches].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+    const byPlayer = new Map();
+    sorted.forEach((m) => {
+      (m.players || []).forEach((p) => {
+        const r = num(p.ratings?.overall);
+        if (r == null || isNaN(r)) return;
+        const e = byPlayer.get(p.id) || { player: p, ratings: [] };
+        e.player = p; // обновляем до самого свежего объекта
+        e.ratings.push(r);
+        byPlayer.set(p.id, e);
+      });
+    });
+    const list = [];
+    byPlayer.forEach(({ player, ratings }) => {
+      if (!ratings.length) return;
+      const last = ratings[ratings.length - 1];
+      const avgAll = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+      const prevSlice = ratings.slice(0, -1);
+      const avgPrev = prevSlice.length
+        ? prevSlice.reduce((a, b) => a + b, 0) / prevSlice.length
+        : null;
+      const delta = avgPrev != null ? last - avgPrev : null;
+      list.push({
+        player,
+        last,
+        avgAll,
+        avgPrev,
+        delta,
+        games: ratings.length,
+      });
+    });
+    return list
+      .sort((a, b) => b.avgAll - a.avgAll)
+      .slice(0, 5);
+  }, [allMatches]);
 
   return (
     <div className="page matches-dashboard">
@@ -134,35 +185,70 @@ export default function MatchesDashboard() {
             </div>
           </div>
 
-          {/* Топ-3 бомбардира */}
-          {topScorers.length > 0 && (
+          {/* Топ-5 по рейтингу с трендами — свайп-карусель */}
+          {topRated.length > 0 && (
             <div className="card">
-              <div className="page-section-title">Топ-3 бомбардира сезона</div>
-              <div className="matches-dashboard__scorers">
-                {topScorers.map(({ player, goals, assists }, i) => {
+              <div className="page-section-title">
+                Топ-5 по рейтингу сезона{' '}
+                <span className="topr-hint">— листайте →</span>
+              </div>
+              <div className="topr-carousel">
+                {topRated.map((row, i) => {
+                  const { player, last, avgAll, delta, games } = row;
                   const unlocked = canSeePlayer(player.id);
+                  const trendClass =
+                    delta == null ? 'topr-trend--neutral'
+                    : delta > 0.05 ? 'topr-trend--up'
+                    : delta < -0.05 ? 'topr-trend--down'
+                    : 'topr-trend--flat';
+                  const trendArrow =
+                    delta == null ? '·'
+                    : delta > 0.05 ? '▲'
+                    : delta < -0.05 ? '▼'
+                    : '=';
                   return (
-                  <div
-                    key={player.id}
-                    className={'scorer-row' + (unlocked ? '' : ' scorer-row--locked')}
-                    onClick={() => { if (unlocked) navigate(`/players/${player.id}`); }}
-                    title={unlocked ? '' : 'Доступно только тренеру'}
-                  >
-                    <span className="scorer-row__rank">{i + 1}</span>
-                    <PlayerPhoto player={player} size={42} />
-                    <div className="scorer-row__info">
-                      <div className="scorer-row__name">{player.fullName}</div>
-                      <div className="scorer-row__pos">№{player.number} · {player.positionFull || player.position}</div>
+                    <div
+                      key={player.id}
+                      className={'topr-card' + (unlocked ? '' : ' topr-card--locked')}
+                      onClick={() => { if (unlocked) navigate(`/players/${player.id}`); }}
+                      title={unlocked ? '' : 'Доступно только тренеру'}
+                    >
+                      <div className="topr-card__rank">#{i + 1}</div>
+                      <PlayerPhoto player={player} size={64} />
+                      <div className="topr-card__name">{player.fullName}</div>
+                      <div className="topr-card__pos">
+                        №{player.number} · {player.positionFull || player.position}
+                      </div>
+                      <div
+                        className="topr-card__rating"
+                        style={{
+                          background: ratingColor(avgAll),
+                          color: ratingTextColor(avgAll),
+                        }}
+                      >
+                        {avgAll.toFixed(1)}
+                      </div>
+                      <div className="topr-card__rating-label">
+                        средний за {games} {games === 1 ? 'матч' : games < 5 ? 'матча' : 'матчей'}
+                      </div>
+                      <div className={`topr-trend ${trendClass}`}>
+                        <span className="topr-trend__arrow">{trendArrow}</span>
+                        <span className="topr-trend__value">
+                          {delta == null
+                            ? 'дебют'
+                            : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`}
+                        </span>
+                      </div>
+                      <div className="topr-card__last">
+                        Последний матч: <b>{last.toFixed(1)}</b>
+                      </div>
                     </div>
-                    <div className="scorer-row__stats">
-                      <span><b>{goals}</b> Г</span>
-                      <span><b>{assists}</b> А</span>
-                    </div>
-                    <RatingPill value={player.ratings?.overall} size="sm" />
-                  </div>
                   );
                 })}
               </div>
+              {allMatchesLoading && (
+                <div className="topr-loading">Считаем накопленный рейтинг…</div>
+              )}
             </div>
           )}
 

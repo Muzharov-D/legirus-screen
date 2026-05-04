@@ -225,6 +225,136 @@
   transform: none;
 }
 
+/* TOP-5 BY RATING — свайп-карусель */
+.topr-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+
+.topr-carousel {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 4px 14px;
+  margin: 0 -4px;
+  scrollbar-width: thin;
+}
+.topr-carousel::-webkit-scrollbar { height: 6px; }
+.topr-carousel::-webkit-scrollbar-thumb {
+  background: rgba(255, 208, 0, 0.4);
+  border-radius: 3px;
+}
+
+.topr-card {
+  flex: 0 0 200px;
+  scroll-snap-align: start;
+  background: linear-gradient(160deg, rgba(26, 75, 160, 0.35), rgba(20, 20, 60, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+  position: relative;
+}
+.topr-card:hover {
+  border-color: rgba(255, 208, 0, 0.5);
+  transform: translateY(-2px);
+}
+.topr-card--locked {
+  cursor: default;
+  opacity: 0.55;
+}
+.topr-card--locked:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: none;
+}
+
+.topr-card__rank {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffd000;
+  letter-spacing: 0.05em;
+}
+
+.topr-card__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 4px;
+  line-height: 1.25;
+}
+.topr-card__pos {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.topr-card__rating {
+  font-size: 26px;
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+.topr-card__rating-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.topr-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.topr-trend--up    { color: #7cb342; background: rgba(124, 179, 66, 0.12); }
+.topr-trend--down  { color: #ef5350; background: rgba(239, 83, 80, 0.12); }
+.topr-trend--flat,
+.topr-trend--neutral { color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.04); }
+.topr-trend__arrow { font-size: 11px; }
+
+.topr-card__last {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 2px;
+}
+.topr-card__last b {
+  color: #ffd000;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.topr-loading {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  margin-top: 4px;
+}
+
 @media (max-width: 768px) {
   .matches-dashboard__hero { padding: 16px; }
   .matches-dashboard__hero-title { font-size: 22px; }
@@ -234,4 +364,7 @@
   }
   .season-stat__value { font-size: 18px; }
   .season-stat__label { font-size: 11px; }
+  /* Карусель топ-5: одна карточка на экран, аккуратный snap */
+  .topr-carousel { gap: 10px; padding: 8px 0 14px; margin: 0; }
+  .topr-card { flex: 0 0 calc(100vw - 64px); }
 }

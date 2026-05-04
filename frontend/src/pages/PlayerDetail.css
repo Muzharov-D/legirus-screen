@@ -233,7 +233,7 @@
 .splits-table__head,
 .splits-table__row {
   display: grid;
-  grid-template-columns: 2.4fr 0.7fr 0.7fr 0.7fr 0.6fr;
+  grid-template-columns: minmax(0, 2.4fr) minmax(48px, 1fr) minmax(48px, 1fr) minmax(48px, 1fr) minmax(56px, 1fr);
   gap: 8px;
   padding: 6px 12px;
   align-items: center;
@@ -246,6 +246,11 @@
   color: rgba(255, 255, 255, 0.5);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-top: 8px;
+}
+
+.splits-table__col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .splits-table__row {
@@ -334,4 +339,23 @@
   }
   /* Карты атаки/тепловая — стек */
   .player-detail__maps { grid-template-columns: 1fr !important; }
+  /* Скрываем «Карта пасов и ударов» — игроку на мобильном не нужно */
+  .player-detail__map-card--attack { display: none !important; }
+  /* Тепловая карта — обрезаем плотнее: убираем боковые поля и пустоту вокруг поля */
+  .player-detail__map-card--heat .soccer-map__frame {
+    padding: 4px !important;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .player-detail__map-card--heat .soccer-map__frame img {
+    width: 118% !important;
+    height: auto !important;
+    max-width: none !important;
+    margin: -4% -9%;
+    object-fit: cover;
+  }
 }

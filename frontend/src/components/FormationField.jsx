@@ -168,10 +168,6 @@ export default function FormationField({
                   <span className="formation__goals">⚽{s.goals > 1 ? `×${s.goals}` : ''}</span>
                 )}
               </div>
-              <div className="formation__name">
-                <span className="formation__num">#{s.number}</span>{' '}
-                {s.shortName}
-              </div>
             </div>
           );
         })}

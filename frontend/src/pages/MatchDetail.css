@@ -289,4 +289,6 @@
     text-overflow: clip !important;
     word-break: break-word;
   }
+  /* Командные карты — 8 PNG-вырезок: на мобилке не нужны (оставляем только поле с рейтингами) */
+  .match-detail__maps-card { display: none !important; }
 }

@@ -289,14 +289,14 @@ export default function PlayerDetail() {
 
       {/* MAPS */}
       <div className="player-detail__maps">
-        <div className="card">
+        <div className="card player-detail__map-card player-detail__map-card--attack">
           <SoccerFieldImageMap
             src={player.maps?.attackMap}
             title="Карта пасов и ударов"
             height={420}
           />
         </div>
-        <div className="card">
+        <div className="card player-detail__map-card player-detail__map-card--heat">
           <SoccerFieldImageMap
             src={player.maps?.fitnessHeatmap}
             title="Тепловая карта движения"
@@ -346,10 +346,10 @@ function SplitsTable({ title, keys, splits, labels }) {
       <div className="page-section-title">{title}</div>
       <div className="splits-table__head">
         <span>Метрика</span>
-        <span>Матч</span>
-        <span>1 тайм</span>
-        <span>2 тайм</span>
-        <span>Δ</span>
+        <span className="splits-table__col-num">Матч</span>
+        <span className="splits-table__col-num">1 тайм</span>
+        <span className="splits-table__col-num">2 тайм</span>
+        <span className="splits-table__col-num">Дельта</span>
       </div>
       <div className="splits-table__body">
         {keys.map((k) => {
