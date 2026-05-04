@@ -29,12 +29,12 @@
 
 .match-list__item:hover {
   background: rgba(26, 75, 160, 0.35);
-  border-color: rgba(255, 208, 0, 0.3);
+  border-color: rgba(34, 211, 238, 0.3);
 }
 
 .match-list__item--active {
   background: rgba(26, 75, 160, 0.55);
-  border-color: rgba(255, 208, 0, 0.6);
+  border-color: rgba(34, 211, 238, 0.6);
 }
 
 .match-list__date {
@@ -51,7 +51,7 @@
 }
 
 .match-list__score {
-  color: #ffd000;
+  color: #22d3ee;
   font-size: 16px;
   font-weight: 700;
   padding: 0 4px;

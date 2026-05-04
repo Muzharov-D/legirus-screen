@@ -5,7 +5,7 @@
   width: min(380px, calc(100vw - 24px));
   max-width: 100%;
   background: rgba(20, 20, 60, 0.98);
-  border: 1px solid rgba(255, 208, 0, 0.3);
+  border: 1px solid rgba(34, 211, 238, 0.3);
   border-radius: 14px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
   z-index: 100;
@@ -21,7 +21,7 @@
 
 .agent-card__title {
   font-weight: 700;
-  color: #ffd000;
+  color: #22d3ee;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   font-size: 12px;
@@ -61,7 +61,7 @@
 
 .agent-card__cta {
   margin-top: 4px;
-  background: linear-gradient(135deg, #ffd000 0%, #ffae00 100%);
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
   color: #0e0e2a;
   border: none;
   font-weight: 700;
@@ -72,7 +72,7 @@
 }
 
 .agent-card__cta--disabled {
-  background: rgba(255, 208, 0, 0.18);
+  background: rgba(34, 211, 238, 0.18);
   color: rgba(14, 14, 42, 0.5);
   cursor: not-allowed;
   filter: grayscale(0.4);

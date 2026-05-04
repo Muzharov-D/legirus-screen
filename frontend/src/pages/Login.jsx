@@ -12,14 +12,14 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  if (user) return <Navigate to="/analytics" replace />;
+  if (user) return <Navigate to="/club" replace />;
 
   async function submit(e) {
     e.preventDefault();
     setError(null); setBusy(true);
     try {
       await login(u.trim().toLowerCase(), p);
-      const from = location.state?.from?.pathname || '/analytics';
+      const from = location.state?.from?.pathname || '/club';
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || 'Ошибка входа');
@@ -31,11 +31,8 @@ export default function Login() {
       <div className="login-card">
         <div className="login-brand">
           <img src="/assets/logos/log-3_white.png" alt="АванDата" />
-          <span className="login-brand__sep">×</span>
-          <img src="/assets/logos/legirus.png" alt="ФК Легирус" />
         </div>
         <h1 className="login-title">Вход в систему</h1>
-        <div className="login-sub">Золотой профиль спортсмена</div>
         <form className="login-form" onSubmit={submit}>
           <label>Логин</label>
           <input

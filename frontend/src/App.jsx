@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import Login from './pages/Login';
 import ClubOverview from './pages/ClubOverview';
+import ClubPage from './pages/ClubPage';
 import MatchesDashboard from './pages/MatchesDashboard';
 import MatchDetail from './pages/MatchDetail';
 import ComparisonView from './pages/ComparisonView';
@@ -23,7 +24,8 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/" element={<Navigate to="/matches" replace />} />
+                <Route path="/" element={<Navigate to="/club" replace />} />
+                <Route path="/club" element={<ClubPage />} />
                 <Route path="/analytics" element={<ClubOverview />} />
                 <Route path="/analytics/team" element={<ComparisonView />} />
                 <Route path="/matches" element={<MatchesDashboard />} />
@@ -31,7 +33,7 @@ export default function App() {
                 <Route path="/players" element={<PlayersLeaders />} />
                 <Route path="/players/rating" element={<PlayersRating />} />
                 <Route path="/players/:playerId" element={<PlayerDetail />} />
-                <Route path="*" element={<Navigate to="/matches" replace />} />
+                <Route path="*" element={<Navigate to="/club" replace />} />
               </Route>
             </Routes>
           </TeamProvider>

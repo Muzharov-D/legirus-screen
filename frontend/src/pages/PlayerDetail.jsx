@@ -73,7 +73,7 @@ const HALFTIME_KEYS = [
   'Sprint forward', 'Recovery', 'Goal actions', 'Interception', 'Cross', 'Duel',
 ];
 
-const RADAR_PALETTE = ['#ffd000', '#7cb342', '#42a5f5', '#ef5350', '#ab47bc', '#26a69a', '#ff9800', '#03a9f4'];
+const RADAR_PALETTE = ['#22d3ee', '#7cb342', '#42a5f5', '#ef5350', '#ab47bc', '#26a69a', '#ff9800', '#03a9f4'];
 
 function num(v) {
   if (v === null || v === undefined) return null;
@@ -246,7 +246,7 @@ export default function PlayerDetail() {
           {radarAxes.length ? (
             <RadarChart
               axes={radarAxes}
-              series={[{ name: player.lastName || player.fullName, values: player.radar || {}, color: '#ffd000' }]}
+              series={[{ name: player.lastName || player.fullName, values: player.radar || {}, color: '#22d3ee' }]}
               max={10}
               height={420}
             />
@@ -259,7 +259,7 @@ export default function PlayerDetail() {
             axes={ratingAxes}
             series={[
               { name: 'Команда (среднее)', values: teamAvg, color: '#7e7eff', fillOpacity: 0.18 },
-              { name: player.lastName || player.fullName, values: ratings, color: '#ffd000', fillOpacity: 0.35 },
+              { name: player.lastName || player.fullName, values: ratings, color: '#22d3ee', fillOpacity: 0.35 },
             ]}
             max={10}
             height={320}
@@ -278,7 +278,7 @@ export default function PlayerDetail() {
             series={samePos.map((p, i) => ({
               name: `${p.lastName} (${p.ratings?.overall ?? '—'})`,
               values: p.ratings || {},
-              color: p.id === player.id ? '#ffd000' : RADAR_PALETTE[(i + 1) % RADAR_PALETTE.length],
+              color: p.id === player.id ? '#22d3ee' : RADAR_PALETTE[(i + 1) % RADAR_PALETTE.length],
               fillOpacity: p.id === player.id ? 0.4 : 0.08,
             }))}
             max={10}

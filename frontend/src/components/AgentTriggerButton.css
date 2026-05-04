@@ -6,14 +6,14 @@
   align-items: center;
   gap: 8px;
   padding: 12px 18px;
-  background: linear-gradient(135deg, #ffd000 0%, #ffae00 100%);
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
   color: #0e0e2a;
   font-weight: 700;
   font-size: 14px;
   border: none;
   border-radius: 24px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(255, 208, 0, 0.35);
+  box-shadow: 0 6px 18px rgba(34, 211, 238, 0.35);
   z-index: 50;
 }
 
@@ -27,7 +27,7 @@
     padding: 8px 14px !important;
     font-size: 12px !important;
     border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(255, 208, 0, 0.35);
+    box-shadow: 0 4px 12px rgba(34, 211, 238, 0.35);
   }
   .agent-trigger__bolt { font-size: 14px !important; }
   .agent-trigger span:not(.agent-trigger__bolt) {

@@ -27,7 +27,7 @@
 }
 
 .app-header__brand-sep {
-  color: rgba(255, 208, 0, 0.7);
+  color: rgba(34, 211, 238, 0.7);
   font-size: 22px;
   font-weight: 200;
   margin: 0 2px;
@@ -55,7 +55,7 @@
 
 .app-header__brand-sub {
   font-size: 11px;
-  color: rgba(255, 208, 0, 0.75);
+  color: rgba(34, 211, 238, 0.75);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-top: 2px;
@@ -80,9 +80,9 @@
 
 .app-header__team-selector--switchable {
   padding: 0;
-  background: linear-gradient(135deg, rgba(255, 208, 0, 0.18), rgba(26, 75, 160, 0.18));
-  border: 1px solid rgba(255, 208, 0, 0.35);
-  box-shadow: 0 0 8px rgba(255, 208, 0, 0.12);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(26, 75, 160, 0.18));
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.12);
 }
 
 .app-header__team-name {
@@ -106,17 +106,17 @@
   border-radius: 8px;
   cursor: pointer;
   outline: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='%23ffd000' d='M1 3l4 4 4-4z'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='%2322d3ee' d='M1 3l4 4 4-4z'/></svg>");
   background-repeat: no-repeat;
   background-position: right 10px center;
 }
 
 .app-header__team-select:hover {
-  background-color: rgba(255, 208, 0, 0.08);
+  background-color: rgba(34, 211, 238, 0.08);
 }
 
 .app-header__team-select:focus {
-  box-shadow: 0 0 0 2px rgba(255, 208, 0, 0.4);
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.4);
 }
 
 .app-header__team-select option {
@@ -141,9 +141,9 @@
 }
 
 .app-header__btn--refresh:hover {
-  color: #ffd000;
-  background: rgba(255, 208, 0, 0.12);
-  box-shadow: 0 0 6px rgba(255, 208, 0, 0.25);
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.12);
+  box-shadow: 0 0 6px rgba(34, 211, 238, 0.25);
 }
 .app-header__btn--refresh:active { transform: rotate(180deg); }
 
@@ -157,7 +157,7 @@
 .app-header__user-name { font-size: 13px; color: #fff; font-weight: 600; }
 .app-header__user-role {
   font-size: 10px;
-  color: rgba(255, 208, 0, 0.7);
+  color: rgba(34, 211, 238, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -165,7 +165,7 @@
   cursor: pointer;
   color: rgba(255, 255, 255, 0.85);
 }
-.app-header__btn--logout:hover { color: #ffd000; background: rgba(255, 208, 0, 0.1); }
+.app-header__btn--logout:hover { color: #22d3ee; background: rgba(34, 211, 238, 0.1); }
 
 .app-header__burger {
   display: none;

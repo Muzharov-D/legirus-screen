@@ -31,7 +31,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: rgba(255, 208, 0, 0.85);
+  color: rgba(34, 211, 238, 0.85);
   font-weight: 700;
   margin-bottom: 4px;
 }
@@ -73,7 +73,7 @@
 }
 .tournament-switch__btn:hover { color: #fff; }
 .tournament-switch__btn--active {
-  background: linear-gradient(135deg, #ffd000, #ffae00);
+  background: linear-gradient(135deg, #22d3ee, #3b82f6);
   color: #0e0e2a;
 }
 .tournament-switch__btn--active:hover { color: #0e0e2a; }
@@ -120,7 +120,7 @@
   color: rgba(255, 255, 255, 0.85);
   font-variant-numeric: tabular-nums;
 }
-.matches-dashboard__last-score .win { color: #ffd000; }
+.matches-dashboard__last-score .win { color: #22d3ee; }
 .matches-dashboard__last-score .sep { color: rgba(255, 255, 255, 0.3); }
 .matches-dashboard__last-btn {
   align-self: flex-start;
@@ -160,13 +160,13 @@
   transition: border-color 0.15s, transform 0.15s;
 }
 .scorer-row:hover {
-  border-color: rgba(255, 208, 0, 0.4);
+  border-color: rgba(34, 211, 238, 0.4);
   transform: translateX(2px);
 }
 .scorer-row__rank {
   font-size: 14px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
   text-align: center;
 }
 .scorer-row__name { font-size: 14px; font-weight: 700; color: #fff; }
@@ -178,13 +178,13 @@
   color: rgba(255, 255, 255, 0.6);
 }
 .scorer-row__stats b {
-  color: #ffd000;
+  color: #22d3ee;
   font-weight: 800;
   font-size: 16px;
 }
 
 .matches-dashboard__upload {
-  background: linear-gradient(135deg, #ffd000, #ffae00);
+  background: linear-gradient(135deg, #22d3ee, #3b82f6);
   color: #0e0e2a;
   border: none;
   font-weight: 700;
@@ -227,7 +227,7 @@
 .season-stat__value {
   font-size: 32px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
 }
 .season-stat__label {
   font-size: 11px;
@@ -242,7 +242,7 @@
   line-height: 1.55;
   color: rgba(255,255,255,0.7);
 }
-.matches-dashboard__hint b { color: #ffd000; }
+.matches-dashboard__hint b { color: #22d3ee; }
 
 .scorer-row--locked {
   cursor: default;
@@ -277,7 +277,7 @@
 }
 .topr-carousel::-webkit-scrollbar { height: 6px; }
 .topr-carousel::-webkit-scrollbar-thumb {
-  background: rgba(255, 208, 0, 0.4);
+  background: rgba(34, 211, 238, 0.4);
   border-radius: 3px;
 }
 
@@ -298,7 +298,7 @@
   position: relative;
 }
 .topr-card:hover {
-  border-color: rgba(255, 208, 0, 0.5);
+  border-color: rgba(34, 211, 238, 0.5);
   transform: translateY(-2px);
 }
 .topr-card--locked {
@@ -316,7 +316,7 @@
   left: 12px;
   font-size: 11px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
   letter-spacing: 0.05em;
 }
 
@@ -372,7 +372,7 @@
   margin-top: 2px;
 }
 .topr-card__last b {
-  color: #ffd000;
+  color: #22d3ee;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }

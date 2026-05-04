@@ -188,7 +188,7 @@ export default function PlayersRating() {
                       width: max > 0 && typeof value === 'number' && !isNaN(value)
                         ? `${Math.max(0, Math.min(100, (value / max) * 100))}%`
                         : '0%',
-                      background: isPrimary ? ratingColor(value) : 'linear-gradient(90deg, #2c66c7, #ffd000)',
+                      background: isPrimary ? ratingColor(value) : 'linear-gradient(90deg, #2c66c7, #22d3ee)',
                     }}
                   />
                 </div>

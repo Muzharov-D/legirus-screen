@@ -21,8 +21,8 @@
 }
 
 .player-detail__back:hover {
-  background: rgba(255, 208, 0, 0.15);
-  border-color: rgba(255, 208, 0, 0.5);
+  background: rgba(34, 211, 238, 0.15);
+  border-color: rgba(34, 211, 238, 0.5);
 }
 
 .player-detail__download {
@@ -51,11 +51,11 @@
   padding: 8px 14px;
   border-radius: 999px;
   background: linear-gradient(135deg, rgba(26, 75, 160, 0.4), rgba(20, 20, 60, 0.6));
-  border: 1px solid rgba(255, 208, 0, 0.25);
+  border: 1px solid rgba(34, 211, 238, 0.25);
 }
 .badge--rank-1 {
-  background: linear-gradient(135deg, rgba(184, 134, 11, 0.45), rgba(255, 208, 0, 0.25));
-  border-color: rgba(255, 208, 0, 0.6);
+  background: linear-gradient(135deg, rgba(184, 134, 11, 0.45), rgba(34, 211, 238, 0.25));
+  border-color: rgba(34, 211, 238, 0.6);
 }
 .badge--rank-2 {
   background: linear-gradient(135deg, rgba(120, 144, 156, 0.4), rgba(20, 20, 60, 0.6));
@@ -76,7 +76,7 @@
 .badge__value {
   font-size: 16px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
   font-variant-numeric: tabular-nums;
 }
 
@@ -103,8 +103,8 @@
   transition: border-color 0.15s, background 0.15s;
 }
 .player-detail__line-pair--leader:hover {
-  border-color: rgba(255, 208, 0, 0.4);
-  background: rgba(255, 208, 0, 0.06);
+  border-color: rgba(34, 211, 238, 0.4);
+  background: rgba(34, 211, 238, 0.06);
 }
 .player-detail__line-name { font-size: 14px; font-weight: 700; color: #fff; }
 .player-detail__line-pos {
@@ -165,7 +165,7 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-.player-detail__hero-meta b { color: #ffd000; font-weight: 700; }
+.player-detail__hero-meta b { color: #22d3ee; font-weight: 700; }
 
 .player-detail__hero-rating {
   display: flex;
@@ -220,7 +220,7 @@
 .fitness-cell__value {
   font-size: 22px;
   font-weight: 700;
-  color: #ffd000;
+  color: #22d3ee;
 }
 
 .fitness-cell__label {
@@ -273,7 +273,7 @@
 }
 
 .splits-table__val--match {
-  color: #ffd000;
+  color: #22d3ee;
   font-weight: 600;
 }
 

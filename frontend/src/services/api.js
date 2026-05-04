@@ -60,6 +60,7 @@ export const fetchMatches = (teamId) =>
   fetchJson(`/data/matches${teamId ? `?teamId=${encodeURIComponent(teamId)}` : ''}`);
 export const fetchMatch = (id) => fetchJson(`/data/match/${id}`);
 export const fetchMetrics = () => fetchJson('/data/metrics');
+export const fetchStandings = (ageGroup) => fetchJson(`/data/standings/${encodeURIComponent(ageGroup)}`);
 
 export async function fetchAgentInsight(screenId, context) {
   return fetchJson('/agent/insight', {

@@ -1,0 +1,207 @@
+.club-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+/* HERO */
+.club-page__hero {
+  position: relative;
+  padding: 28px 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    linear-gradient(120deg, rgba(8, 8, 32, 0.85) 0%, rgba(26, 75, 160, 0.55) 60%, rgba(8, 8, 32, 0.55) 100%),
+    url('/assets/logos/fon-3_Монтажная область 1.jpg') center / cover no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.club-page__hero-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(34, 211, 238, 0.85);
+  font-weight: 700;
+}
+.club-page__hero-title {
+  margin: 4px 0 6px;
+  font-size: 34px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+}
+.club-page__hero-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* STANDINGS */
+.club-standings__hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+.club-standings__wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 6px;
+}
+.club-standings__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 480px;
+}
+.club-standings__table thead th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+.club-standings__table thead th:nth-child(2) { text-align: left; }
+.club-standings__table tbody td {
+  padding: 10px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+}
+.club-standings__table tbody td:nth-child(2) { text-align: left; }
+.club-standings__table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+.club-standings__pos {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+.club-standings__team { font-weight: 600; }
+.club-standings__gd { color: rgba(255, 255, 255, 0.6); font-size: 12px; }
+.club-standings__pts {
+  font-weight: 800;
+  color: #22d3ee;
+  font-size: 15px;
+}
+.club-standings__row--ours {
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.12), rgba(26, 75, 160, 0.18));
+}
+.club-standings__row--ours td { color: #fff; }
+.club-standings__row--ours .club-standings__pos { color: #22d3ee; }
+
+.club-standings__updated {
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.02em;
+}
+
+/* TOP PLAYERS */
+.club-top-title { margin-top: 8px; }
+
+.club-top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.club-top-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.club-top-card__head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+.club-top-card__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.club-top-card__sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+.club-top-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.club-top-row {
+  display: grid;
+  grid-template-columns: 22px auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.club-top-row:hover {
+  background: rgba(34, 211, 238, 0.06);
+  transform: translateX(2px);
+}
+.club-top-row--locked {
+  cursor: default;
+  opacity: 0.55;
+}
+.club-top-row--locked:hover {
+  background: transparent;
+  transform: none;
+}
+.club-top-row__rank {
+  font-size: 13px;
+  font-weight: 800;
+  color: #22d3ee;
+  text-align: center;
+}
+.club-top-row__info { min-width: 0; }
+.club-top-row__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.club-top-row__pos {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 1px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.club-top-row__value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #22d3ee;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.club-top-row__pill {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .club-page__hero { padding: 18px 16px; border-radius: 12px; }
+  .club-page__hero-title { font-size: 24px; }
+  .club-top-grid { grid-template-columns: 1fr; gap: 10px; }
+  .club-standings__table { font-size: 12px; min-width: 420px; }
+  .club-standings__pts { font-size: 14px; }
+}

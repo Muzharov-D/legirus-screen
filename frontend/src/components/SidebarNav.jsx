@@ -8,6 +8,7 @@ export default function SidebarNav() {
   const { user, isPlayer } = useAuth();
 
   const navItems = [
+    { id: 'club',      label: 'Мой КЛУБ',  path: '/club',      icon: '🏆' },
     { id: 'analytics', label: 'Аналитика', path: '/analytics', icon: '◉' },
     { id: 'matches',   label: 'Матч',      path: '/matches',   icon: '⚽' },
     isPlayer && user?.playerId
@@ -16,6 +17,7 @@ export default function SidebarNav() {
   ];
 
   function isActive(item) {
+    if (item.id === 'club')      return pathname === '/club' || pathname === '/';
     if (item.id === 'analytics') return pathname.startsWith('/analytics');
     if (item.id === 'matches')   return pathname.startsWith('/matches');
     if (item.id === 'me')        return pathname === item.path;

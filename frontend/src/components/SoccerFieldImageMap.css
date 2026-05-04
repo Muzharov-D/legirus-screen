@@ -37,11 +37,11 @@
   transition: box-shadow 0.15s, transform 0.15s;
 }
 .soccer-map__frame--clickable:hover {
-  box-shadow: 0 0 0 2px rgba(255, 208, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.5);
   transform: translateY(-1px);
 }
 .soccer-map__frame--clickable:focus-visible {
-  outline: 2px solid #ffd000;
+  outline: 2px solid #22d3ee;
   outline-offset: 2px;
 }
 
@@ -100,11 +100,11 @@
   transition: background 0.15s, color 0.15s;
 }
 .soccer-map__lightbox-close:hover {
-  background: rgba(255, 208, 0, 0.18);
-  color: #ffd000;
+  background: rgba(34, 211, 238, 0.18);
+  color: #22d3ee;
 }
 .soccer-map__lightbox-title {
-  color: #ffd000;
+  color: #22d3ee;
   font-size: 16px;
   font-weight: 700;
   text-transform: uppercase;

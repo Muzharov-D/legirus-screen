@@ -10,7 +10,7 @@
   transition: border-color 0.15s, background 0.15s;
 }
 .leader-card:hover {
-  border-color: rgba(255, 208, 0, 0.4);
+  border-color: rgba(34, 211, 238, 0.4);
   background: rgba(26, 75, 160, 0.4);
 }
 .leader-card__label {
@@ -41,7 +41,7 @@
 .leader-card__value {
   font-size: 22px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
 }
 .leader-card__empty {
   flex: 1;

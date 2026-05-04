@@ -40,7 +40,7 @@
   width: 56px; height: 56px;
   border-radius: 50%;
   background: linear-gradient(135deg, #1a4ba0, #0a2860);
-  color: #ffd000;
+  color: #22d3ee;
   font-weight: 800;
   font-size: 24px;
   display: flex;
@@ -69,7 +69,7 @@
 .match-detail__score {
   font-size: 48px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
   line-height: 1;
 }
 .match-detail__status {
@@ -165,13 +165,13 @@
   transition: background 0.12s, transform 0.12s;
 }
 .player-breakdown__row:hover {
-  background: rgba(255, 208, 0, 0.08);
+  background: rgba(34, 211, 238, 0.08);
   transform: translateX(2px);
 }
 .player-breakdown__rank {
   font-size: 13px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
   text-align: center;
 }
 .player-breakdown__name { font-size: 13px; font-weight: 700; color: #fff; }
@@ -179,7 +179,7 @@
 .player-breakdown__val {
   font-size: 18px;
   font-weight: 800;
-  color: #ffd000;
+  color: #22d3ee;
   font-variant-numeric: tabular-nums;
 }
 
@@ -203,10 +203,10 @@
   cursor: pointer;
   text-align: left;
   background: linear-gradient(135deg, rgba(26,75,160,0.5), rgba(20,20,60,0.7));
-  border: 1px solid rgba(255,208,0,0.2);
+  border: 1px solid rgba(34, 211, 238, 0.2);
   color: #fff;
 }
-.team-aggregates-cta:hover { border-color: rgba(255,208,0,0.6); }
+.team-aggregates-cta:hover { border-color: rgba(34, 211, 238, 0.6); }
 .team-aggregates-cta__body {
   font-size: 13px;
   line-height: 1.45;
@@ -216,7 +216,7 @@
   gap: 10px;
 }
 .team-aggregates-cta__arrow {
-  color: #ffd000;
+  color: #22d3ee;
   font-size: 18px;
 }
 
@@ -269,7 +269,7 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
-.mvs-row__val--match  { color: #ffd000; }
+.mvs-row__val--match  { color: #22d3ee; }
 .mvs-row__val--season { color: rgba(255, 255, 255, 0.65); }
 .mvs-row__delta {
   display: inline-flex;

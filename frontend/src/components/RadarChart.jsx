@@ -2,7 +2,7 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend,
 } from 'recharts';
 
-const COLORS = ['#ffd000', '#7cb342', '#42a5f5', '#ef5350', '#ab47bc', '#26a69a'];
+const COLORS = ['#22d3ee', '#7cb342', '#42a5f5', '#ef5350', '#ab47bc', '#26a69a'];
 
 export default function RadarChartCard({ axes, series, max = 10, height = 360 }) {
   // axes: [{ key, label }]
@@ -34,8 +34,8 @@ export default function RadarChartCard({ axes, series, max = 10, height = 360 })
             />
           ))}
           <Tooltip
-            contentStyle={{ background: '#14143c', border: '1px solid rgba(255,208,0,0.3)', borderRadius: 8 }}
-            labelStyle={{ color: '#ffd000', fontWeight: 700 }}
+            contentStyle={{ background: '#14143c', border: '1px solid rgba(34, 211, 238, 0.3)', borderRadius: 8 }}
+            labelStyle={{ color: '#22d3ee', fontWeight: 700 }}
           />
           {series.length > 1 && (
             <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }} />

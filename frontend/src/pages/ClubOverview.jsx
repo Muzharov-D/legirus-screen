@@ -323,7 +323,7 @@ export default function ClubOverview() {
                 ['Передачи в финальную треть', num(match?.teamAggregates?.passes?.toFinalThird), 80],
                 ['Угловые',                    num(home.corners?.total),                         10],
                 ['Кроссы',                     num(match?.teamAggregates?.passes?.crosses),      30],
-              ]} colorFn={() => '#ffd000'} />
+              ]} colorFn={() => '#22d3ee'} />
             </div>
             <div className="card">
               <div className="page-section-title">Оборона</div>

@@ -15,25 +15,26 @@
   width: min(420px, calc(100vw - 24px));
   max-width: 100%;
   background: rgba(20, 20, 60, 0.85);
-  border: 1px solid rgba(255, 208, 0, 0.25);
+  border: 1px solid rgba(34, 211, 238, 0.25);
   border-radius: 14px;
   padding: 32px 32px 28px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
 }
 .login-brand {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 18px;
-}
-.login-brand img { height: 36px; width: auto; }
-.login-brand__sep { color: rgba(255, 208, 0, 0.7); font-size: 22px; }
-.login-title { font-size: 22px; font-weight: 800; margin: 6px 0 4px; }
-.login-sub {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(255, 208, 0, 0.7);
+  display: flex; align-items: center; justify-content: center;
   margin-bottom: 22px;
+}
+.login-brand img {
+  height: 56px;
+  width: auto;
+  filter: drop-shadow(0 0 12px rgba(50, 110, 255, 0.35));
+}
+.login-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 6px 0 22px;
+  text-align: center;
 }
 .login-form { display: flex; flex-direction: column; gap: 8px; }
 .login-form label {
@@ -53,10 +54,10 @@
   font-family: inherit;
   outline: none;
 }
-.login-form input:focus { border-color: rgba(255, 208, 0, 0.5); }
+.login-form input:focus { border-color: rgba(34, 211, 238, 0.5); }
 .login-form button {
   margin-top: 14px;
-  background: linear-gradient(135deg, #ffd000 0%, #ffae00 100%);
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
   color: #0e0e2a;
   border: none;
   font-weight: 800;

@@ -9,7 +9,7 @@ function num(v) {
   return Number(v) || 0;
 }
 
-const COLOR_FIRST = '#ffd000';   // 1 тайм — клубный жёлтый
+const COLOR_FIRST = '#22d3ee';   // 1 тайм — клубный жёлтый
 const COLOR_SECOND = '#5b6ee3';  // 2 тайм — синий
 
 export default function HalfTimeBars({ splits, metrics, metricLabels, title = '1 тайм vs 2 тайм' }) {
@@ -57,7 +57,7 @@ export default function HalfTimeBars({ splits, metrics, metricLabels, title = '1
           <Tooltip
             contentStyle={{
               background: '#14143c',
-              border: '1px solid rgba(255,208,0,0.3)',
+              border: '1px solid rgba(34, 211, 238, 0.3)',
               borderRadius: 8,
               color: '#fff',
               fontSize: 12,

@@ -47,13 +47,13 @@
 
 .sidebar-nav__item--active {
   background: rgba(26, 75, 160, 0.5);
-  color: #ffd000;
-  border-color: rgba(255, 208, 0, 0.4);
+  color: #22d3ee;
+  border-color: rgba(34, 211, 238, 0.4);
 }
 
 .sidebar-nav__item--active::before {
-  background: linear-gradient(180deg, #2c66c7 0%, #ffd000 100%);
-  box-shadow: 0 0 8px rgba(255, 208, 0, 0.5);
+  background: linear-gradient(180deg, #2c66c7 0%, #22d3ee 100%);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
 }
 
 .sidebar-nav__icon {
