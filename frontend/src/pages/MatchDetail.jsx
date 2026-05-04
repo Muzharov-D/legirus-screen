@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { fetchMatch, fetchPlayers, fetchMatches } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
-import SectionTabs from '../components/SectionTabs';
 import FormationField from '../components/FormationField';
 import StatCompareBar from '../components/StatCompareBar';
 import DonutComparisonCard from '../components/DonutComparisonCard';
@@ -12,11 +11,6 @@ import RatingPill from '../components/RatingPill';
 import RatingCard from '../components/RatingCard';
 import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
 import './MatchDetail.css';
-
-const TABS = [
-  { id: 'overall', label: 'Общее' },
-  { id: 'mine', label: 'Моя команда' },
-];
 
 const SECTION_MAPS = [
   { id: 'shooting',              title: 'Удары' },
@@ -64,7 +58,6 @@ function topByMetric(players, getter, n = 3) {
 export default function MatchDetail() {
   const { matchId } = useParams();
   const navigate = useNavigate();
-  const [tab, setTab] = useState('overall');
 
   const { selectedTeamId } = useTeam();
   const matchRes = useApi(() => fetchMatch(matchId), [matchId]);
@@ -131,7 +124,6 @@ export default function MatchDetail() {
     <div className="page match-detail">
       <div className="match-detail__topbar">
         <button className="match-detail__back" onClick={() => navigate('/matches')}>← К матчам</button>
-        <SectionTabs tabs={TABS} active={tab} onChange={setTab} />
       </div>
 
       {/* HERO: счёт и команды */}
@@ -178,36 +170,32 @@ export default function MatchDetail() {
         </div>
 
         <div className="match-detail__center">
-          {tab === 'overall' && (
-            <div className="card">
-              <div className="page-section-title">Командная статистика</div>
-              <div className="match-detail__stats">
-                <StatCompareBar label="Владение" home={home.possessionPct + '%'} away={away.possessionPct + '%'} />
-                <StatCompareBar label="Удары" home={home.shots?.total} away={away.shots?.total} />
-                <StatCompareBar label="Удары в створ" home={home.shots?.onTarget} away={away.shots?.onTarget} />
-                <StatCompareBar label="xG" home={home.expectedGoals} away={away.expectedGoals} />
-                <StatCompareBar label="Передачи" home={home.passes?.total} away={away.passes?.total} />
-                <StatCompareBar label="Точные передачи" home={home.passes?.successful} away={away.passes?.successful} />
-                <StatCompareBar label="Удары со штрафных" home={home.freeKickShots} away={away.freeKickShots} />
-                <StatCompareBar label="Угловые" home={home.corners?.total} away={away.corners?.total} />
-                <StatCompareBar label="Нарушения" home={home.fouls} away={away.fouls} />
-                <StatCompareBar label="Жёлтые карточки" home={home.yellowCards} away={away.yellowCards} />
-                <StatCompareBar label="Красные карточки" home={home.redCards} away={away.redCards} />
-                <StatCompareBar label="Офсайды" home={home.offsides} away={away.offsides} />
-              </div>
+          <div className="card">
+            <div className="page-section-title">Командная статистика</div>
+            <div className="match-detail__stats">
+              <StatCompareBar label="Владение" home={home.possessionPct + '%'} away={away.possessionPct + '%'} />
+              <StatCompareBar label="Удары" home={home.shots?.total} away={away.shots?.total} />
+              <StatCompareBar label="Удары в створ" home={home.shots?.onTarget} away={away.shots?.onTarget} />
+              <StatCompareBar label="xG" home={home.expectedGoals} away={away.expectedGoals} />
+              <StatCompareBar label="Передачи" home={home.passes?.total} away={away.passes?.total} />
+              <StatCompareBar label="Точные передачи" home={home.passes?.successful} away={away.passes?.successful} />
+              <StatCompareBar label="Удары со штрафных" home={home.freeKickShots} away={away.freeKickShots} />
+              <StatCompareBar label="Угловые" home={home.corners?.total} away={away.corners?.total} />
+              <StatCompareBar label="Нарушения" home={home.fouls} away={away.fouls} />
+              <StatCompareBar label="Жёлтые карточки" home={home.yellowCards} away={away.yellowCards} />
+              <StatCompareBar label="Красные карточки" home={home.redCards} away={away.redCards} />
+              <StatCompareBar label="Офсайды" home={home.offsides} away={away.offsides} />
             </div>
-          )}
+          </div>
 
-          {tab === 'mine' && (
-            <div className="card">
-              <div className="page-section-title">Лидеры матча — наша команда</div>
-              <div className="match-detail__breakdowns">
-                <PlayerBreakdown title="Голы" rows={topGoals} navigate={navigate} />
-                <PlayerBreakdown title="Ассисты" rows={topAssists} navigate={navigate} />
-                <PlayerBreakdown title="Отборы" rows={topTackles} navigate={navigate} />
-              </div>
+          <div className="card">
+            <div className="page-section-title">Лидеры матча — наша команда</div>
+            <div className="match-detail__breakdowns">
+              <PlayerBreakdown title="Голы" rows={topGoals} navigate={navigate} />
+              <PlayerBreakdown title="Ассисты" rows={topAssists} navigate={navigate} />
+              <PlayerBreakdown title="Отборы" rows={topTackles} navigate={navigate} />
             </div>
-          )}
+          </div>
 
           <div className="match-detail__donuts">
             <DonutComparisonCard label="Удары в створ" home={home.shots?.onTarget} away={away.shots?.onTarget} />

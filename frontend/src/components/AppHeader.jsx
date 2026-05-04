@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
 import './AppHeader.css';
@@ -11,7 +10,6 @@ const ROLE_LABELS = {
 };
 
 export default function AppHeader() {
-  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { teams, selectedTeam, selectedTeamId, select } = useTeam();
   const canSwitch = user?.role === 'head_coach';
@@ -22,22 +20,12 @@ export default function AppHeader() {
 
   return (
     <header className={'app-header' + (mobileMenuOpen ? ' app-header--menu-open' : '')}>
-      <div className="app-header__left" onClick={() => { closeMenu(); navigate('/analytics'); }}>
+      <div className="app-header__left">
         <img
           src="/assets/logos/log-3_white.png"
           alt="АванDата"
           className="app-header__brand-logo"
         />
-        <span className="app-header__brand-sep">×</span>
-        <img
-          src="/assets/logos/legirus.png"
-          alt="ФК Легирус"
-          className="app-header__club-logo"
-        />
-        <div className="app-header__brand-text">
-          <span className="app-header__brand-club">ФК Легирус</span>
-          <span className="app-header__brand-sub">Золотой профиль спортсмена</span>
-        </div>
       </div>
       <button
         className="app-header__burger"
