@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
-import { fetchMatches, fetchMatch, fetchStandings } from '../services/api';
+import { fetchMatches, fetchMatch, fetchStandings, fetchStandingsList } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
 import { useAuth } from '../contexts/AuthContext';
 import PlayerPhoto from '../components/PlayerPhoto';
@@ -18,76 +18,30 @@ function num(v) {
   return Number(v);
 }
 
+// «Легирус (ЦФКСиЗ ВО)» → «Легирус», «ГБУ ДО СШОР Кировского района» → «СШОР Кировского района»
+function normalizeClubName(name) {
+  return String(name || '')
+    .replace(/\s*\([^)]*\)\s*/g, ' ')   // выкидываем скобки с пометками
+    .replace(/^ГБУ\s+ДО\s+/i, '')       // организационная приставка
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 const TOP_CATEGORIES = [
-  {
-    id: 'rating',
-    title: 'Топ-5 по рейтингу',
-    subtitle: 'средний за сезон',
-    getter: (p) => num(p.ratings?.overall),
-    aggregate: 'avg',
-    digits: 2,
-    suffix: '',
-  },
-  {
-    id: 'goals',
-    title: 'Лидеры по голам',
-    subtitle: 'всего за сезон',
-    getter: (p) => num(p.stats?.attack4?.goal),
-    aggregate: 'sum',
-    digits: 0,
-    suffix: '',
-  },
-  {
-    id: 'assists',
-    title: 'Лидеры по ассистам',
-    subtitle: 'всего за сезон',
-    getter: (p) => num(p.stats?.attack1?.assist),
-    aggregate: 'sum',
-    digits: 0,
-    suffix: '',
-  },
-  {
-    id: 'xg',
-    title: 'Лидеры по xG',
-    subtitle: 'сумма ожидаемых голов',
-    getter: (p) => num(p.stats?.attack1?.xG),
-    aggregate: 'sum',
-    digits: 2,
-    suffix: '',
-  },
-  {
-    id: 'xa',
-    title: 'Лидеры по xA',
-    subtitle: 'сумма ожидаемых ассистов',
-    getter: (p) => num(p.stats?.attack1?.xA),
-    aggregate: 'sum',
-    digits: 2,
-    suffix: '',
-  },
-  {
-    id: 'fitness',
-    title: 'Топ по фитнес-рейтингу',
-    subtitle: 'средний за сезон',
-    getter: (p) => num(p.ratings?.fitness),
-    aggregate: 'avg',
-    digits: 2,
-    suffix: '',
-  },
-  {
-    id: 'distance',
-    title: 'Лидеры по пробегу',
-    subtitle: 'средний за матч',
-    getter: (p) => num(p.stats?.fitness?.totalDistance),
-    aggregate: 'avg',
-    digits: 0,
-    suffix: ' м',
-  },
+  { id: 'rating',   title: 'Топ-5 по рейтингу',          subtitle: 'средний за сезон',         getter: (p) => num(p.ratings?.overall),       aggregate: 'avg', digits: 2, suffix: '' },
+  { id: 'goals',    title: 'Лидеры по голам',            subtitle: 'всего за сезон',           getter: (p) => num(p.stats?.attack4?.goal),   aggregate: 'sum', digits: 0, suffix: '' },
+  { id: 'assists',  title: 'Лидеры по ассистам',         subtitle: 'всего за сезон',           getter: (p) => num(p.stats?.attack1?.assist), aggregate: 'sum', digits: 0, suffix: '' },
+  { id: 'xg',       title: 'Лидеры по xG',               subtitle: 'сумма ожидаемых голов',    getter: (p) => num(p.stats?.attack1?.xG),     aggregate: 'sum', digits: 2, suffix: '' },
+  { id: 'xa',       title: 'Лидеры по xA',               subtitle: 'сумма ожидаемых ассистов', getter: (p) => num(p.stats?.attack1?.xA),     aggregate: 'sum', digits: 2, suffix: '' },
+  { id: 'fitness',  title: 'Топ по фитнес-рейтингу',     subtitle: 'средний за сезон',         getter: (p) => num(p.ratings?.fitness),       aggregate: 'avg', digits: 2, suffix: '' },
+  { id: 'distance', title: 'Лидеры по пробегу',          subtitle: 'средний за матч',          getter: (p) => num(p.stats?.fitness?.totalDistance), aggregate: 'avg', digits: 0, suffix: ' м' },
 ];
 
 export default function ClubPage() {
   const navigate = useNavigate();
   const { selectedTeam } = useTeam();
   const { canSeePlayer } = useAuth();
+
   // Возраст для standings: пробуем year → парсим из id (legirus-2010 → 2010) → пустую строку
   const ageGroup = String(
     selectedTeam?.year
@@ -95,14 +49,77 @@ export default function ClubPage() {
     || ''
   );
 
-  // Standings
-  const standingsRes = useApi(
-    () => (ageGroup ? fetchStandings(ageGroup).catch(() => null) : Promise.resolve(null)),
-    [ageGroup]
-  );
-  const standings = standingsRes.data;
+  // ----- ВСЕ standings (для клубного зачёта) -----
+  const standingsListRes = useApi(() => fetchStandingsList(), []);
+  const ageGroupsAvailable = standingsListRes.data?.ageGroups || [];
 
-  // Все матчи сезона — для агрегатов
+  const [allStandings, setAllStandings] = useState({}); // { '2010': {...}, ... }
+  useEffect(() => {
+    if (!ageGroupsAvailable.length) { setAllStandings({}); return; }
+    let cancelled = false;
+    Promise.all(ageGroupsAvailable.map((ag) =>
+      fetchStandings(ag).then((d) => [ag, d]).catch(() => [ag, null])
+    )).then((entries) => {
+      if (cancelled) return;
+      const map = {};
+      entries.forEach(([ag, d]) => { if (d) map[ag] = d; });
+      setAllStandings(map);
+    });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ageGroupsAvailable.join('|')]);
+
+  // Клубный зачёт = сумма всех очков всех возрастов в разрезе клубов
+  const clubStandings = useMemo(() => {
+    const ages = Object.keys(allStandings);
+    if (!ages.length) return null;
+    const byClub = new Map(); // normalizedName → aggregate
+    ages.forEach((ag) => {
+      (allStandings[ag]?.table || []).forEach((row) => {
+        const key = normalizeClubName(row.team);
+        if (!key) return;
+        const e = byClub.get(key) || {
+          club: key,
+          isOurClub: false,
+          games: 0, wins: 0, draws: 0, losses: 0,
+          goalsFor: 0, goalsAgainst: 0, points: 0,
+          ageGroups: [],
+        };
+        e.games += row.games || 0;
+        e.wins  += row.wins  || 0;
+        e.draws += row.draws || 0;
+        e.losses += row.losses || 0;
+        e.goalsFor += row.goalsFor || 0;
+        e.goalsAgainst += row.goalsAgainst || 0;
+        e.points += row.points || 0;
+        e.isOurClub = e.isOurClub || !!row.isOurClub;
+        e.ageGroups.push(ag);
+        byClub.set(key, e);
+      });
+    });
+    return [...byClub.values()]
+      .sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        const gdA = a.goalsFor - a.goalsAgainst;
+        const gdB = b.goalsFor - b.goalsAgainst;
+        if (gdB !== gdA) return gdB - gdA;
+        return b.goalsFor - a.goalsFor;
+      })
+      .map((e, i) => ({ ...e, pos: i + 1 }));
+  }, [allStandings]);
+
+  // ----- Standings ТЕКУЩЕГО возраста (вторая таблица под клубным зачётом) -----
+  const ageStandings = ageGroup ? allStandings[ageGroup] : null;
+
+  // Переключатель «Клубный зачёт» / «Вторая лига {age} г.р.»
+  // Если возраст не подгружен (например 2009 — не во Второй лиге) — таб лиги недоступен.
+  const [view, setView] = useState('club'); // 'club' | 'age'
+  const ageTabAvailable = !!ageStandings;
+  useEffect(() => {
+    if (!ageTabAvailable && view === 'age') setView('club');
+  }, [ageTabAvailable, view]);
+
+  // ----- Все матчи сезона — для агрегатов «Топ игроков» -----
   const matchesRes = useApi(() => fetchMatches(selectedTeam?.id), [selectedTeam?.id]);
   const matches = matchesRes.data?.matches || [];
   const matchIdsKey = useMemo(() => matches.map((m) => m.id).join('|'), [matches]);
@@ -132,18 +149,15 @@ export default function ClubPage() {
         e.matches.push(p);
       });
     });
-
     const out = {};
     TOP_CATEGORIES.forEach((cat) => {
       const list = [];
       byPlayer.forEach(({ player, matches }) => {
-        const values = matches
-          .map((p) => cat.getter(p))
-          .filter((v) => v != null && !isNaN(v));
+        const values = matches.map((p) => cat.getter(p)).filter((v) => v != null && !isNaN(v));
         if (!values.length) return;
         const total = values.reduce((a, b) => a + b, 0);
         const value = cat.aggregate === 'sum' ? total : total / values.length;
-        if (cat.aggregate === 'sum' && value <= 0) return; // прячем нулевых бомбардиров
+        if (cat.aggregate === 'sum' && value <= 0) return;
         list.push({ player, value, games: values.length });
       });
       out[cat.id] = list.sort((a, b) => b.value - a.value).slice(0, 5);
@@ -170,21 +184,70 @@ export default function ClubPage() {
         </div>
       </div>
 
-      {/* STANDINGS */}
+      {/* STANDINGS с переключателем «Клубный зачёт / Вторая лига 20XX г.р.» */}
       <div className="card club-standings">
-        <div className="page-section-title">
-          Клубный зачёт
-          {standings?.title && <span className="club-standings__hint"> · {standings.title}</span>}
-        </div>
-        {standingsRes.loading && <div className="empty-state">Загрузка таблицы…</div>}
-        {!standingsRes.loading && !standings && (
-          <div className="empty-state">
-            Таблица для возраста <b>{ageGroup || '—'}</b> ещё не подгрузилась.
-            Парсер обновляется раз в сутки и при перезапуске сервера —
-            попробуй обновить страницу через минуту.
+        <div className="club-standings__head">
+          <div className="standings-tabs">
+            <button
+              className={'standings-tabs__btn' + (view === 'club' ? ' standings-tabs__btn--active' : '')}
+              onClick={() => setView('club')}
+            >Клубный зачёт</button>
+            {ageTabAvailable && (
+              <button
+                className={'standings-tabs__btn' + (view === 'age' ? ' standings-tabs__btn--active' : '')}
+                onClick={() => setView('age')}
+              >Вторая лига · {ageGroup} г.р.</button>
+            )}
           </div>
+          <div className="club-standings__hint">
+            {view === 'club'
+              ? `сумма по ${ageGroupsAvailable.length} возрастам`
+              : (ageStandings?.title || '')}
+          </div>
+        </div>
+
+        {view === 'club' && (
+          <>
+            {!clubStandings && <div className="empty-state">Загрузка…</div>}
+            {clubStandings && clubStandings.length === 0 && (
+              <div className="empty-state">Данных нет — парсер ещё не отработал.</div>
+            )}
+            {clubStandings && clubStandings.length > 0 && (
+              <div className="club-standings__wrap">
+                <table className="club-standings__table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Клуб</th>
+                      <th>И</th>
+                      <th>В</th>
+                      <th>Н</th>
+                      <th>П</th>
+                      <th>М</th>
+                      <th className="club-standings__pts">О</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clubStandings.map((row) => (
+                      <tr key={row.club} className={row.isOurClub ? 'club-standings__row--ours' : ''}>
+                        <td className="club-standings__pos">{row.pos}</td>
+                        <td className="club-standings__team">{row.club}</td>
+                        <td>{row.games}</td>
+                        <td>{row.wins}</td>
+                        <td>{row.draws}</td>
+                        <td>{row.losses}</td>
+                        <td className="club-standings__gd">{row.goalsFor}–{row.goalsAgainst}</td>
+                        <td className="club-standings__pts">{row.points}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
-        {standings && (
+
+        {view === 'age' && ageStandings && (
           <div className="club-standings__wrap">
             <table className="club-standings__table">
               <thead>
@@ -195,12 +258,12 @@ export default function ClubPage() {
                   <th>В</th>
                   <th>Н</th>
                   <th>П</th>
-                  <th>З-П</th>
+                  <th>М</th>
                   <th className="club-standings__pts">О</th>
                 </tr>
               </thead>
               <tbody>
-                {(standings.table || []).map((row) => (
+                {(ageStandings.table || []).map((row) => (
                   <tr key={row.pos} className={row.isOurClub ? 'club-standings__row--ours' : ''}>
                     <td className="club-standings__pos">{row.pos}</td>
                     <td className="club-standings__team">{row.team}</td>
@@ -208,17 +271,15 @@ export default function ClubPage() {
                     <td>{row.wins}</td>
                     <td>{row.draws}</td>
                     <td>{row.losses}</td>
-                    <td className="club-standings__gd">
-                      {row.goalsFor}–{row.goalsAgainst}
-                    </td>
+                    <td className="club-standings__gd">{row.goalsFor}–{row.goalsAgainst}</td>
                     <td className="club-standings__pts">{row.points}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {standings.lastUpdated && (
+            {ageStandings.lastUpdated && (
               <div className="club-standings__updated">
-                Обновлено: {new Date(standings.lastUpdated).toLocaleString('ru-RU')}
+                Обновлено: {new Date(ageStandings.lastUpdated).toLocaleString('ru-RU')}
               </div>
             )}
           </div>

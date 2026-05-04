@@ -37,26 +37,71 @@
 }
 
 /* STANDINGS */
+.club-standings__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.standings-tabs {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.standings-tabs__btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.standings-tabs__btn:hover { color: #fff; }
+.standings-tabs__btn--active {
+  background: linear-gradient(135deg, #22d3ee, #3b82f6);
+  color: #0e0e2a;
+}
+.standings-tabs__btn--active:hover { color: #0e0e2a; }
 .club-standings__hint {
   font-size: 11px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.5);
   text-transform: none;
   letter-spacing: 0;
-  margin-left: 6px;
 }
 .club-standings__wrap {
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   margin-top: 6px;
+  max-width: 100%;
 }
 .club-standings__table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
-  min-width: 480px;
+  table-layout: fixed;
 }
+.club-standings__table th:first-child,
+.club-standings__table td:first-child { width: 28px; }
+.club-standings__table th:nth-child(2),
+.club-standings__table td:nth-child(2) {
+  width: auto;
+  text-align: left;
+}
+.club-standings__table th:nth-child(n+3),
+.club-standings__table td:nth-child(n+3) { width: 36px; }
 .club-standings__table thead th {
   font-size: 10px;
   text-transform: uppercase;
@@ -86,6 +131,12 @@
   font-weight: 800;
   color: #22d3ee;
   font-size: 15px;
+}
+.club-standings__team {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .club-standings__row--ours {
   background: linear-gradient(90deg, rgba(34, 211, 238, 0.12), rgba(26, 75, 160, 0.18));
@@ -202,6 +253,16 @@
   .club-page__hero { padding: 18px 16px; border-radius: 12px; }
   .club-page__hero-title { font-size: 24px; }
   .club-top-grid { grid-template-columns: 1fr; gap: 10px; }
-  .club-standings__table { font-size: 12px; min-width: 420px; }
-  .club-standings__pts { font-size: 14px; }
+
+  /* Таблица — впихиваем в экран без горизонтального скролла */
+  .club-standings__table { font-size: 11px; }
+  .club-standings__table thead th { padding: 6px 2px; font-size: 9px; }
+  .club-standings__table tbody td { padding: 7px 2px; }
+  .club-standings__table th:first-child,
+  .club-standings__table td:first-child { width: 22px; }
+  .club-standings__table th:nth-child(n+3),
+  .club-standings__table td:nth-child(n+3) { width: 26px; }
+  .club-standings__pts { font-size: 13px; }
+  .club-standings__gd { font-size: 10px; }
+  .club-standings__hint { display: block; margin-left: 0; margin-top: 2px; }
 }

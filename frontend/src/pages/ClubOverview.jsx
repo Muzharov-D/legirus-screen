@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useApi } from '../hooks/useApi';
 import { fetchTeams, fetchMatches, fetchMatch } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
-import SectionTabs from '../components/SectionTabs';
 import MatchList from '../components/MatchList';
 import RatingCard from '../components/RatingCard';
 import PlayerPhoto from '../components/PlayerPhoto';
@@ -11,11 +10,6 @@ import { ratingColor } from '../utils/colors';
 import { leadersByLine } from '../utils/lines';
 import { useNavigate } from 'react-router-dom';
 import './ClubOverview.css';
-
-const SECTION_TABS = [
-  { id: 'overall', label: 'Общее' },
-  { id: 'mine', label: 'Моя команда' },
-];
 
 function num(v) {
   if (v === null || v === undefined) return null;
@@ -55,7 +49,6 @@ function teamSplitSum(match, key, half) {
 
 export default function ClubOverview() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState('overall');
   const { selectedTeamId, selectedTeam } = useTeam();
   const teamsRes = useApi(fetchTeams, []);
   const matchesRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
@@ -100,10 +93,6 @@ export default function ClubOverview() {
 
   return (
     <div className="page club-overview">
-      <div className="club-overview__topbar">
-        <SectionTabs tabs={SECTION_TABS} active={tab} onChange={setTab} />
-      </div>
-
       <div className="club-overview__grid">
         <aside className="club-overview__col-left">
           <MatchList matches={matches} teams={teams} activeMatchId={lastMatchId} />

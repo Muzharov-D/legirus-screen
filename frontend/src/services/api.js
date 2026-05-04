@@ -61,6 +61,7 @@ export const fetchMatches = (teamId) =>
 export const fetchMatch = (id) => fetchJson(`/data/match/${id}`);
 export const fetchMetrics = () => fetchJson('/data/metrics');
 export const fetchStandings = (ageGroup) => fetchJson(`/data/standings/${encodeURIComponent(ageGroup)}`);
+export const fetchStandingsList = () => fetchJson('/data/standings');
 
 export async function fetchAgentInsight(screenId, context) {
   return fetchJson('/agent/insight', {

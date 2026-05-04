@@ -88,8 +88,8 @@
   .sidebar-nav__item::before { display: none; }
   .sidebar-nav__icon { font-size: 20px; margin-bottom: 0; }
   .sidebar-nav__label { font-size: 10px; line-height: 1; }
-  /* Скрыть первую кнопку (Аналитика) на мобильном */
-  .sidebar-nav__item:first-child { display: none !important; }
+  /* Аналитика на мобильном не нужна — клуб уже стал главным */
+  .sidebar-nav__item[data-nav-id="analytics"] { display: none !important; }
   /* Подушка снизу страницы под bottom-nav */
   .page { padding-bottom: 70px !important; }
 }

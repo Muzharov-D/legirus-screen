@@ -30,6 +30,7 @@ export default function SidebarNav() {
       {navItems.map((it) => (
         <button
           key={it.id}
+          data-nav-id={it.id}
           className={`sidebar-nav__item ${isActive(it) ? 'sidebar-nav__item--active' : ''}`}
           onClick={() => navigate(it.path)}
           title={it.label}
