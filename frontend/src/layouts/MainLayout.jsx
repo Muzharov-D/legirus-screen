@@ -2,9 +2,8 @@ import { Outlet } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
 import SidebarNav from '../components/SidebarNav';
 
-// ИИ-агент временно убран из UI: заглушка с хардкодом на 2010,
-// без реального LLM. Файлы AgentCard / AgentTriggerButton / agent-rules.json
-// и backend-route /api/agent/insight оставлены — вернём когда подключим LLM.
+// ИИ-агент полностью удалён в Sprint 2 cleanup. Будет переписан под LLM
+// (Claude/GPT) с retrieval по матчам сезона — см. HANDOFF.md, Точки роста.
 
 export default function MainLayout() {
   return (

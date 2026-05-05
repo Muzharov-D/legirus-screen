@@ -4,6 +4,8 @@ import path from 'path';
 import os from 'os';
 import fs from 'fs';
 import { processPdf } from '../services/pdfParser.js';
+import { notifyMatchProcessed } from '../services/pushService.js';
+import { loadMatchesIndex } from '../services/dataLoader.js';
 
 const router = express.Router();
 
@@ -47,6 +49,23 @@ router.post('/', upload.single('file'), async (req, res) => {
 
     const result = await processPdf(req.file.path, { teamId, tournament });
     fs.unlink(req.file.path, () => {});
+
+    // Push-уведомление о новом разборе матча — fire-and-forget, не должно ломать ответ.
+    try {
+      const matchId = result?.matchId || result?.id || result?.match?.id;
+      if (matchId) {
+        const idx = loadMatchesIndex();
+        const match = (idx.matches || []).find((m) => m.id === matchId);
+        if (match) {
+          notifyMatchProcessed(match)
+            .then((r) => console.log(`[push] match ${matchId}: sent=${r.sent}, failed=${r.failed}`))
+            .catch((e) => console.error('[push] notify ошибка:', e.message));
+        }
+      }
+    } catch (notifyErr) {
+      console.error('[push] не удалось отправить уведомление:', notifyErr.message);
+    }
+
     res.json(result);
   } catch (e) {
     if (req.file?.path) fs.unlink(req.file.path, () => {});

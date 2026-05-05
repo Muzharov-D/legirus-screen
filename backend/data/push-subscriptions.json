@@ -1,0 +1,19 @@
+{
+  "subscriptions": [
+    {
+      "userId": "u-coach",
+      "teamId": null,
+      "role": "head_coach",
+      "subscription": {
+        "endpoint": "https://fcm.googleapis.com/fcm/send/ekM6KD_Oavo:APA91bFICCnmIOkel-e_Crp_WXdvjapsHsShh7pqUgeqJ7KNq2W_VzitSa9yaigNNQIvZRMNJS-gJRgkRD_l7lCDnGSusJMjXxZ_EO6EI_8FoRcrrnUk-M2ydeb52YYNlW-jCmKKZdVN",
+        "expirationTime": null,
+        "keys": {
+          "p256dh": "BFZPJvNyo1endJAtJw3Ii8agQHKRIhd-XtTRMnPv-We467YDSLy6PvWAnkDsCkLSb7Is6xl8h-CDdHR_dJV6glg",
+          "auth": "tyDDJ4pq_L_P2djdsrKwxA"
+        }
+      },
+      "createdAt": "2026-05-05T13:04:08.745Z",
+      "updatedAt": "2026-05-05T13:04:08.746Z"
+    }
+  ]
+}

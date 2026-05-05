@@ -1,17 +1,6 @@
+// DEPRECATED — route /api/agent отключён в Sprint 2 cleanup.
+// Не монтируется в server.js. Файл-stub для совместимости импортов.
 import express from 'express';
-import { generateInsight } from '../services/ruleEngine.js';
-
 const router = express.Router();
-
-router.post('/insight', (req, res) => {
-  try {
-    const { screenId, context } = req.body || {};
-    if (!screenId) return res.status(400).json({ error: 'screenId обязателен' });
-    const insight = generateInsight({ screenId, context: context || {} });
-    res.json(insight);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
+router.all('*', (_req, res) => res.status(410).json({ error: 'Agent endpoint removed' }));
 export default router;

@@ -67,7 +67,8 @@ const FITNESS_ROWS = [
   ['Средняя скорость, м/с',        'averageSpeed'],
 ];
 
-// Splits picked for HalfTimeBars (1 vs 2 тайм dashboard).
+// Ключи splits для блока «1 тайм vs 2 тайм» внутри PlayerDetail.
+// (компонент HalfTimeBars удалён в Sprint 2 — рендер теперь inline).
 const HALFTIME_KEYS = [
   'Pass', 'Shot', 'Tackle', 'Pressing',
   'Sprint forward', 'Recovery', 'Goal actions', 'Interception', 'Cross', 'Duel',

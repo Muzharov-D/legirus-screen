@@ -40,10 +40,6 @@ export function loadMetrics() {
   return readJson(path.join(DATA_DIR, 'metrics.json'));
 }
 
-export function loadAgentRules() {
-  return readJson(path.join(DATA_DIR, 'agent-rules.json'));
-}
-
 export function loadMatchesIndex() {
   const indexPath = path.join(MATCHES_DIR, '..', 'matches.json');
   if (fs.existsSync(indexPath)) return readJson(indexPath);
@@ -111,6 +107,20 @@ export function loadCup(ageGroup) {
 
 export function listCup() {
   const dir = path.join(DATA_DIR, 'cup');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.json') && !f.startsWith('_'))
+    .map((f) => f.replace(/\.json$/, ''));
+}
+
+export function loadCalendar(ageGroup) {
+  const filePath = path.join(DATA_DIR, 'calendar', `${ageGroup}.json`);
+  if (!fs.existsSync(filePath)) return null;
+  return readJson(filePath);
+}
+
+export function listCalendar() {
+  const dir = path.join(DATA_DIR, 'calendar');
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
     .filter((f) => f.endsWith('.json') && !f.startsWith('_'))

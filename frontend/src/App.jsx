@@ -13,13 +13,16 @@ import ComparisonView from './pages/ComparisonView';
 import PlayersLeaders from './pages/PlayersLeaders';
 import PlayersRating from './pages/PlayersRating';
 import PlayerDetail from './pages/PlayerDetail';
+import CalendarPage from './pages/CalendarPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
 export default function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <AuthProvider>
           <TeamProvider>
             <TournamentProvider>
@@ -32,6 +35,7 @@ export default function App() {
                 <Route path="/analytics/team" element={<ComparisonView />} />
                 <Route path="/matches" element={<MatchesDashboard />} />
                 <Route path="/matches/:matchId" element={<MatchDetail />} />
+                <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/players" element={<PlayersLeaders />} />
                 <Route path="/players/rating" element={<PlayersRating />} />
                 <Route path="/players/:playerId" element={<PlayerDetail />} />

@@ -16,5 +16,7 @@
       "2011": "https://stat.ffspb.org/tournament44346",
       "2010": "https://stat.ffspb.org/tournament44345"
     }
-  }
+  },
+  "_calendarSourcesNote": "Если ffspb отдаёт календарь по другому URL — пропиши здесь. Иначе сервис добавит /calendar к sources[*] и попробует отпарсить.",
+  "calendarSources": {}
 }

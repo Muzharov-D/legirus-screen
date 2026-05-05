@@ -1,0 +1,262 @@
+# SPEC_MOBILE_FIXES — принудительная мобильная адаптация
+
+## Контекст
+
+Первый раунд mobile-правок (SPEC_MOBILE_PWA) сработал только частично: bottom-navigation встал, остальное — нет. На мобильном телефоне:
+
+- Горизонтальный скролл (контент шире viewport)
+- Вертикальный скролл больше чем нужно (padding/font не сжаты)
+- Cards не схлопываются в одну колонку
+- Вёрстка выглядит как desktop с уменьшенным масштабом
+
+Корень проблемы — индивидуальные media queries в каждом CSS-компоненте либо не применились, либо перебиты более специфичными селекторами. Нужен **один глобальный mobile.css** с `!important` override'ами, который импортируется в main.jsx и принудительно нормализует layout на мобильном.
+
+---
+
+## Часть 1 — Создать единый mobile.css
+
+**Файл:** `frontend/src/styles/mobile.css` (новый, в новой папке `styles/`)
+
+Полное содержимое файла (копировать as-is, без изменений):
+
+```css
+/* ===== Mobile reset & forced overrides (≤ 768px) ===== */
+
+/* Глобально: убираем горизонтальный скролл и заставляем всё помещаться */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  /* === Layout === */
+  body { font-size: 14px; }
+  .app-body { flex-direction: column !important; }
+  .app-content { padding: 10px !important; max-width: 100vw !important; }
+  .page { padding: 10px !important; max-width: 100vw !important; }
+
+  /* === Cards === */
+  .card {
+    padding: 12px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border-radius: 10px;
+  }
+  .page-section-title { font-size: 15px !important; margin-bottom: 8px !important; }
+
+  /* === Force all grids to single column === */
+  .matches-dashboard__grid,
+  .match-detail__grid,
+  .player-detail__grid,
+  .club-overview__grid,
+  .players-leaders__grid,
+  .player-detail__maps,
+  .comparison-view__grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* === Header — компактнее === */
+  .app-header {
+    padding: 6px 10px !important;
+    height: 52px !important;
+    flex-wrap: wrap;
+  }
+  .app-header__brand img,
+  .app-header__club img { height: 28px !important; width: auto !important; }
+  .app-header__brand span,
+  .app-header__brand-x { font-size: 12px !important; }
+  .app-header__user-name,
+  .app-header__user-role { font-size: 11px !important; }
+  .app-header__btn,
+  .app-header__logout,
+  .app-header__lang { padding: 4px 8px !important; font-size: 12px !important; }
+
+  /* === Sidebar -> bottom nav (если ещё не сделано) === */
+  .sidebar-nav {
+    position: fixed !important;
+    bottom: 0 !important; left: 0 !important; right: 0 !important; top: auto !important;
+    width: 100% !important; height: 56px !important;
+    flex-direction: row !important;
+    border-right: none !important;
+    border-top: 1px solid var(--border, rgba(255,255,255,.1));
+    z-index: 100;
+    background: var(--card-bg, #0d1424);
+  }
+  .sidebar-nav__item {
+    flex: 1 !important;
+    flex-direction: column !important;
+    padding: 6px 4px !important;
+    font-size: 10px !important;
+    text-align: center;
+  }
+  .sidebar-nav__icon { font-size: 20px !important; margin-bottom: 2px; }
+  .app-content { padding-bottom: 70px !important; }
+
+  /* === Hero blocks — уменьшаем === */
+  .matches-dashboard__hero,
+  .match-detail__hero,
+  .club-overview__hero {
+    padding: 14px !important;
+  }
+  .matches-dashboard__hero-title,
+  .match-detail__hero-title { font-size: 18px !important; }
+  .matches-dashboard__hero-eyebrow { font-size: 10px !important; }
+
+  /* === Match score — компактнее === */
+  .matches-dashboard__last-score,
+  .match-detail__hero-score { font-size: 24px !important; }
+  .matches-dashboard__last-team img,
+  .match-detail__hero-team img { width: 32px !important; height: 32px !important; }
+
+  /* === Season stats grid — 2 колонки === */
+  .matches-dashboard__season {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .season-stat__value { font-size: 18px !important; }
+  .season-stat__label { font-size: 11px !important; }
+
+  /* === Players Rating — grid collapse === */
+  .players-rating__head,
+  .players-rating__row {
+    grid-template-columns: 28px 36px 1fr 56px !important;
+    gap: 8px !important;
+    font-size: 12px !important;
+  }
+  .col-photo { display: none !important; }
+  .col-pos, .col-minutes { display: none !important; }
+  .players-rating__chips { gap: 4px !important; }
+  .chip { padding: 4px 8px !important; font-size: 11px !important; }
+
+  /* === Player Detail — single column, compact === */
+  .player-detail__header {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 8px !important;
+  }
+  .player-detail__photo { width: 80px !important; height: 80px !important; }
+  .player-detail__name { font-size: 18px !important; }
+  .player-detail__pos { font-size: 12px !important; }
+  .player-detail__radar { height: 280px !important; }
+
+  /* === Tables (real <table>) — horizontal scroll === */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    font-size: 12px;
+  }
+
+  /* === Forms (login etc.) === */
+  .login__card { width: calc(100vw - 24px) !important; padding: 18px !important; }
+  .login__title { font-size: 18px !important; }
+
+  /* === Recharts SVG responsive === */
+  .recharts-wrapper,
+  .recharts-surface { max-width: 100% !important; height: auto !important; }
+
+  /* === Heatmap & formation images === */
+  .formation__pitch-img,
+  .soccer-field-image-map img,
+  .heatmap-card img { width: 100% !important; max-width: 100% !important; height: auto !important; }
+
+  /* === Buttons & links — touch-friendly === */
+  button, a.button, .btn {
+    min-height: 36px;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 13px; }
+  .app-content, .page { padding: 6px !important; }
+  .card { padding: 10px !important; }
+  .matches-dashboard__hero-title,
+  .match-detail__hero-title { font-size: 16px !important; }
+  .players-rating__head,
+  .players-rating__row {
+    grid-template-columns: 24px 1fr 50px !important;
+    gap: 6px !important;
+  }
+  .col-photo, .col-pos, .col-minutes, .col-rank { display: none !important; }
+}
+```
+
+---
+
+## Часть 2 — Импортировать mobile.css
+
+**Файл:** `frontend/src/main.jsx`
+
+Найти строку импорта `App.css`:
+
+```jsx
+import './App.css';
+```
+
+Сразу после неё добавить:
+
+```jsx
+import './styles/mobile.css';
+```
+
+Это критично — `mobile.css` должен импортироваться **последним** в цепочке CSS, чтобы его `!important` override'ы перебили любые правила компонентов.
+
+---
+
+## Часть 3 — Smoke-тест
+
+После сборки и деплоя на мобильном Chrome/Safari (или DevTools → Device toolbar → iPhone 12):
+
+1. **Нет горизонтального скролла** — палец не двигает страницу влево-вправо
+2. **AppHeader** влезает в одну строку, кнопки кликабельные (≥36px высота)
+3. **MatchesDashboard** карточки в одну колонку, секционные блоки stack'аются вертикально
+4. **MatchDetail** командная статистика читается, формация-картинка занимает ширину экрана
+5. **PlayerDetail** радар не вылазит, splits scroll'ится горизонтально внутри своего контейнера
+6. **PlayersRating** видны: ранг, имя, метрика — без скрытых сплитов
+7. **Login** форма не упирается в края
+
+---
+
+## Защита от FS-truncation
+
+Файл `mobile.css` — около 4 KB. На mount возможна обрезка. Если после применения наблюдается странное поведение CSS:
+
+1. На Render Shell или PowerShell выполнить:
+```bash
+wc -l frontend/src/styles/mobile.css
+```
+
+Должно быть **~120 строк**. Если меньше — значит обрезался при записи. Тогда переписывать через `cat > .../mobile.css.tmp << 'EOF' ... EOF` и `os.replace`.
+
+2. Прогнать `npm run build` — если CSS невалидный, build упадёт; это автоматический guard.
+
+---
+
+## Что НЕ делаем в этой спеке
+
+- Не трогаем существующие `.css` файлы компонентов (FormationField.css, AppHeader.css, и т.д.) — все правки в одном `mobile.css`.
+- Не меняем JSX (никаких `useState(mobileMenuOpen)` для бургер-меню — это отложим в SPEC_MOBILE_v3, если понадобится).
+- Не делаем PWA (это уже в проде после SPEC_MOBILE_PWA).
+
+---
+
+## Объём работы
+
+- Создать `frontend/src/styles/mobile.css` — 5 минут
+- Импорт в `main.jsx` — 1 минута
+- Smoke-тест на iPhone и Android — 10 минут
+- Итерация по найденным багам — 30-60 минут
+
+**Итого: 1 час** до приличного mobile UX.

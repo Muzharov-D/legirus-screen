@@ -9,9 +9,12 @@ import {
   listStandings,
   loadCup,
   listCup,
+  loadCalendar,
+  listCalendar,
 } from '../services/dataLoader.js';
 import { refreshAge, refreshAll } from '../services/standingsService.js';
 import { refreshCupAge, refreshCupAll } from '../services/cupService.js';
+import { refreshCalendarAge, refreshCalendarAll } from '../services/calendarService.js';
 
 const router = express.Router();
 
@@ -244,6 +247,49 @@ router.post('/cup/refresh', async (req, res) => {
       return res.status(403).json({ error: 'Доступ только для главного тренера' });
     }
     const results = await refreshCupAll();
+    res.json({ ok: true, results });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Календарь сезона возрастной группы
+router.get('/calendar/:ageGroup', (req, res) => {
+  try {
+    const data = loadCalendar(req.params.ageGroup);
+    if (!data) return res.status(404).json({ error: `Календарь для возраста ${req.params.ageGroup} ещё не загружен` });
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get('/calendar', (_req, res) => {
+  try {
+    res.json({ ageGroups: listCalendar() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/calendar/:ageGroup/refresh', async (req, res) => {
+  try {
+    if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
+      return res.status(403).json({ error: 'Доступ только для тренеров' });
+    }
+    const data = await refreshCalendarAge(req.params.ageGroup);
+    res.json({ ok: true, ageGroup: req.params.ageGroup, matches: data.matches.length, hint: data.parserHint });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/calendar/refresh', async (req, res) => {
+  try {
+    if (req.user?.role !== 'head_coach') {
+      return res.status(403).json({ error: 'Доступ только для главного тренера' });
+    }
+    const results = await refreshCalendarAll();
     res.json({ ok: true, results });
   } catch (e) {
     res.status(500).json({ error: e.message });

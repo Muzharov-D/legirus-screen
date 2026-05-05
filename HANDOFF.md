@@ -4,6 +4,15 @@
 
 ---
 
+## ⚡ Текущий статус (после Sprint 2, май 2026)
+
+**Sprint 1 ✅** — клубный лендинг `/club`, парсер ffspb standings, кубковая ветка, мобильный адаптив, ребрендинг в АванDата.
+**Sprint 2 ✅** — PWA push-уведомления о новых разборах матчей, страница календаря сезона `/calendar` с парсером ffspb, уборка мёртвого ИИ-агента.
+**Sprint 3 📋** — миграция JSON → PostgreSQL. ТЗ: см. [`SPEC_SPRINT_3_POSTGRES.md`](./SPEC_SPRINT_3_POSTGRES.md). Срок ~2 недели.
+**Sprint 4 📋** — multi-club поддержка (10 клубов лиги). Требует Sprint 3. ТЗ: см. [`SPEC_SPRINT_4_MULTI_CLUB.md`](./SPEC_SPRINT_4_MULTI_CLUB.md). Срок ~1.5 недели.
+
+---
+
 ## 1. Архитектура
 
 ```
@@ -48,9 +57,13 @@
 **Backend** (`backend/`)
 - Node 20+ ESM (`"type": "module"` в package.json)
 - Express, Multer (загрузка PDF), bcrypt + jsonwebtoken (auth), cors
+- `web-push` (Sprint 2) — VAPID Web Push для PWA уведомлений
 - `services/dataLoader.js` — единый абстрактный read-layer над JSON-файлами с in-memory cache
 - `services/pdfParser.js` — orchestrator: вызывает Python через `child_process` для парсинга
-- `services/standingsService.js` — fetch + парсинг ffspb.org, cron на `setInterval`
+- `services/standingsService.js` — fetch + парсинг ffspb.org standings, cron на `setInterval` (24h)
+- `services/calendarService.js` — fetch + парсинг ffspb.org calendar (Sprint 2), cron 24h
+- `services/cupService.js` — кубковая сетка
+- `services/pushService.js` — Web Push send/store, no-op без VAPID ENV
 
 **Python parsers** (`backend/parsers/`)
 - pdfplumber, PyPDF2, Pillow для извлечения и кропа карт
@@ -69,6 +82,7 @@
 | `/players` | `pages/PlayersLeaders.jsx` | Лидеры по 10 метрикам матча |
 | `/players/rating` | `pages/PlayersRating.jsx` | Таблица всех игроков с фильтром по метрике |
 | `/players/:id` | `pages/PlayerDetail.jsx` | Профиль игрока: 4 рейтинга, радары, тепловая карта, splits-table по таймам |
+| `/calendar` | `pages/CalendarPage.jsx` | **Календарь сезона** (Sprint 2). Будущие/сыгранные матчи возрастной группы из ffspb. Фильтр по возрасту и статусу матча. |
 | `/analytics` | `pages/ClubOverview.jsx` | Командные дашборды; на мобиле скрыт из меню (КЛУБ заменил его как лендинг) |
 | `/analytics/team` | `pages/ComparisonView.jsx` | Командная статистика — сравнение секций |
 
@@ -143,6 +157,15 @@
 - `frontend/index.html` → `<link rel="manifest" href="/icons/site.webmanifest">`
 - `start_url=/club`, `scope=/`, `display=standalone`
 - Иконки 192/512 px maskable, apple-touch 180px, favicon.svg
+- **Service Worker** `frontend/public/sw.js` (Sprint 2) — обработка push и notificationclick. Регистрируется в `main.jsx` после `window.load`.
+- **Push-уведомления** (Sprint 2):
+  - VAPID-ключи генерируются один раз: `npm run vapid` в `backend/`
+  - Подписка инициируется кнопкой 🔔 в `AppHeader` (компонент `PushOptInButton`)
+  - Бэкенд отправляет push после успешного парсинга PDF: `notifyMatchProcessed()` в `routes/upload.js`
+  - Адресация — по `teamId`: уведомление получают подписчики только нужной команды
+  - Клик по уведомлению открывает `/matches/:id`
+  - Подписки хранятся в `backend/data/push-subscriptions.json` (после Sprint 3 — в БД)
+  - **Без VAPID ENV** push работает в no-op режиме: лог в консоль, без падений
 - Глобальный `frontend/src/styles/mobile.css` импортируется в `main.jsx` и покрывает 5 брейкпоинтов:
   - `≤360px` — Galaxy Fold cover, маленькие айфоны
   - `≤480px` — узкие телефоны
@@ -150,7 +173,7 @@
   - `769–1024px` — планшеты в портрете
   - `1025–1366px` — small desktop
   - `≤768 + ≤500h` — телефон в горизонтали
-- Sidebar превращается в bottom-nav (КЛУБ / МАТЧ / МОЙ ПРОФИЛЬ); Аналитика скрыта на мобиле через `[data-nav-id="analytics"]`
+- Sidebar превращается в bottom-nav (КЛУБ / МАТЧ / КАЛЕНДАРЬ / МОЙ ПРОФИЛЬ); Аналитика скрыта на мобиле через `[data-nav-id="analytics"]`
 
 ---
 
@@ -164,10 +187,15 @@ backend/data/
 ├── matches.json               # индекс матчей (id, date, homeTeamId, awayTeamId, score, tournament, teamNames)
 ├── matches/match-NNN.json     # полный матч: players[], stats, splits, ratings, maps, teamSummaryStats
 ├── standings/
-│   ├── _config.json           # URL'ы парсера для 4 возрастов
+│   ├── _config.json           # URL'ы парсера standings + cup + (опц.) calendarSources
 │   └── {2010..2013}.json      # турнирная таблица: pos, team, games, wins, ..., points
+├── calendar/                  # Sprint 2 — расписание, парсится из ffspb /calendar
+│   └── {2010..2013}.json      # { matches: [{date, home, away, score?, isOurMatch, ...}] }
+├── cup/                       # сетка кубка по возрастам
+│   └── {2010..2013}.json
 ├── metrics.json               # справочник метрик: radarAxes, metricLabels (для UI)
-└── agent-rules.json           # правила ИИ-агента (не активно в текущем релизе)
+├── push-subscriptions.json    # Sprint 2 — Web Push подписки {endpoint, keys, userId, teamId, role}
+└── agent-rules.json           # DEPRECATED (Sprint 2 cleanup) — пустой stub, физическое удаление снаружи
 ```
 
 Каждый match-файл содержит:
@@ -186,37 +214,61 @@ POST   /api/auth/login                    public
 GET    /api/auth/me                       JWT
 GET    /api/data/teams                    role-filtered
 GET    /api/data/players                  role-filtered, ?teamId=
+GET    /api/data/player/:playerId         role-filtered (для cross-team navigation head_coach)
 GET    /api/data/matches                  role-filtered, ?teamId=
 GET    /api/data/match/:matchId           role+player sanitized
 GET    /api/data/metrics                  public after auth
-GET    /api/data/standings                list ageGroups
-GET    /api/data/standings/:ageGroup      table
+
+GET    /api/data/standings                список ageGroups
+GET    /api/data/standings/:ageGroup      таблица
 POST   /api/data/standings/:age/refresh   coaches only
 POST   /api/data/standings/refresh        head_coach only
+
+GET    /api/data/cup                      список ageGroups (кубковая сетка)
+GET    /api/data/cup/:ageGroup            сетка
+POST   /api/data/cup/:age/refresh         coaches only
+POST   /api/data/cup/refresh              head_coach only
+
+GET    /api/data/calendar                 Sprint 2 — список ageGroups календаря
+GET    /api/data/calendar/:ageGroup       Sprint 2 — расписание возраста
+POST   /api/data/calendar/:age/refresh    Sprint 2 — coaches only
+POST   /api/data/calendar/refresh         Sprint 2 — head_coach only
+
 POST   /api/upload-pdf                    coaches only, multipart/form-data {file, teamId, tournament}
-POST   /api/agent/insight                 ИИ-агент (стоит, не активен)
+                                          триггерит push notifyMatchProcessed после успеха
+
+GET    /api/push/public-key               Sprint 2 — VAPID public для PushManager
+POST   /api/push/subscribe                Sprint 2 — { endpoint, keys: { p256dh, auth } }
+POST   /api/push/unsubscribe              Sprint 2 — { endpoint }
+POST   /api/push/test                     Sprint 2 — coaches only
+GET    /api/push/subscriptions            Sprint 2 — head_coach only
+
 GET    /api/maps/* и /assets/*            static
 ```
+
+**Удалено в Sprint 2:** `POST /api/agent/insight` — rule-based ИИ-агент. Будет заменён реальным LLM в отдельной итерации.
 
 ---
 
 ## 10. Точки роста
 
-**Краткосрочно (1–2 спринта):**
-1. **Множественные клубы.** Сейчас «Легирус» захардкожен в `_config.json` (`ourClubMatcher`) и в hero-стрингах. Вынести в БД клубов, поддержать N клубов на одном инстансе.
-2. **Профиль игрока чужой команды для head_coach.** При клике с КЛУБа на игрока 2011 (когда выбран 2010) — `PlayerDetail` пытается достать его из последнего матча выбранной команды и не находит. Нужно автоматически переключать `selectedTeamId` через `player.teamId` перед редиректом.
-3. **Кубковая ветка.** Включён UI-toggle Турнир/Кубок, бэкенд принимает `tournament` при загрузке PDF. Нужно довести до парсера (распознавать кубковые форматы) и до клубного зачёта (пока считается только Лига).
-4. **Сравнение игроков.** `ComparisonView` существует на уровне команд. Дополнить сравнением 2–4 игроков по радару/таблице.
-5. **Скачивание карточки игрока (PDF).** Кнопка в `PlayerDetail.jsx` отрисована, но `disabled`. Сделать через серверный рендер или html2canvas+jsPDF.
-6. **Адаптация под `Persistent Disk`.** Сейчас матчи могут пропадать на cold-start Render. Если уровень нагрузки оправдает — подключить persistent volume и хранить там JSON+PNG. Альтернатива — переход на S3/B2.
+**В работе / следующее (Sprint 3-4):**
+1. **Sprint 3 — PostgreSQL.** Полное ТЗ: [`SPEC_SPRINT_3_POSTGRES.md`](./SPEC_SPRINT_3_POSTGRES.md). Schema (10 таблиц), migrations, JSON→PG скрипт, рефактор `dataLoader → dataRepo`, бэкапы.
+2. **Sprint 4 — Multi-club.** Полное ТЗ: [`SPEC_SPRINT_4_MULTI_CLUB.md`](./SPEC_SPRINT_4_MULTI_CLUB.md). Требует Sprint 3 завершённым. Scoping по `club_id`, super-admin роль, scrape_config таблица, брендинг per-club.
+
+**Краткосрочно (1–2 спринта после Sprint 4):**
+1. **Профиль игрока чужой команды для head_coach.** При клике с КЛУБа на игрока 2011 (когда выбран 2010) — `PlayerDetail` пытается достать его из последнего матча выбранной команды и не находит. Нужно автоматически переключать `selectedTeamId` через `player.teamId` перед редиректом.
+2. **Кубковая ветка.** Включён UI-toggle Турнир/Кубок, бэкенд принимает `tournament` при загрузке PDF. Нужно довести до парсера (распознавать кубковые форматы) и до клубного зачёта (пока считается только Лига).
+3. **Сравнение игроков.** `ComparisonView` существует на уровне команд. Дополнить сравнением 2–4 игроков по радару/таблице.
+4. **Скачивание карточки игрока (PDF).** Кнопка в `PlayerDetail.jsx` отрисована, но `disabled`. Сделать через серверный рендер или html2canvas+jsPDF.
+5. **Адаптация под `Persistent Disk`** — снимется автоматически после Sprint 3 (PG как persistent layer).
 
 **Среднесрочно (1 квартал):**
-1. **Замена JSON-файлов на PostgreSQL.** Структура матчей и стандингс уже под это нормализована. Переход даст: индексы, транзакции, миграции, удобный admin.
-2. **ИИ-агент.** В коде заглушка (`/api/agent/insight`, `agent-rules.json`). Подключить LLM (Claude/GPT) с retrieval по матчам сезона: «как сыграл Турапин в апреле?», «лидеры пресса за 5 матчей».
-3. **Real-time обновления.** Сейчас фронт перезагружается через `window.location.reload()` после загрузки PDF. Заменить на SSE/WebSocket с инвалидацией React Query (или RTK Query).
-4. **Фото-загрузчик игроков.** Сейчас фотки кладутся вручную в `frontend/public/assets/players/`. Сделать админ-страницу с upload + crop.
-5. **История изменений рейтинга.** На странице игрока показывать тренд кривой по матчам сезона (sparkline).
-6. **Пуш-уведомления.** PWA-уведомление о новом разобранном матче — для родителей.
+1. **ИИ-агент v2.** Старый rule-based удалён в Sprint 2 cleanup. Подключить LLM (Claude/GPT) с retrieval по матчам сезона: «как сыграл Турапин в апреле?», «лидеры пресса за 5 матчей».
+2. **Real-time обновления.** Сейчас фронт перезагружается через `window.location.reload()` после загрузки PDF. Заменить на SSE/WebSocket с инвалидацией React Query (или RTK Query). Push-уведомления Sprint 2 уже частично решают — приходит уведомление, клик ведёт на свежий матч.
+3. **Фото-загрузчик игроков.** Сейчас фотки кладутся вручную в `frontend/public/assets/players/`. Сделать админ-страницу с upload + crop.
+4. **История изменений рейтинга.** На странице игрока показывать тренд кривой по матчам сезона (sparkline).
+5. ✅ **~~Пуш-уведомления.~~** Сделано в Sprint 2 — Web Push API через VAPID, бэк отправляет после загрузки PDF.
 
 **Долгосрочно (1+ квартал):**
 1. **Мульти-тенантность.** SaaS для академий: каждая школа — отдельный воркспейс с своими ролями, теамами, парсерами.
@@ -229,12 +281,15 @@ GET    /api/maps/* и /assets/*            static
 ## 11. Известные ограничения
 
 - **Render free tier** засыпает после 15 мин неактивности — первый запрос после паузы идёт ~30 сек. Для демо рекомендуется прогреть бэк до начала.
-- **JSON datastore** не имеет транзакций. Если два пользователя одновременно загрузят PDF, возможна race condition в `data/matches.json` (read-modify-write). На текущем уровне (1 тренер на школу) — не проблема, но при росте — переход на БД обязателен.
-- **Парсер ffspb** хрупок к перевёрстке источника. Если в HTML лиги сменят структуру `renderComponent('TournamentTable', {...})`, парсер сломается. Мониторинг: смотреть в Render Logs строки `[standings] {age}: ошибка — ...`
-- **Нет миграций.** Изменения структуры JSON-данных требуют ручного rewrite или скрипта в `backend/scripts/`.
+- **JSON datastore** не имеет транзакций. Если два пользователя одновременно загрузят PDF, возможна race condition в `data/matches.json` (read-modify-write). Снимется с переходом на PG в Sprint 3.
+- **Парсер ffspb (standings)** хрупок к перевёрстке источника. Если в HTML лиги сменят структуру `renderComponent('TournamentTable', {...})`, парсер сломается. Мониторинг: смотреть в Render Logs строки `[standings] {age}: ошибка — ...`
+- **Парсер ffspb (calendar, Sprint 2)** ещё более хрупкий: пробует 7 разных маркеров (`CalendarTable`, `TournamentCalendar`, `GamesList`, ...). Если ни один не подходит — `parserHint: 'fallback-empty'` в ответе и подсказка в UI. Может потребовать допилки селекторов под реальную верстку — увидеть структуру удобно через `curl '<url>/calendar' | grep -o "renderComponent[^,]*"` и добавить актуальный маркер в `extractMatchesFromHtml`.
+- **Push-уведомления требуют HTTPS** — на `localhost` Web Push работает, но в проде VAPID отказывает на http. Vercel/Render по умолчанию отдают https, так что это требование закрыто.
+- **iOS Safari + push** — поддержка появилась только с iOS 16.4 (март 2023). На старых версиях `pushSupported()` вернёт false и кнопка 🔔 в шапке скроется автоматически.
+- **Подписка не пересохраняется при смене аккаунта** — если на одном устройстве разлогиниться и зайти другим юзером, его уведомления уйдут на endpoint предыдущего. Workaround: вызывать `unsubscribe()` в `logout()`. **TODO** — сделать в следующей итерации.
+- **Нет миграций.** Изменения структуры JSON-данных требуют ручного rewrite или скрипта в `backend/scripts/`. Снимется в Sprint 3.
 - **Кеш в `dataLoader.js`** — простой `Map`, не invalidate'ится по TTL. После прямой правки JSON на проде нужен redeploy.
 - **Лого `(ЦФКСиЗ ВО)`** в данных stat.ffspb.org. Для отображения нормализуется на frontend (`displayTeamName`, `normalizeClubName`). Группировка по клубу строится на эвристике строки имени — не на ID.
-- **Mobile bottom-nav** скрывает Аналитику; чтобы попасть на `/analytics`, нужен прямой URL. Если эта страница станет важной — добавить в нав.
 - **Sportvisor PDF** должен иметь ровно 35 страниц определённого формата. Парсер не валидирует структуру, а ожидает её. Нестандартный отчёт → битые поля.
 
 ---
@@ -246,14 +301,25 @@ GET    /api/maps/* и /assets/*            static
 JWT_SECRET=<random 64+ chars, REQUIRED in production, иначе process.exit(1)>
 PORT=4000
 CORS_ORIGIN=https://your-frontend.vercel.app
-MATCHES_DIR=/data/matches    # опционально, persistent disk
+MATCHES_DIR=/data/matches    # опционально, persistent disk (после Sprint 3 не нужен)
 MAPS_DIR=/data/maps          # опционально
 NODE_ENV=production
+
+# Sprint 2 — Web Push (опционально; без них push в no-op режиме)
+VAPID_PUBLIC_KEY=<base64url>     # сгенерировать: cd backend && npm run vapid
+VAPID_PRIVATE_KEY=<base64url>
+VAPID_SUBJECT=mailto:owner@your-domain.com
+
+# Sprint 3 (planned) — Postgres
+DATABASE_URL=postgres://user:pass@host:5432/avandata?sslmode=require
+DATABASE_POOL_MAX=10
+DATABASE_SSL=true
 ```
 
 **Frontend (Vercel):**
 ```
 VITE_API_BASE_URL=https://your-backend.onrender.com
+VITE_VAPID_PUBLIC_KEY=<тот же что backend, опц. — fallback fetched from /api/push/public-key>
 ```
 
 ---
@@ -277,6 +343,28 @@ cd backend
 node -e "import('./services/standingsService.js').then(m => m.refreshAll())"
 ```
 
+**Парсер календаря вручную (Sprint 2):**
+```bash
+cd backend
+node -e "import('./services/calendarService.js').then(m => m.refreshCalendarAll())"
+```
+
+**Генерация VAPID-ключей для push (Sprint 2, разовая операция):**
+```bash
+cd backend
+npm install web-push       # если ещё не установлен
+npm run vapid              # печатает VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY
+# результат → в backend/.env и frontend/.env
+```
+
+**Тест push-уведомления (только тренеры, после подписки):**
+```bash
+curl -X POST https://your-backend.onrender.com/api/push/test \
+  -H "Authorization: Bearer <jwt>" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Тест","body":"Push работает!"}'
+```
+
 **Сидинг пользователей:**
 ```bash
 node backend/scripts/seed-users.js
@@ -289,9 +377,9 @@ cd frontend && npm run build  # → frontend/dist
 
 ---
 
-## 14. Кто что трогал в последнем спринте (для контекста)
+## 14. История спринтов
 
-Большой апгрейд от стартового состояния:
+### Sprint 1 (стартовый апгрейд)
 - Полный rebrand Легирус → АванDата (палитра, лого, кобрендинг убран)
 - Главный экран `/club` с парсером турнирных таблиц
 - Топ-7 игроков клуба по сезонной агрегации
@@ -302,4 +390,55 @@ cd frontend && npm run build  # → frontend/dist
 - Соперники по имени в плашке матчей
 - Имя-нормализация в стандингс («ГБУ ДО СШОР …» → одно с «СШОР …»)
 
-Все изменения в коммитах последних 24 часов в `git log --oneline`.
+### Sprint 2 (текущий, май 2026)
+- ✅ **PWA push-уведомления** — Web Push API через VAPID, `services/pushService.js` + `routes/push.js` + service worker `frontend/public/sw.js`. Кнопка-toggle 🔔 в `AppHeader`. Триггер из `routes/upload.js` после успешного парсинга PDF. Работает в no-op без VAPID ENV — не падает.
+- ✅ **Календарь сезона `/calendar`** — `services/calendarService.js` скрейпит ffspb по ссылке турнира + `/calendar`. Страница `pages/CalendarPage.jsx` с фильтром «Будущие/Сыгранные/Все» и переключателем возраста. Данные в `backend/data/calendar/{age}.json`.
+- ✅ **Уборка мёртвого кода**:
+  - Удалён ИИ-агент целиком (`backend/routes/agent.js`, `backend/services/ruleEngine.js`, `backend/data/agent-rules.json`, `frontend/src/components/AgentCard.{jsx,css}`, `AgentTriggerButton.{jsx,css}`). Все файлы оставлены как stub'ы с deprecation-комментом — физическое удаление см. § 15.
+  - Удалён `HalfTimeBars.{jsx,css}` (не использовался — его роль на себя взяли inline-блоки `halftime-team` в `ClubOverview.jsx` и `PlayerDetail.jsx`).
+  - `loadAgentRules` из `dataLoader.js` убран. `fetchAgentInsight` из `frontend/src/services/api.js` убран.
+- ✅ **HANDOFF.md** — этот документ полностью обновлён под Sprint 2.
+
+### Sprint 3 (планируется, ~2 недели)
+PostgreSQL миграция. Полное ТЗ: [`SPEC_SPRINT_3_POSTGRES.md`](./SPEC_SPRINT_3_POSTGRES.md).
+
+### Sprint 4 (планируется, ~1.5 недели, требует Sprint 3)
+Multi-club support. Полное ТЗ: [`SPEC_SPRINT_4_MULTI_CLUB.md`](./SPEC_SPRINT_4_MULTI_CLUB.md).
+
+---
+
+## 15. Файлы на физическое удаление
+
+В Sprint 2 cleanup эти файлы превращены в пустые stub'ы (потому что у выполняющего агента не было прав на `rm`). После проверки можно удалить физически — никаких импортов на них не осталось:
+
+```bash
+# из корня проекта
+del "frontend\src\components\HalfTimeBars.jsx"
+del "frontend\src\components\HalfTimeBars.css"
+del "frontend\src\components\AgentCard.jsx"
+del "frontend\src\components\AgentCard.css"
+del "frontend\src\components\AgentTriggerButton.jsx"
+del "frontend\src\components\AgentTriggerButton.css"
+del "backend\routes\agent.js"
+del "backend\services\ruleEngine.js"
+del "backend\data\agent-rules.json"
+```
+
+Или одной командой через PowerShell:
+```powershell
+Remove-Item @(
+  'frontend\src\components\HalfTimeBars.jsx',
+  'frontend\src\components\HalfTimeBars.css',
+  'frontend\src\components\AgentCard.jsx',
+  'frontend\src\components\AgentCard.css',
+  'frontend\src\components\AgentTriggerButton.jsx',
+  'frontend\src\components\AgentTriggerButton.css',
+  'backend\routes\agent.js',
+  'backend\services\ruleEngine.js',
+  'backend\data\agent-rules.json'
+)
+```
+
+После удаления — `git status` покажет только эти 9 файлов, можно коммитить.
+
+**Замечание по `ClubOverview` фрагментам:** в задаче была формулировка «удалённые табы», но при проверке `pages/ClubOverview.jsx` (на 374 строки) откровенно мёртвых секций не нашлось — все компоненты (hero, top-5, ratings, KPI, halftime-team, line leaders, attack/defence) активно используются. Если есть конкретные блоки на удаление — указать в следующей итерации.

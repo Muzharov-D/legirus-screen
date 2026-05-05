@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
+import PushOptInButton from './PushOptInButton';
 import './AppHeader.css';
 
 const ROLE_LABELS = {
@@ -72,6 +73,7 @@ export default function AppHeader() {
             </span>
           )}
         </div>
+        <PushOptInButton />
         <button className="app-header__btn" disabled title="Язык">РУС</button>
         <button
           className="app-header__btn app-header__btn--refresh"

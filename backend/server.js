@@ -1,15 +1,21 @@
+// Загружаем .env (если есть) до всех остальных импортов, чтобы services увидели VAPID и т.п.
+// На Render/проде ENV приходят из dashboard, .env отсутствует — dotenv молча пропускает.
+import 'dotenv/config';
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dataRoutes from './routes/data.js';
-import agentRoutes from './routes/agent.js';
 import uploadRoutes from './routes/upload.js';
 import authRoutes from './routes/auth.js';
+import pushRoutes from './routes/push.js';
 import { authenticate, authorize } from './middleware/auth.js';
 import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
 import { startCupCron } from './services/cupService.js';
+import { startCalendarCron } from './services/calendarService.js';
+import { configurePush } from './services/pushService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,12 +42,14 @@ app.use('/api/auth', authRoutes);
 
 // Protected
 app.use('/api/data', authenticate, dataRoutes);
-app.use('/api/agent', authenticate, agentRoutes);
 app.use('/api/upload-pdf', authenticate, authorize('head_coach', 'team_coach'), uploadRoutes);
+app.use('/api/push', authenticate, pushRoutes);
 
 ensureMatchesDir();
 startStandingsCron();
 startCupCron();
+startCalendarCron();
+configurePush();
 
 app.listen(PORT, () => {
   console.log(`Backend listening on :${PORT}`);

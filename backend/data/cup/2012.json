@@ -1,0 +1,318 @@
+{
+  "ageGroup": "2012",
+  "season": "2025-2026",
+  "title": "Кубок ФФСПб · Вторая лига · 2012 г.р.",
+  "source": "https://stat.ffspb.org/tournament44347",
+  "lastUpdated": "2026-05-05T13:35:01.508Z",
+  "parseHint": "PlayOff parsed: 7 раундов",
+  "rounds": [
+    {
+      "name": "Раунд 7",
+      "matches": [
+        {
+          "home": "Искра",
+          "away": "Нева (ЦФКСиЗ ВО)",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/74owkGl4.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/mtzAr7Ye.png",
+          "score": "1:8",
+          "url": "https://stat.ffspb.org/tournament44347/match/3862019",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Юниор",
+          "away": "ЦФКСиЗ Красносельского района",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/zfIbBUNM.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/mTR0T8ek.png",
+          "score": "5:2",
+          "url": "https://stat.ffspb.org/tournament44347/match/3862018",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШ Красносельского района-Дружба",
+          "away": "Самсон",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/noshield.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/cztDL9pi.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862022",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Лавина",
+          "away": "СШОР Лидер-Купчино",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/LfykvviS.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/noshield.png",
+          "score": "0:2",
+          "url": "https://stat.ffspb.org/tournament44347/match/3862021",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Зенит-84",
+          "away": "Динамо-Север",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/QDXtJTYq.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/3cIZp3UK.png",
+          "score": "1:2",
+          "url": "https://stat.ffspb.org/tournament44347/match/3862024",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Московская застава - Кристалл-2",
+          "away": "Зеленогорск",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/34hnuYbd.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/XrYDARHE.png",
+          "score": "3:1",
+          "url": "https://stat.ffspb.org/tournament44347/match/3862020",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Автово-2",
+          "away": "Кречет",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/oCdUpwbX.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/yhqXz64S.png",
+          "score": "7:0",
+          "url": "https://stat.ffspb.org/tournament44347/match/3862023",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Легирус (ЦФКСиЗ ВО)",
+          "away": "СШ Кировец-Восхождение-2",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/TafJLKD5.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862037",
+          "isOurClubMatch": true
+        },
+        {
+          "home": "СШ Локомотив",
+          "away": "Царское Село-Динамо-2",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/q00cRvSk.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/FwBsiVix.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862033",
+          "isOurClubMatch": false
+        }
+      ]
+    },
+    {
+      "name": "1/32 финала",
+      "matches": [
+        {
+          "home": "СШ Кронштадт",
+          "away": "Нева (ЦФКСиЗ ВО)",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/fIyDuGC4.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/mtzAr7Ye.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862026",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШОР №2 Невского района",
+          "away": "Юниор",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/57LUTNC0.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/zfIbBUNM.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862025",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Выборжанин",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862030",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШ Экран",
+          "away": "СШОР Лидер-Купчино",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/noshield.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862028",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Динамо-Центр",
+          "away": "Динамо-Север",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/aB4Tej03.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/3cIZp3UK.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862032",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШОР Лидер",
+          "away": "Московская застава - Кристалл-2",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/U3Rb6ng7.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/34hnuYbd.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862027",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Пороховчанин-Тосно",
+          "away": "Автово-2",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/Tjl7bLcz.png",
+          "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/oCdUpwbX.png",
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862031",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Царское Село-Динамо",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/vDB2I7gn.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862045",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Адмиралтеец",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/FWEHHwBo.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862041",
+          "isOurClubMatch": false
+        }
+      ]
+    },
+    {
+      "name": "1/16 финала",
+      "matches": [
+        {
+          "home": "Сестрорецк",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/C2tDxqJD.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862034",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "",
+          "away": "",
+          "homeShield": null,
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862038",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Ижорец",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/3G7rJPz5.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862036",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШ Красносельского района",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XjQeknxD.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862040",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШ Петроградского района - Динамо",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/fqUlOpNu.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862035",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШ №2 ВО Звезда",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/sJ7vShzi.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862039",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "СШ Кировец Восхождение",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/upS1lchF.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862049",
+          "isOurClubMatch": false
+        }
+      ]
+    },
+    {
+      "name": "1/8 финала",
+      "matches": [
+        {
+          "home": "СШОР Зенит",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/UHs1qWnv.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862042",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Автово",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/s3motf8J.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862046",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Звезда (Олимпийские надежды)",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/swcv3NNQ.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862044",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "ФК Динамо-СПб",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/33kzeoR9.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862048",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Коломяги (Олимпийские надежды)",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XOmCm02e.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862043",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "Московская застава - Кристалл",
+          "away": "",
+          "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/xEo9X3QY.png",
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862047",
+          "isOurClubMatch": false
+        },
+        {
+          "home": "",
+          "away": "",
+          "homeShield": null,
+          "awayShield": null,
+          "score": null,
+          "url": "https://stat.ffspb.org/tournament44347/match/3862053",
+          "isOurClubMatch": false
+        }
+      ]
+    }
+  ]
+}

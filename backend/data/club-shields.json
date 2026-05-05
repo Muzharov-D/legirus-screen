@@ -1,0 +1,45 @@
+{
+  "clubs": [
+    {
+      "name": "СШОР №2 Невского района",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373"
+    },
+    {
+      "name": "СШОР Лидер",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443"
+    },
+    {
+      "name": "СШОР Кировского района",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472"
+    },
+    {
+      "name": "Самсон",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/pYOMOZN7.png"
+    },
+    {
+      "name": "СШОР Экран",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/evXgm5IP.png?1777977542"
+    },
+    {
+      "name": "ФК Легирус",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/MFJiwboY.png"
+    },
+    {
+      "name": "СШ Выборжанин",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/p2MVT0ZE.png?1777977606"
+    },
+    {
+      "name": "Пороховчанин-Тосно",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645"
+    },
+    {
+      "name": "Динамо-Центр",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png"
+    },
+    {
+      "name": "СШОР Лидер-Купчино",
+      "shield": "https://img.nagradion.ru/images/bf300x500/shields/OCnBslWj.png"
+    }
+  ],
+  "updatedAt": "2026-05-05"
+}

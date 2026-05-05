@@ -15,31 +15,36 @@ const loginLimiter = rateLimit({
 });
 
 router.post('/login', loginLimiter, async (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Логин и пароль обязательны' });
-  }
-  const user = findUserByUsername(String(username).toLowerCase().trim());
-  if (!user) return res.status(401).json({ error: 'Неверный логин или пароль' });
-  const ok = await verifyPassword(user, password);
-  if (!ok) return res.status(401).json({ error: 'Неверный логин или пароль' });
+  try {
+    const { username, password } = req.body || {};
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Логин и пароль обязательны' });
+    }
+    const user = findUserByUsername(String(username).toLowerCase().trim());
+    if (!user) return res.status(401).json({ error: 'Неверный логин или пароль' });
+    const ok = await verifyPassword(user, password);
+    if (!ok) return res.status(401).json({ error: 'Неверный логин или пароль' });
 
-  const token = jwt.sign(
-    { userId: user.id, role: user.role },
-    SIGNING_SECRET,
-    { expiresIn: '7d' }
-  );
-  res.json({
-    token,
-    user: {
-      id: user.id,
-      username: user.username,
-      role: user.role,
-      teamId: user.teamId ?? null,
-      playerId: user.playerId || null,
-      fullName: user.fullName,
-    },
-  });
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      SIGNING_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        teamId: user.teamId ?? null,
+        playerId: user.playerId || null,
+        fullName: user.fullName,
+      },
+    });
+  } catch (e) {
+    console.error('[auth/login] crash:', e);
+    res.status(500).json({ error: 'Login crash: ' + (e?.message || String(e)) });
+  }
 });
 
 router.get('/me', authenticate, (req, res) => res.json({ user: req.user }));

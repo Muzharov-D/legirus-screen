@@ -14,7 +14,14 @@ async function fetchJson(path, opts = {}) {
   const headers = { ...(opts.headers || {}) };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${PREFIX}${path}`, { ...opts, headers });
+  // Сериализуем JSON-тело и проставляем content-type, если передан body как объект
+  let body = opts.body;
+  if (body && typeof body === 'object' && !(body instanceof FormData) && !(body instanceof Blob)) {
+    body = JSON.stringify(body);
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
+
+  const res = await fetch(`${PREFIX}${path}`, { ...opts, headers, body });
 
   if (res.status === 401) {
     setToken(null);
@@ -29,8 +36,13 @@ async function fetchJson(path, opts = {}) {
     try { msg = JSON.parse(text).error || msg; } catch (_) { if (text) msg = text; }
     throw new Error(msg);
   }
+  // Пустой ответ (204) — возвращаем null
+  if (res.status === 204) return null;
   return res.json();
 }
+
+// Публичный helper для модулей, которым нужен авторизованный fetch (push.js и т.п.)
+export const apiFetch = (path, opts) => fetchJson(path, opts);
 
 // Auth
 export async function login(username, password) {
@@ -65,14 +77,8 @@ export const fetchStandingsList = () => fetchJson('/data/standings');
 export const fetchPlayer = (playerId) => fetchJson(`/data/player/${encodeURIComponent(playerId)}`);
 export const fetchCup = (ageGroup) => fetchJson(`/data/cup/${encodeURIComponent(ageGroup)}`);
 export const fetchCupList = () => fetchJson('/data/cup');
-
-export async function fetchAgentInsight(screenId, context) {
-  return fetchJson('/agent/insight', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ screenId, context: context || {} }),
-  });
-}
+export const fetchCalendar = (ageGroup) => fetchJson(`/data/calendar/${encodeURIComponent(ageGroup)}`);
+export const fetchCalendarList = () => fetchJson('/data/calendar');
 
 export async function uploadPdf(file, teamId, tournament) {
   const fd = new FormData();

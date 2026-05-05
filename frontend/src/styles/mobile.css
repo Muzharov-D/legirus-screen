@@ -234,7 +234,7 @@ img, svg, video { max-width: 100%; height: auto; }
     margin-top: 4px;
   }
 
-  /* === SPEC_MOBILE_14 PR-1 — 13 targeted bugs (Bug 8 = HalfTimeBars, separate PR) === */
+  /* === SPEC_MOBILE_14 PR-1 — 13 targeted bugs (Bug 8 пропущен — HalfTimeBars удалён в Sprint 2) === */
 
   /* Bug 1 — «Информация о команде» left-align */
   .club-overview__hero,

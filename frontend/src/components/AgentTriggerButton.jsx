@@ -1,10 +1,2 @@
-import './AgentTriggerButton.css';
-
-export default function AgentTriggerButton({ onClick }) {
-  return (
-    <button className="agent-trigger" onClick={onClick} title="ИИ-агент">
-      <span className="agent-trigger__bolt">✦</span>
-      <span>ИИ-агент</span>
-    </button>
-  );
-}
+// DEPRECATED — компонент удалён в Sprint 2 cleanup (не импортируется никем).
+export default function AgentTriggerButton() { return null; }
