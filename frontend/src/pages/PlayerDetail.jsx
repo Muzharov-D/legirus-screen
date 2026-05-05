@@ -177,18 +177,6 @@ export default function PlayerDetail() {
 
   return (
     <div className="page player-detail">
-      <div className="player-detail__topbar">
-        <button className="player-detail__back" onClick={() => navigate('/players')}>
-          ← К списку
-        </button>
-        <button className="player-detail__back" onClick={() => navigate(`/matches/${match.id}`)}>
-          К матчу
-        </button>
-        <button className="player-detail__download" disabled title="Скоро будет доступно">
-          ↓ Скачать карточку
-        </button>
-      </div>
-
       {/* HEADER */}
       <div className="card player-detail__hero">
         <PlayerPhoto player={player} size={132} />
