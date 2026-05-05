@@ -28,8 +28,9 @@ function normalizeClubName(name) {
 }
 
 // Для отображения: "Кировского района" → "Кировского р-на"
+// Без \b-границ потому что в JS regex \b не работает с кириллицей.
 function displayTeamName(name) {
-  return String(name || '').replace(/\bрайона\b/gi, 'р-на');
+  return String(name || '').replace(/района/gi, 'р-на');
 }
 
 const TOP_CATEGORIES = [
