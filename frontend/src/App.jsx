@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { TeamProvider } from './contexts/TeamContext';
+import { TournamentProvider } from './contexts/TournamentContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import Login from './pages/Login';
@@ -21,6 +22,7 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <TeamProvider>
+            <TournamentProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
@@ -36,6 +38,7 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/club" replace />} />
               </Route>
             </Routes>
+            </TournamentProvider>
           </TeamProvider>
         </AuthProvider>
       </BrowserRouter>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
-import { fetchMatch, fetchMatches, fetchMetrics } from '../services/api';
+import { fetchMatch, fetchMatches, fetchMetrics, fetchPlayer } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
 import PlayerPhoto from '../components/PlayerPhoto';
@@ -112,8 +112,26 @@ export default function PlayerDetail() {
     }
   }, [isPlayer, user, playerId, navigate]);
 
-  const { selectedTeamId } = useTeam();
-  const matchesRes = useApi(() => fetchMatches(selectedTeamId), [selectedTeamId]);
+  const { selectedTeamId, select } = useTeam();
+
+  // Сначала тянем самого игрока (по нему узнаём teamId), потом синхронизируем
+  // выбранную команду в шапке. Это чинит навигацию head_coach'а с КЛУБА на игрока
+  // другой возрастной группы.
+  const playerLookupRes = useApi(() => fetchPlayer(playerId).catch(() => null), [playerId]);
+  const lookedUpPlayer = playerLookupRes.data?.player;
+
+  useEffect(() => {
+    if (lookedUpPlayer?.teamId && lookedUpPlayer.teamId !== selectedTeamId) {
+      select(lookedUpPlayer.teamId);
+    }
+  }, [lookedUpPlayer, selectedTeamId, select]);
+
+  // teamId, по которому тянем матчи — приоритет: teamId игрока, затем выбранная в шапке.
+  const effectiveTeamId = lookedUpPlayer?.teamId || selectedTeamId;
+  const matchesRes = useApi(
+    () => (effectiveTeamId ? fetchMatches(effectiveTeamId) : Promise.resolve({ matches: [] })),
+    [effectiveTeamId]
+  );
   const lastMatchId = matchesRes.data?.matches?.[0]?.id;
   const matchRes = useApi(() => (lastMatchId ? fetchMatch(lastMatchId) : Promise.resolve(null)), [lastMatchId]);
   const metricsRes = useApi(fetchMetrics, []);

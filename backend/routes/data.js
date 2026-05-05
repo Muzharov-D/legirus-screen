@@ -50,6 +50,39 @@ router.get('/players', (req, res) => {
   }
 });
 
+// Один игрок по id (с проверкой прав по роли).
+// Используется на странице игрока для определения teamId, чтобы корректно
+// подгрузить матчи нужной команды (head_coach может смотреть профиль игрока
+// другой команды клуба).
+router.get('/player/:playerId', (req, res) => {
+  try {
+    const all = loadPlayers();
+    const player = (all.players || []).find((p) => p.id === req.params.playerId);
+    if (!player) return res.status(404).json({ error: 'Игрок не найден' });
+
+    if (req.user?.role === 'head_coach') return res.json({ player });
+
+    if (req.user?.role === 'team_coach') {
+      if (player.teamId !== req.user.teamId) {
+        return res.status(403).json({ error: 'Игрок другой команды' });
+      }
+      return res.json({ player });
+    }
+
+    if (req.user?.role === 'player') {
+      // Игрок видит только своих по команде
+      if (player.teamId !== req.user.teamId) {
+        return res.status(403).json({ error: 'Игрок другой команды' });
+      }
+      return res.json({ player });
+    }
+
+    return res.status(403).json({ error: 'Доступ запрещён' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/metrics', (_req, res) => {
   try { res.json(loadMetrics()); }
   catch (e) { res.status(500).json({ error: e.message }); }

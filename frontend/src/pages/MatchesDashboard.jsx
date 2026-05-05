@@ -8,6 +8,7 @@ import PlayerPhoto from '../components/PlayerPhoto';
 import { ratingColor, ratingTextColor } from '../utils/colors';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
+import { useTournament } from '../contexts/TournamentContext';
 import './MatchesDashboard.css';
 
 function num(v) {
@@ -62,12 +63,9 @@ export default function MatchesDashboard() {
     return m ? m[2] : seasonRaw;
   })();
 
-  // Турнир / Кубок переключатель
-  const TOURNAMENTS = [
-    { id: 'league', label: 'Турнир' },
-    { id: 'cup',    label: 'Кубок' },
-  ];
-  const [tournament, setTournament] = useState('league');
+  // Турнир / Кубок — глобальный контекст. Переключатель живёт на /club.
+  // Здесь только читаем и фильтруем список матчей.
+  const { tournament } = useTournament();
   const filteredMatches = useMemo(
     () => matches.filter((m) => (m.tournament || 'league') === tournament),
     [matches, tournament]
@@ -142,17 +140,7 @@ export default function MatchesDashboard() {
           <h1 className="matches-dashboard__hero-title">{season}</h1>
           <div className="matches-dashboard__hero-sub">
             ФК {ourTeam?.name?.toUpperCase() || 'Легирус 2010'} · {totalGames} матч{totalGames === 1 ? '' : 'ей'} разобран{totalGames === 1 ? '' : 'о'}
-          </div>
-          <div className="tournament-switch">
-            {TOURNAMENTS.map((t) => (
-              <button
-                key={t.id}
-                className={'tournament-switch__btn' + (tournament === t.id ? ' tournament-switch__btn--active' : '')}
-                onClick={() => setTournament(t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
+            {tournament === 'cup' && <> · Кубок</>}
           </div>
         </div>
         {canUpload && (

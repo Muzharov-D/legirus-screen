@@ -7,5 +7,14 @@
     "2012": "https://stat.ffspb.org/tournament44335",
     "2011": "https://stat.ffspb.org/tournament44334",
     "2010": "https://stat.ffspb.org/tournament44333"
+  },
+  "cup": {
+    "name": "Кубок ФФСПб · Вторая лига",
+    "sources": {
+      "2013": "https://stat.ffspb.org/tournament44348",
+      "2012": "https://stat.ffspb.org/tournament44347",
+      "2011": "https://stat.ffspb.org/tournament44346",
+      "2010": "https://stat.ffspb.org/tournament44345"
+    }
   }
 }

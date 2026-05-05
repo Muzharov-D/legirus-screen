@@ -4,6 +4,7 @@ import { useApi } from '../hooks/useApi';
 import { fetchMatches, fetchMatch, fetchStandings, fetchStandingsList } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useTournament } from '../contexts/TournamentContext';
 import PlayerPhoto from '../components/PlayerPhoto';
 import { ratingColor, ratingTextColor } from '../utils/colors';
 import './ClubPage.css';
@@ -50,6 +51,7 @@ export default function ClubPage() {
   const navigate = useNavigate();
   const { selectedTeam } = useTeam();
   const { canSeePlayer } = useAuth();
+  const { tournament, setTournament } = useTournament();
 
   // Возраст для standings: пробуем year → парсим из id (legirus-2010 → 2010) → пустую строку
   const ageGroup = String(
@@ -151,8 +153,12 @@ export default function ClubPage() {
 
   const topByCategory = useMemo(() => {
     if (!allMatches.length) return {};
+    // Фильтр по выбранному турниру (Лига / Кубок) — старые матчи с null tournament
+    // считаем как Лигу для обратной совместимости.
+    const filtered = allMatches.filter((m) => (m.tournament || 'league') === tournament);
+    if (!filtered.length) return {};
     const byPlayer = new Map();
-    allMatches.forEach((m) => {
+    filtered.forEach((m) => {
       (m.players || []).forEach((p) => {
         if (!byPlayer.has(p.id)) byPlayer.set(p.id, { player: p, matches: [] });
         const e = byPlayer.get(p.id);
@@ -174,7 +180,7 @@ export default function ClubPage() {
       out[cat.id] = list.sort((a, b) => b.value - a.value).slice(0, 5);
     });
     return out;
-  }, [allMatches]);
+  }, [allMatches, tournament]);
 
   const fmt = (v, digits) => {
     if (v == null || isNaN(v)) return '—';
@@ -192,8 +198,27 @@ export default function ClubPage() {
             {selectedTeam?.name || 'Команда не выбрана'}
             {selectedTeam?.ageGroup && <> · {selectedTeam.ageGroup}</>}
           </div>
+          {/* Глобальный переключатель Турнир/Кубок — задаёт скоуп для всех страниц */}
+          <div className="tournament-switch">
+            <button
+              className={'tournament-switch__btn' + (tournament === 'league' ? ' tournament-switch__btn--active' : '')}
+              onClick={() => setTournament('league')}
+            >Турнир</button>
+            <button
+              className={'tournament-switch__btn' + (tournament === 'cup' ? ' tournament-switch__btn--active' : '')}
+              onClick={() => setTournament('cup')}
+            >Кубок</button>
+          </div>
         </div>
       </div>
+
+      {/* Заглушка когда выбран Кубок (парсер кубка в разработке) */}
+      {tournament === 'cup' && (
+        <div className="card empty-state">
+          Кубок ФФСПб — парсер сетки в разработке. Скоро здесь появится плей-офф
+          по 4 возрастам с матчами своей команды.
+        </div>
+      )}
 
       {/* STANDINGS с переключателем «Клубный зачёт / Вторая лига 20XX г.р.» */}
       <div className="card club-standings">
