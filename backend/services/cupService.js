@@ -99,22 +99,27 @@ function isOurClubName(name, matcher) {
 //   lMatch/rMatch — поддеревья предыдущих раундов
 // Превращаем в плоский список раундов от самого ранне (1/8 финала) до самого позднего (Финал).
 
-function maxDepth(node) {
-  if (!node) return 0;
-  return 1 + Math.max(maxDepth(node.lMatch), maxDepth(node.rMatch));
+// bracketLevel — расстояние узла от листа: 0 = первый раунд (нет под-матчей),
+// k = есть под-матчи и max(child level) = k-1. Это надёжнее чем глубина от корня
+// потому что дерево бывает асимметричным (одна ветка глубже из-за seeded команд).
+function bracketLevel(node) {
+  if (!node) return -1;
+  const l = bracketLevel(node.lMatch);
+  const r = bracketLevel(node.rMatch);
+  if (l < 0 && r < 0) return 0;
+  return Math.max(l, r) + 1;
 }
 
-function roundNameByMatchCount(count) {
-  // Sportvisor хранит дерево с резервной глубиной (под 64 команды), поэтому глубина
-  // не совпадает с реальной стадией. Имя раунда определяем по количеству матчей.
-  switch (count) {
-    case 1: return 'Финал';
-    case 2: return 'Полуфинал';
-    case 4: return 'Четвертьфинал';
-    case 8: return '1/8 финала';
-    case 16: return '1/16 финала';
-    case 32: return '1/32 финала';
-    default: return `Раунд (${count})`;
+function roundNameByOffsetFromFinal(off) {
+  // off = 0 → Финал, 1 → Полуфинал, 2 → Четвертьфинал, 3 → 1/8, …
+  switch (off) {
+    case 0: return 'Финал';
+    case 1: return 'Полуфинал';
+    case 2: return 'Четвертьфинал';
+    case 3: return '1/8 финала';
+    case 4: return '1/16 финала';
+    case 5: return '1/32 финала';
+    default: return `Раунд ${off + 1}`;
   }
 }
 
@@ -138,41 +143,45 @@ function formatScore(games) {
   return pens ? `${main} (пен. ${pens})` : main;
 }
 
-// Обход дерева в ширину с учётом глубины ОТ финала.
+// Группируем матчи по bracketLevel. Один проход по дереву, кэшируем уровни через Map.
 function walkPlayOff(finalNode, ourClubMatcher) {
   if (!finalNode) return [];
-  const totalDepth = maxDepth(finalNode);
-  // Подготовим массив раундов; индекс = depthFromFinal
-  const rounds = Array.from({ length: totalDepth }, () => []);
+  const levelCache = new Map();
+  function lvl(n) {
+    if (!n) return -1;
+    if (levelCache.has(n)) return levelCache.get(n);
+    const l = lvl(n.lMatch), r = lvl(n.rMatch);
+    const v = (l < 0 && r < 0) ? 0 : Math.max(l, r) + 1;
+    levelCache.set(n, v);
+    return v;
+  }
+  const total = lvl(finalNode) + 1; // 1-based
+  const rounds = Array.from({ length: total }, () => []);
 
-  function visit(node, depthFromRoot) {
+  function visit(node) {
     if (!node) return;
-    const depthFromFinal = depthFromRoot;
     const home = stripTags(node.lTeam?.name);
     const away = stripTags(node.rTeam?.name);
-    const score = formatScore(node.games);
-    const matchUrl = node.games?.[0]?.url || null;
-    rounds[depthFromFinal].push({
+    rounds[lvl(node)].push({
       home,
       away,
       homeShield: node.lTeam?.shield || null,
       awayShield: node.rTeam?.shield || null,
-      score,
-      url: matchUrl,
+      score: formatScore(node.games),
+      url: node.games?.[0]?.url || null,
       isOurClubMatch:
         isOurClubName(home, ourClubMatcher) ||
         isOurClubName(away, ourClubMatcher),
     });
-    visit(node.lMatch, depthFromRoot + 1);
-    visit(node.rMatch, depthFromRoot + 1);
+    visit(node.lMatch);
+    visit(node.rMatch);
   }
-  visit(finalNode, 0);
+  visit(finalNode);
 
-  // Возвращаем от самого раннего к финалу, чтобы UI читался слева направо.
-  // Имя раунда — по количеству матчей в нём (более надёжно).
-  const reversed = rounds.slice().reverse();
-  return reversed.map((matches) => ({
-    name: roundNameByMatchCount(matches.length),
+  // rounds[0] = первый раунд (листья), rounds[total-1] = Финал.
+  // offsetFromFinal = total-1-i.
+  return rounds.map((matches, i) => ({
+    name: roundNameByOffsetFromFinal(total - 1 - i),
     matches,
   }));
 }

@@ -92,11 +92,14 @@ export default function ClubPage() {
         if (!key) return;
         const e = byClub.get(key) || {
           club: key,
+          shield: row.shield || null,
           isOurClub: false,
           games: 0, wins: 0, draws: 0, losses: 0,
           goalsFor: 0, goalsAgainst: 0, points: 0,
           ageGroups: [],
         };
+        // если у первого встретившегося не было shield — берём первый ненулевой
+        if (!e.shield && row.shield) e.shield = row.shield;
         e.games += row.games || 0;
         e.wins  += row.wins  || 0;
         e.draws += row.draws || 0;
@@ -283,7 +286,10 @@ export default function ClubPage() {
                     {clubStandings.map((row) => (
                       <tr key={row.club} className={row.isOurClub ? 'club-standings__row--ours' : ''}>
                         <td className="club-standings__pos">{row.pos}</td>
-                        <td className="club-standings__team">{displayTeamName(row.club)}</td>
+                        <td className="club-standings__team">
+                          {row.shield && <img className="club-standings__shield" src={row.shield} alt="" />}
+                          {displayTeamName(row.club)}
+                        </td>
                         <td>{row.games}</td>
                         <td>{row.wins}</td>
                         <td>{row.draws}</td>
@@ -318,7 +324,10 @@ export default function ClubPage() {
                 {(ageStandings.table || []).map((row) => (
                   <tr key={row.pos} className={row.isOurClub ? 'club-standings__row--ours' : ''}>
                     <td className="club-standings__pos">{row.pos}</td>
-                    <td className="club-standings__team">{displayTeamName(row.team)}</td>
+                    <td className="club-standings__team">
+                      {row.shield && <img className="club-standings__shield" src={row.shield} alt="" />}
+                      {displayTeamName(row.team)}
+                    </td>
                     <td>{row.games}</td>
                     <td>{row.wins}</td>
                     <td>{row.draws}</td>
