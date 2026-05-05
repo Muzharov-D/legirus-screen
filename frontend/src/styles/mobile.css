@@ -421,3 +421,116 @@ img, svg, video { max-width: 100%; height: auto; }
     font-size: 11px;
   }
 }
+
+/* === Galaxy Fold cover screen / extra-narrow phones (≤ 360px) === */
+@media (max-width: 360px) {
+  body { font-size: 13px; }
+  .app-content, .page { padding: 8px !important; padding-bottom: 64px !important; }
+  .app-header { height: 48px !important; padding: 0 8px !important; }
+  .app-header__brand-logo { height: 18px !important; }
+  .sidebar-nav { height: 50px !important; padding: 2px 4px !important; }
+  .sidebar-nav__icon { font-size: 16px !important; }
+  .sidebar-nav__label { font-size: 9px !important; }
+
+  /* 2-колоночные сетки → 1 */
+  .club-overview__ratings,
+  .match-detail__ratings,
+  .player-detail__ratings,
+  .matches-dashboard__season,
+  [class*="metrics"],
+  [class*="key-stats"],
+  [class*="key_stats"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Top-5 / лидеры — 1 на экран в свайпе */
+  .topr-card,
+  .top5-card,
+  .leader-card,
+  .club-overview__leader-card {
+    flex: 0 0 calc(100vw - 24px) !important;
+  }
+
+  /* Карточка лидера на /players — фото маленькое, имя в столбик */
+  .players-leaders__top-body > :first-child img,
+  [class*="best-player"] img,
+  [class*="motm"] img {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  /* Хиро-заголовки */
+  .matches-dashboard__hero-title,
+  .club-page__hero-title,
+  .player-detail__hero-name,
+  .players-leaders__top-name {
+    font-size: 18px !important;
+  }
+  .matches-dashboard__hero { padding: 14px 12px !important; }
+  .club-page__hero { padding: 14px 12px !important; }
+
+  /* Hero score уменьшается ещё */
+  .matches-dashboard__last-score { font-size: 18px !important; }
+  .match-detail__score { font-size: 32px !important; }
+
+  /* Таблицы — самый плотный режим */
+  .club-standings__table { font-size: 10px !important; }
+  .club-standings__table thead th { font-size: 8px !important; padding: 4px 1px !important; }
+  .club-standings__table tbody td { padding: 5px 1px !important; }
+  .club-standings__pts { font-size: 11px !important; }
+
+  /* Кнопки */
+  button, .btn, .upload-dialog__submit, .matches-dashboard__upload {
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+  }
+}
+
+/* === Tablet portrait (769–1024px) === */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Бок-нав остаётся вертикальным, но уже только с иконками */
+  .sidebar-nav { width: 64px; padding: 8px 4px; }
+  .sidebar-nav__item { padding: 12px 4px; font-size: 9px; }
+  .sidebar-nav__icon { font-size: 18px; }
+
+  /* Главная сетка матчей: 1 колонка слева, контент справа */
+  .matches-dashboard__grid { grid-template-columns: 280px 1fr !important; gap: 14px; }
+  .match-detail__grid { grid-template-columns: 320px 1fr !important; gap: 14px; }
+  .match-detail__right { display: none; }   /* правая колонка прячется, motm и mvs съезжают вниз через media reorder при необходимости */
+  .player-detail__radars { grid-template-columns: 1fr !important; gap: 12px; }
+  .player-detail__maps { grid-template-columns: 1fr 1fr !important; }
+  .player-detail__fitness-grid { grid-template-columns: repeat(3, 1fr) !important; }
+
+  /* Top-7 КЛУБа: 2 колонки */
+  .club-top-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* PlayersLeaders метрики — 3 в ряд */
+  .players-leaders__grid { grid-template-columns: repeat(3, 1fr) !important; }
+
+  /* Сетка KPI комбинированной аналитики — 4 колонки */
+  .club-overview__kpi { grid-template-columns: repeat(4, 1fr) !important; }
+  .match-detail__donuts { grid-template-columns: repeat(3, 1fr) !important; }
+
+  /* Командные карты — 3 колонки на планшете */
+  .match-detail__maps-grid { grid-template-columns: repeat(3, 1fr) !important; }
+
+  /* Hero чуть скромнее */
+  .matches-dashboard__hero-title,
+  .club-page__hero-title { font-size: 28px; }
+}
+
+/* === Small desktops / laptops (1025–1366px) === */
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .match-detail__grid { grid-template-columns: 320px 1fr 280px !important; }
+  .matches-dashboard__grid { grid-template-columns: 300px 1fr !important; }
+  .club-top-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* === Landscape phone (≤768 wide и ≤500 высота) — поджать вертикали === */
+@media (max-width: 768px) and (max-height: 500px) {
+  .sidebar-nav { height: 44px !important; }
+  .app-header { height: 44px !important; }
+  .app-content, .page { padding-bottom: 56px !important; }
+  .formation__pitch-wrap { aspect-ratio: 16 / 10 !important; max-height: 80vh; }
+}
+

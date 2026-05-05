@@ -67,3 +67,70 @@
 .players-leaders__top--locked:hover {
   border-color: rgba(255, 255, 255, 0.08);
 }
+
+/* Tablet portrait (769–1024px): сетка лидеров — 3 колонки */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .players-leaders__grid { grid-template-columns: repeat(3, 1fr); }
+  .players-leaders__top-body { gap: 16px; }
+}
+
+/* Mobile (≤768px): фото меньше, имя в нескольких строках, сетка 2-колонки */
+@media (max-width: 768px) {
+  /* Subnav на всю ширину, кнопки flex-1 */
+  .players-rating__subnav {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .players-subnav__item {
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  /* «Рейтинг игрока» карточка — стек */
+  .players-leaders__top-body {
+    grid-template-columns: auto 1fr !important;
+    gap: 12px !important;
+    align-items: start !important;
+  }
+  .players-leaders__top-body > :first-child img {
+    width: 72px !important;
+    height: 72px !important;
+  }
+  .players-leaders__top-name {
+    font-size: 17px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    word-break: break-word;
+    line-height: 1.15;
+    margin-bottom: 2px;
+  }
+  .players-leaders__top-pos {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .players-leaders__top-stats {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    font-size: 11px;
+  }
+  .players-leaders__top-rating {
+    grid-column: 1 / -1;
+    text-align: left;
+    margin-top: 6px;
+  }
+  /* Сетка лидеров — 2 колонки вместо 5 */
+  .players-leaders__grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* Galaxy Fold cover / extra-narrow (≤360px) */
+@media (max-width: 360px) {
+  .players-leaders__top-body > :first-child img {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  .players-leaders__top-name { font-size: 15px !important; }
+  .players-leaders__grid { grid-template-columns: 1fr; }
+  .players-subnav__item { padding: 7px 6px; font-size: 11px; }
+}

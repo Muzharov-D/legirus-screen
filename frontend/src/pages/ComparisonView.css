@@ -84,3 +84,22 @@
   color: #fff;
   font-weight: 600;
 }
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .comparison-view__metrics { grid-template-columns: repeat(2, 1fr); }
+  .comparison-view__sections { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .comparison-view__topbar { flex-wrap: wrap; gap: 8px; }
+  .comparison-view__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .comparison-metric { padding: 8px 10px; font-size: 12px; }
+  .comparison-metric__label { font-size: 11px; }
+  .comparison-view__sections { grid-template-columns: 1fr; gap: 12px; }
+  .comparison-section__body { grid-template-columns: 1fr; }
+  .comparison-section__metrics { font-size: 11px; }
+}
+
+@media (max-width: 360px) {
+  .comparison-view__metrics { grid-template-columns: 1fr; }
+}
