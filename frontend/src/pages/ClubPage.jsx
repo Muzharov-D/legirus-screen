@@ -41,6 +41,9 @@ const TOP_CATEGORIES = [
   { id: 'xa',       title: 'Лидеры по xA',               subtitle: 'сумма ожидаемых ассистов', getter: (p) => num(p.stats?.attack1?.xA),     aggregate: 'sum', digits: 2, suffix: '' },
   { id: 'fitness',  title: 'Топ по фитнес-рейтингу',     subtitle: 'средний за сезон',         getter: (p) => num(p.ratings?.fitness),       aggregate: 'avg', digits: 2, suffix: '' },
   { id: 'distance', title: 'Лидеры по пробегу',          subtitle: 'средний за матч',          getter: (p) => num(p.stats?.fitness?.totalDistance), aggregate: 'avg', digits: 0, suffix: ' м' },
+  { id: 'defense',  title: 'Лучшие в защите',            subtitle: 'отборы + перехваты за сезон',
+    getter: (p) => (num(p.stats?.defence1?.tackle) || 0) + (num(p.stats?.defence1?.interception) || 0),
+    aggregate: 'sum', digits: 0, suffix: '' },
 ];
 
 export default function ClubPage() {
