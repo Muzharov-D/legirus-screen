@@ -172,17 +172,18 @@ img, svg, video { max-width: 100%; height: auto; }
     width: 100% !important;
   }
 
-  /* Баг 5 — Лидеры по линиям: то же что Топ-5 */
-  [class*="leaders"],
-  [class*="line-leaders"],
-  [class*="leaders-row"] {
+  /* Баг 5 — Лидеры по линиям: 2-колоночный grid
+     ВНИМАНИЕ: убран [class*="leaders"] wildcard — он ловил page wrapper .players-leaders
+     и .players-leaders__top, ломая layout. Теперь только конкретные классы */
+  .line-leaders,
+  .leaders-row {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 8px !important;
     overflow: visible !important;
   }
-  [class*="leader-card"],
-  [class*="line-leader"] {
+  .leader-card,
+  .line-leader {
     min-width: 0 !important;
     width: 100% !important;
   }
@@ -336,10 +337,10 @@ img, svg, video { max-width: 100%; height: auto; }
     font-size: 16px !important;
   }
 
-  /* Bug 9 — Лидеры по линиям горизонтальный свайп */
+  /* Bug 9 — Лидеры по линиям горизонтальный свайп
+     (только устаревшие селекторы; .players-leaders__grid обрабатывается локально в PlayersLeaders.css) */
   .match-detail__leaders,
-  .club-overview__leaders,
-  .players-leaders__grid {
+  .club-overview__leaders {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -349,7 +350,6 @@ img, svg, video { max-width: 100%; height: auto; }
     gap: 10px !important;
     padding-bottom: 6px !important;
   }
-  .leader-card,
   .club-overview__leader-card {
     flex: 0 0 calc(80vw - 24px) !important;
     scroll-snap-align: start !important;
