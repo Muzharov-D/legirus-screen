@@ -156,8 +156,13 @@
 
 .club-top-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+}
+
+/* Большой десктоп — 4 колонки (7 карточек = 4+3) */
+@media (min-width: 1441px) {
+  .club-top-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .club-top-card {
   display: flex;

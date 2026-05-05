@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
-import { fetchMatches, fetchMatch, fetchStandings, fetchStandingsList } from '../services/api';
+import { fetchMatches, fetchMatch, fetchStandings, fetchStandingsList, fetchCup } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import PlayerPhoto from '../components/PlayerPhoto';
+import CupBracket from '../components/CupBracket';
 import { ratingColor, ratingTextColor } from '../utils/colors';
 import './ClubPage.css';
 
@@ -122,6 +123,13 @@ export default function ClubPage() {
   // ----- Standings ТЕКУЩЕГО возраста (вторая таблица под клубным зачётом) -----
   const ageStandings = ageGroup ? allStandings[ageGroup] : null;
 
+  // ----- Кубковая сетка возраста -----
+  const cupRes = useApi(
+    () => (tournament === 'cup' && ageGroup ? fetchCup(ageGroup).catch(() => null) : Promise.resolve(null)),
+    [tournament, ageGroup]
+  );
+  const cupData = cupRes.data;
+
   // Переключатель «Клубный зачёт» / «Вторая лига {age} г.р.»
   // Если возраст не подгружен (например 2009 — не во Второй лиге) — таб лиги недоступен.
   const [view, setView] = useState('club'); // 'club' | 'age'
@@ -212,15 +220,23 @@ export default function ClubPage() {
         </div>
       </div>
 
-      {/* Заглушка когда выбран Кубок (парсер кубка в разработке) */}
+      {/* CUP BRACKET — когда выбран Кубок, показываем сетку плей-офф для текущего возраста */}
       {tournament === 'cup' && (
-        <div className="card empty-state">
-          Кубок ФФСПб — парсер сетки в разработке. Скоро здесь появится плей-офф
-          по 4 возрастам с матчами своей команды.
+        <div className="card">
+          <div className="page-section-title">
+            Кубок · {ageGroup} г.р.
+            {cupData?.parseHint && (
+              <span className="club-standings__hint"> · {cupData.parseHint}</span>
+            )}
+          </div>
+          {cupRes.loading && <div className="empty-state">Загрузка сетки…</div>}
+          {!cupRes.loading && <CupBracket data={cupData} />}
         </div>
       )}
 
-      {/* STANDINGS с переключателем «Клубный зачёт / Вторая лига 20XX г.р.» */}
+      {/* STANDINGS с переключателем «Клубный зачёт / Вторая лига 20XX г.р.»
+           Скрыты когда выбран Кубок — там показывается только сетка плей-офф */}
+      {tournament === 'league' && (
       <div className="card club-standings">
         <div className="club-standings__head">
           <div className="standings-tabs">
@@ -321,6 +337,7 @@ export default function ClubPage() {
           </div>
         )}
       </div>
+      )}
 
       {/* TOP PLAYERS */}
       <div className="page-section-title club-top-title">Топ футболистов клуба</div>

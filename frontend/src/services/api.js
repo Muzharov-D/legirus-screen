@@ -63,6 +63,8 @@ export const fetchMetrics = () => fetchJson('/data/metrics');
 export const fetchStandings = (ageGroup) => fetchJson(`/data/standings/${encodeURIComponent(ageGroup)}`);
 export const fetchStandingsList = () => fetchJson('/data/standings');
 export const fetchPlayer = (playerId) => fetchJson(`/data/player/${encodeURIComponent(playerId)}`);
+export const fetchCup = (ageGroup) => fetchJson(`/data/cup/${encodeURIComponent(ageGroup)}`);
+export const fetchCupList = () => fetchJson('/data/cup');
 
 export async function fetchAgentInsight(screenId, context) {
   return fetchJson('/agent/insight', {

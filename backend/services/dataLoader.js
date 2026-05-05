@@ -103,4 +103,18 @@ export function listStandings() {
     .map((f) => f.replace(/\.json$/, ''));
 }
 
+export function loadCup(ageGroup) {
+  const filePath = path.join(DATA_DIR, 'cup', `${ageGroup}.json`);
+  if (!fs.existsSync(filePath)) return null;
+  return readJson(filePath);
+}
+
+export function listCup() {
+  const dir = path.join(DATA_DIR, 'cup');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.json') && !f.startsWith('_'))
+    .map((f) => f.replace(/\.json$/, ''));
+}
+
 export const PATHS = { DATA_DIR, MATCHES_DIR };
