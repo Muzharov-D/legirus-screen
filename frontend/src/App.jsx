@@ -14,6 +14,7 @@ import PlayersLeaders from './pages/PlayersLeaders';
 import PlayersRating from './pages/PlayersRating';
 import PlayerDetail from './pages/PlayerDetail';
 import CalendarPage from './pages/CalendarPage';
+import PublicTeamSchedule from './pages/PublicTeamSchedule';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -28,6 +29,8 @@ export default function App() {
             <TournamentProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
+              {/* Публичные маршруты — без авторизации */}
+              <Route path="/public/team/:age" element={<PublicTeamSchedule />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                 <Route path="/" element={<Navigate to="/club" replace />} />
                 <Route path="/club" element={<ClubPage />} />

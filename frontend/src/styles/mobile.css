@@ -493,8 +493,8 @@ img, svg, video { max-width: 100%; height: auto; }
   .sidebar-nav__item { padding: 12px 4px; font-size: 9px; }
   .sidebar-nav__icon { font-size: 18px; }
 
-  /* Главная сетка матчей: 1 колонка слева, контент справа */
-  .matches-dashboard__grid { grid-template-columns: 280px 1fr !important; gap: 14px; }
+  /* Главная сетка матчей: узкая колонка слева, контент основной */
+  .matches-dashboard__grid { grid-template-columns: 220px minmax(0, 1fr) !important; gap: 16px; }
   .match-detail__grid { grid-template-columns: 320px 1fr !important; gap: 14px; }
   .match-detail__right { display: none; }   /* правая колонка прячется, motm и mvs съезжают вниз через media reorder при необходимости */
   .player-detail__radars { grid-template-columns: 1fr !important; gap: 12px; }
@@ -522,7 +522,7 @@ img, svg, video { max-width: 100%; height: auto; }
 /* === Small desktops / laptops (1025–1366px) === */
 @media (min-width: 1025px) and (max-width: 1366px) {
   .match-detail__grid { grid-template-columns: 320px 1fr 280px !important; }
-  .matches-dashboard__grid { grid-template-columns: 300px 1fr !important; }
+  .matches-dashboard__grid { grid-template-columns: 240px minmax(0, 1fr) !important; }
   .club-top-grid { grid-template-columns: repeat(2, 1fr); }
 }
 

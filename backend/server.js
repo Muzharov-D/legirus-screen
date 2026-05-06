@@ -10,6 +10,7 @@ import dataRoutes from './routes/data.js';
 import uploadRoutes from './routes/upload.js';
 import authRoutes from './routes/auth.js';
 import pushRoutes from './routes/push.js';
+import publicRoutes from './routes/public.js';
 import { authenticate, authorize } from './middleware/auth.js';
 import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
@@ -37,8 +38,9 @@ app.use('/assets', express.static(ASSETS_DIR));
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-// Public
+// Public — без auth
 app.use('/api/auth', authRoutes);
+app.use('/api/public', publicRoutes);
 
 // Protected
 app.use('/api/data', authenticate, dataRoutes);

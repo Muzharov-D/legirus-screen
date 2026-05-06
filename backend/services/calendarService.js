@@ -49,7 +49,7 @@ function parseScore(s) {
   return { home: Number(m[1]), away: Number(m[2]) };
 }
 
-function parseCalendarRowsFromHtml(html, ourClubMatcher) {
+function parseCalendarRowsFromHtml(html, ourClubMatcher, tournament) {
   const matches = [];
   const rowRe = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
   let m;
@@ -61,13 +61,16 @@ function parseCalendarRowsFromHtml(html, ourClubMatcher) {
     const cells = [];
     let tdMatch;
     while ((tdMatch = tdRe.exec(rowHtml)) !== null) cells.push(tdMatch[1]);
-    if (cells.length < 5) continue;
+    // Адаптивная разметка: лига имеет колонку «Группа» (cells[2]),
+    // кубок — нет (5 ячеек вместо 6). Определяем teamsHtml по содержимому.
+    const teamsIdx = cells.findIndex((c) => (c.match(/\/team\/\d+/g) || []).length >= 2);
+    if (teamsIdx < 0) continue;
 
     const dateCell = stripTags(cells[1] || '');
-    const groupCell = stripTags(cells[2] || '');
-    const teamsHtml = cells[3] || '';
-    const scoreCell = stripTags(cells[4] || '');
-    const stadiumCell = stripTags(cells[5] || '');
+    const groupCell = teamsIdx > 2 ? stripTags(cells[2] || '') : '';
+    const teamsHtml = cells[teamsIdx] || '';
+    const scoreCell = stripTags(cells[teamsIdx + 1] || '');
+    const stadiumCell = stripTags(cells[teamsIdx + 2] || '');
 
     const teamLinkRe = /<a\b[^>]*href="[^"]*\/team\/(\d+)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
     const teamLinks = [];
@@ -100,12 +103,13 @@ function parseCalendarRowsFromHtml(html, ourClubMatcher) {
       group: groupCell || null,
       venue: stadiumCell || null,
       round: null,
+      tournament,             // 'league' | 'cup'
     });
   }
   return matches;
 }
 
-export async function fetchAndParseCalendar(url, ourClubMatcher) {
+async function fetchHtml(url) {
   const res = await fetch(url, {
     headers: {
       'User-Agent': 'Mozilla/5.0 Chrome/120 Safari/537.36',
@@ -113,8 +117,12 @@ export async function fetchAndParseCalendar(url, ourClubMatcher) {
     },
   });
   if (!res.ok) throw new Error(`Источник ${url} вернул ${res.status}`);
-  const html = await res.text();
-  const matches = parseCalendarRowsFromHtml(html, ourClubMatcher);
+  return res.text();
+}
+
+export async function fetchAndParseCalendar(url, ourClubMatcher, tournament = 'league') {
+  const html = await fetchHtml(url);
+  const matches = parseCalendarRowsFromHtml(html, ourClubMatcher, tournament);
   return {
     matches,
     parserHint: matches.length > 0 ? 'html-table' : 'fallback-empty',
@@ -126,6 +134,14 @@ function calendarUrlFor(age, cfg) {
   const explicit = cfg.calendarSources?.[age];
   if (explicit) return explicit;
   const base = cfg.sources?.[age];
+  if (!base) return null;
+  return base.replace(/\/$/, '') + '/calendar';
+}
+
+function cupCalendarUrlFor(age, cfg) {
+  const explicit = cfg.cupCalendarSources?.[age];
+  if (explicit) return explicit;
+  const base = cfg.cup?.sources?.[age];
   if (!base) return null;
   return base.replace(/\/$/, '') + '/calendar';
 }
@@ -175,20 +191,49 @@ function attachShields(matches, shieldMap) {
 
 export async function refreshCalendarAge(age) {
   const cfg = readConfig();
-  const url = calendarUrlFor(age, cfg);
-  if (!url) throw new Error(`URL календаря для возраста ${age} не настроен`);
-  const { matches, parserHint } = await fetchAndParseCalendar(url, cfg.ourClubMatcher);
+  const leagueUrl = calendarUrlFor(age, cfg);
+  const cupUrl = cupCalendarUrlFor(age, cfg);
+
+  const sources = [];
+  if (leagueUrl) sources.push({ url: leagueUrl, tournament: 'league' });
+  if (cupUrl)    sources.push({ url: cupUrl,    tournament: 'cup' });
+  if (sources.length === 0) throw new Error(`Нет URL календаря для возраста ${age}`);
+
+  const allMatches = [];
+  let parserHint = 'fallback-empty';
+  const sourceUrls = [];
+  for (const s of sources) {
+    try {
+      const { matches, parserHint: hint } = await fetchAndParseCalendar(s.url, cfg.ourClubMatcher, s.tournament);
+      allMatches.push(...matches);
+      if (hint === 'html-table') parserHint = 'html-table';
+      sourceUrls.push({ tournament: s.tournament, url: s.url, found: matches.length });
+    } catch (e) {
+      console.error(`[calendar] ${age} ${s.tournament}: ${e.message}`);
+      sourceUrls.push({ tournament: s.tournament, url: s.url, error: e.message });
+    }
+  }
+
   const shields = loadShieldsForAge(age);
-  const enriched = attachShields(matches, shields);
+  const enriched = attachShields(allMatches, shields);
+
+  // Сортируем по дате
+  enriched.sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(a.date) - new Date(b.date);
+  });
+
   const out = {
     ageGroup: age,
     season: cfg.season,
-    title: `Календарь ${cfg.league || ''} · ${age} г.р.`.trim(),
-    source: url,
+    title: `Календарь ${age} г.р. · лига + кубок`,
+    sources: sourceUrls,
     parserHint,
     lastUpdated: new Date().toISOString(),
     matches: enriched,
   };
+
   if (!fs.existsSync(CALENDAR_DIR)) fs.mkdirSync(CALENDAR_DIR, { recursive: true });
   const filePath = path.join(CALENDAR_DIR, `${age}.json`);
   fs.writeFileSync(filePath, JSON.stringify(out, null, 2), 'utf-8');
@@ -205,27 +250,7 @@ export async function refreshCalendarAll() {
   for (const age of ages) {
     try {
       const data = await refreshCalendarAge(age);
-      results[age] = { ok: true, matches: data.matches.length, hint: data.parserHint };
-      console.log(`[calendar] ${age}: ${data.matches.length} матчей (${data.parserHint})`);
-    } catch (e) {
-      results[age] = { ok: false, error: e.message };
-      console.error(`[calendar] ${age}: ошибка — ${e.message}`);
-    }
-  }
-  return results;
-}
-
-let timer = null;
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-
-export function startCalendarCron() {
-  if (timer) return;
-  setTimeout(() => { refreshCalendarAll().catch(() => {}); }, 8000);
-  timer = setInterval(() => { refreshCalendarAll().catch(() => {}); }, ONE_DAY_MS);
-  console.log('[calendar] cron запущен');
-}
-
-export function stopCalendarCron() {
-  if (timer) clearInterval(timer);
-  timer = null;
-}
+      const leagueCount = data.matches.filter(m => m.tournament === 'league').length;
+      const cupCount = data.matches.filter(m => m.tournament === 'cup').length;
+      results[age] = { ok: true, total: data.matches.length, league: leagueCount, cup: cupCount, hint: data.parserHint };
+      console.log(`[calendar] ${age}: ${data.

@@ -1,11 +1,43 @@
 {
   "ageGroup": "2012",
   "season": "2025-2026",
-  "title": "Календарь Вторая лига · 2012 г.р.",
-  "source": "https://stat.ffspb.org/tournament44335/calendar",
+  "title": "Календарь 2012 г.р. · лига + кубок",
+  "sources": [
+    {
+      "tournament": "league",
+      "url": "https://stat.ffspb.org/tournament44335/calendar",
+      "found": 51
+    },
+    {
+      "tournament": "cup",
+      "url": "https://stat.ffspb.org/tournament44347/calendar",
+      "found": 0
+    }
+  ],
   "parserHint": "html-table",
-  "lastUpdated": "2026-05-05T13:35:05.963Z",
+  "lastUpdated": "2026-05-06T22:38:51.003Z",
   "matches": [
+    {
+      "matchId": "3843776",
+      "date": "2026-04-18T11:30:00.000Z",
+      "home": "СШОР Лидер",
+      "away": "СШОР Лидер-Купчино",
+      "homeTeamId": "420704",
+      "awayTeamId": "420703",
+      "score": {
+        "home": 5,
+        "away": 2
+      },
+      "isPast": true,
+      "isUpcoming": false,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "СОШ № 303 Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/OCnBslWj.png"
+    },
     {
       "matchId": "3843774",
       "date": "2026-04-19T11:30:00.000Z",
@@ -23,6 +55,7 @@
       "group": "Вторая лига",
       "venue": "Московский (Скороход) Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472"
     },
@@ -43,28 +76,9 @@
       "group": "Вторая лига",
       "venue": "ЦФКСиЗ Василеостровского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645"
-    },
-    {
-      "matchId": "3843776",
-      "date": "2026-04-18T11:30:00.000Z",
-      "home": "СШОР Лидер",
-      "away": "СШОР Лидер-Купчино",
-      "homeTeamId": "420704",
-      "awayTeamId": "420703",
-      "score": {
-        "home": 5,
-        "away": 2
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "СОШ № 303 Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/OCnBslWj.png"
     },
     {
       "matchId": "3843777",
@@ -83,28 +97,9 @@
       "group": "Вторая лига",
       "venue": "Балтика Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/pYOMOZN7.png"
-    },
-    {
-      "matchId": "3843778",
-      "date": "2026-04-19T19:00:00.000Z",
-      "home": "СШ Экран",
-      "away": "СШОР №2 Невского района",
-      "homeTeamId": "420702",
-      "awayTeamId": "420706",
-      "score": {
-        "home": 2,
-        "away": 6
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "Балтика Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373"
     },
     {
       "matchId": "3843864",
@@ -123,6 +118,7 @@
       "group": "Третья лига",
       "venue": "Искра Металлострой",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -143,6 +139,7 @@
       "group": "Третья лига",
       "venue": "ЦФКСиЗ Московского района (МЗ) Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -163,6 +160,7 @@
       "group": "Третья лига",
       "venue": "ГБОУ СОШ № 494 Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -183,6 +181,7 @@
       "group": "Третья лига",
       "venue": "ЦФК Красногвардейского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -203,27 +202,29 @@
       "group": "Третья лига",
       "venue": "Дружба Красное Село",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
     {
-      "matchId": "3843779",
-      "date": "2026-04-26T11:30:00.000Z",
-      "home": "СШОР Кировского района",
+      "matchId": "3843778",
+      "date": "2026-04-19T19:00:00.000Z",
+      "home": "СШ Экран",
       "away": "СШОР №2 Невского района",
-      "homeTeamId": "420707",
+      "homeTeamId": "420702",
       "awayTeamId": "420706",
       "score": {
-        "home": 0,
-        "away": 2
+        "home": 2,
+        "away": 6
       },
       "isPast": true,
       "isUpcoming": false,
       "isOurMatch": false,
       "group": "Вторая лига",
-      "venue": "СШОР Кировского района Санкт-Петербург",
+      "venue": "Балтика Санкт-Петербург",
       "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472",
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373"
     },
     {
@@ -243,6 +244,7 @@
       "group": "Вторая лига",
       "venue": "Ижорец. Поле № 1 Колпино",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/pYOMOZN7.png",
       "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png"
     },
@@ -263,8 +265,30 @@
       "group": "Вторая лига",
       "venue": "СОШ 363 Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/OCnBslWj.png",
       "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png"
+    },
+    {
+      "matchId": "3843779",
+      "date": "2026-04-26T11:30:00.000Z",
+      "home": "СШОР Кировского района",
+      "away": "СШОР №2 Невского района",
+      "homeTeamId": "420707",
+      "awayTeamId": "420706",
+      "score": {
+        "home": 0,
+        "away": 2
+      },
+      "isPast": true,
+      "isUpcoming": false,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "СШОР Кировского района Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373"
     },
     {
       "matchId": "3843782",
@@ -283,6 +307,7 @@
       "group": "Вторая лига",
       "venue": "Химик Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443"
     },
@@ -303,28 +328,9 @@
       "group": "Вторая лига",
       "venue": "Московский (Скороход) Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png",
       "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png"
-    },
-    {
-      "matchId": "3843869",
-      "date": "2026-04-26T18:30:00.000Z",
-      "home": "СШ Кронштадт",
-      "away": "ЦФКСиЗ Красносельского района",
-      "homeTeamId": "420690",
-      "awayTeamId": "424895",
-      "score": {
-        "home": 4,
-        "away": 0
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Третья лига",
-      "venue": "Балтика Санкт-Петербург",
-      "round": null,
-      "homeShield": null,
-      "awayShield": null
     },
     {
       "matchId": "3843870",
@@ -343,6 +349,7 @@
       "group": "Третья лига",
       "venue": "ЦФКСиЗ Василеостровского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -363,6 +370,7 @@
       "group": "Третья лига",
       "venue": "ГБОУ СОШ № 494 Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -383,6 +391,7 @@
       "group": "Третья лига",
       "venue": "Ижорец. Поле № 2 Колпино",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -403,6 +412,28 @@
       "group": "Третья лига",
       "venue": "Искра Металлострой",
       "round": null,
+      "tournament": "league",
+      "homeShield": null,
+      "awayShield": null
+    },
+    {
+      "matchId": "3843869",
+      "date": "2026-04-26T18:30:00.000Z",
+      "home": "СШ Кронштадт",
+      "away": "ЦФКСиЗ Красносельского района",
+      "homeTeamId": "420690",
+      "awayTeamId": "424895",
+      "score": {
+        "home": 4,
+        "away": 0
+      },
+      "isPast": true,
+      "isUpcoming": false,
+      "isOurMatch": false,
+      "group": "Третья лига",
+      "venue": "Балтика Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -423,48 +454,9 @@
       "group": "Вторая лига",
       "venue": "ЦФКСиЗ Василеостровского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472"
-    },
-    {
-      "matchId": "3843785",
-      "date": "2026-05-02T11:30:00.000Z",
-      "home": "СШОР Лидер",
-      "away": "Динамо-Центр",
-      "homeTeamId": "420704",
-      "awayTeamId": "420699",
-      "score": {
-        "home": 3,
-        "away": 0
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "СОШ № 303 Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png"
-    },
-    {
-      "matchId": "3843786",
-      "date": "2026-05-03T11:30:00.000Z",
-      "home": "Выборжанин",
-      "away": "Пороховчанин-Тосно",
-      "homeTeamId": "420700",
-      "awayTeamId": "420701",
-      "score": {
-        "home": 1,
-        "away": 3
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "Балтика Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645"
     },
     {
       "matchId": "3843787",
@@ -483,28 +475,30 @@
       "group": "Вторая лига",
       "venue": "Балтика Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/OCnBslWj.png"
     },
     {
-      "matchId": "3843788",
-      "date": "2026-05-03T11:30:00.000Z",
-      "home": "СШОР №2 Невского района",
-      "away": "Самсон",
-      "homeTeamId": "420706",
-      "awayTeamId": "420698",
+      "matchId": "3843785",
+      "date": "2026-05-02T11:30:00.000Z",
+      "home": "СШОР Лидер",
+      "away": "Динамо-Центр",
+      "homeTeamId": "420704",
+      "awayTeamId": "420699",
       "score": {
-        "home": 4,
+        "home": 3,
         "away": 0
       },
       "isPast": true,
       "isUpcoming": false,
       "isOurMatch": false,
       "group": "Вторая лига",
-      "venue": "Московский (Скороход) Санкт-Петербург",
+      "venue": "СОШ № 303 Санкт-Петербург",
       "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/pYOMOZN7.png"
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png"
     },
     {
       "matchId": "3843874",
@@ -523,66 +517,7 @@
       "group": "Третья лига",
       "venue": "ЦФКСиЗ Московского района (МЗ) Санкт-Петербург",
       "round": null,
-      "homeShield": null,
-      "awayShield": null
-    },
-    {
-      "matchId": "3843875",
-      "date": "2026-05-03T11:30:00.000Z",
-      "home": "СШ Локомотив",
-      "away": "Искра",
-      "homeTeamId": "420693",
-      "awayTeamId": "420694",
-      "score": {
-        "home": 8,
-        "away": 2
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Третья лига",
-      "venue": "ГБОУ СОШ № 494 Санкт-Петербург",
-      "round": null,
-      "homeShield": null,
-      "awayShield": null
-    },
-    {
-      "matchId": "3843876",
-      "date": "2026-05-03T11:30:00.000Z",
-      "home": "Зенит-84",
-      "away": "Кречет",
-      "homeTeamId": "420688",
-      "awayTeamId": "421058",
-      "score": {
-        "home": 9,
-        "away": 0
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Третья лига",
-      "venue": "ЦФК Красногвардейского района Санкт-Петербург",
-      "round": null,
-      "homeShield": null,
-      "awayShield": null
-    },
-    {
-      "matchId": "3843877",
-      "date": "2026-05-03T11:30:00.000Z",
-      "home": "СШ Красносельского района-Дружба",
-      "away": "Лавина",
-      "homeTeamId": "420691",
-      "awayTeamId": "420692",
-      "score": {
-        "home": 1,
-        "away": 3
-      },
-      "isPast": true,
-      "isUpcoming": false,
-      "isOurMatch": false,
-      "group": "Третья лига",
-      "venue": "Дружба Красное Село",
-      "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -603,25 +538,114 @@
       "group": "Третья лига",
       "venue": "ЦФКС Красносельского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
     {
-      "matchId": "3843789",
-      "date": "2026-05-10T11:30:00.000Z",
-      "home": "СШОР Кировского района",
-      "away": "Самсон",
-      "homeTeamId": "420707",
-      "awayTeamId": "420698",
-      "score": null,
-      "isPast": false,
-      "isUpcoming": true,
+      "matchId": "3843786",
+      "date": "2026-05-03T11:30:00.000Z",
+      "home": "Выборжанин",
+      "away": "Пороховчанин-Тосно",
+      "homeTeamId": "420700",
+      "awayTeamId": "420701",
+      "score": {
+        "home": 1,
+        "away": 3
+      },
+      "isPast": true,
+      "isUpcoming": false,
       "isOurMatch": false,
       "group": "Вторая лига",
-      "venue": "СШОР Кировского района Санкт-Петербург",
+      "venue": "Балтика Санкт-Петербург",
       "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472",
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645"
+    },
+    {
+      "matchId": "3843788",
+      "date": "2026-05-03T11:30:00.000Z",
+      "home": "СШОР №2 Невского района",
+      "away": "Самсон",
+      "homeTeamId": "420706",
+      "awayTeamId": "420698",
+      "score": {
+        "home": 4,
+        "away": 0
+      },
+      "isPast": true,
+      "isUpcoming": false,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "Московский (Скороход) Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/pYOMOZN7.png"
+    },
+    {
+      "matchId": "3843875",
+      "date": "2026-05-03T11:30:00.000Z",
+      "home": "СШ Локомотив",
+      "away": "Искра",
+      "homeTeamId": "420693",
+      "awayTeamId": "420694",
+      "score": {
+        "home": 8,
+        "away": 2
+      },
+      "isPast": true,
+      "isUpcoming": false,
+      "isOurMatch": false,
+      "group": "Третья лига",
+      "venue": "ГБОУ СОШ № 494 Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": null,
+      "awayShield": null
+    },
+    {
+      "matchId": "3843876",
+      "date": "2026-05-03T11:30:00.000Z",
+      "home": "Зенит-84",
+      "away": "Кречет",
+      "homeTeamId": "420688",
+      "awayTeamId": "421058",
+      "score": {
+        "home": 9,
+        "away": 0
+      },
+      "isPast": true,
+      "isUpcoming": false,
+      "isOurMatch": false,
+      "group": "Третья лига",
+      "venue": "ЦФК Красногвардейского района Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": null,
+      "awayShield": null
+    },
+    {
+      "matchId": "3843877",
+      "date": "2026-05-03T11:30:00.000Z",
+      "home": "СШ Красносельского района-Дружба",
+      "away": "Лавина",
+      "homeTeamId": "420691",
+      "awayTeamId": "420692",
+      "score": {
+        "home": 1,
+        "away": 3
+      },
+      "isPast": true,
+      "isUpcoming": false,
+      "isOurMatch": false,
+      "group": "Третья лига",
+      "venue": "Дружба Красное Село",
+      "round": null,
+      "tournament": "league",
+      "homeShield": null,
+      "awayShield": null
     },
     {
       "matchId": "3843790",
@@ -637,59 +661,9 @@
       "group": "Вторая лига",
       "venue": "СОШ № 303 Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/OCnBslWj.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373"
-    },
-    {
-      "matchId": "3843791",
-      "date": "2026-05-10T11:30:00.000Z",
-      "home": "Пороховчанин-Тосно",
-      "away": "СШ Экран",
-      "homeTeamId": "420701",
-      "awayTeamId": "420702",
-      "score": null,
-      "isPast": false,
-      "isUpcoming": true,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "Химик Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645",
-      "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png"
-    },
-    {
-      "matchId": "3843792",
-      "date": "2026-05-10T11:30:00.000Z",
-      "home": "Динамо-Центр",
-      "away": "Выборжанин",
-      "homeTeamId": "420699",
-      "awayTeamId": "420700",
-      "score": null,
-      "isPast": false,
-      "isUpcoming": true,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "Московский (Скороход) Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png",
-      "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png"
-    },
-    {
-      "matchId": "3843793",
-      "date": "2026-05-11T11:30:00.000Z",
-      "home": "Легирус (ЦФКСиЗ ВО)",
-      "away": "СШОР Лидер",
-      "homeTeamId": "424224",
-      "awayTeamId": "420704",
-      "score": null,
-      "isPast": false,
-      "isUpcoming": true,
-      "isOurMatch": true,
-      "group": "Вторая лига",
-      "venue": "ЦФКСиЗ Василеостровского района Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443"
     },
     {
       "matchId": "3843879",
@@ -705,23 +679,7 @@
       "group": "Третья лига",
       "venue": "Кронштадтский оздоровительно-спортивный центр Кронштадт",
       "round": null,
-      "homeShield": null,
-      "awayShield": null
-    },
-    {
-      "matchId": "3843880",
-      "date": "2026-05-10T11:30:00.000Z",
-      "home": "Лавина",
-      "away": "ЦФКСиЗ Красносельского района",
-      "homeTeamId": "420692",
-      "awayTeamId": "424895",
-      "score": null,
-      "isPast": false,
-      "isUpcoming": true,
-      "isOurMatch": false,
-      "group": "Третья лига",
-      "venue": "ГБОУ СОШ № 494 Санкт-Петербург",
-      "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -739,6 +697,79 @@
       "group": "Третья лига",
       "venue": "Московский (Скороход) Санкт-Петербург",
       "round": null,
+      "tournament": "league",
+      "homeShield": null,
+      "awayShield": null
+    },
+    {
+      "matchId": "3843789",
+      "date": "2026-05-10T11:30:00.000Z",
+      "home": "СШОР Кировского района",
+      "away": "Самсон",
+      "homeTeamId": "420707",
+      "awayTeamId": "420698",
+      "score": null,
+      "isPast": false,
+      "isUpcoming": true,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "СШОР Кировского района Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/pYOMOZN7.png"
+    },
+    {
+      "matchId": "3843791",
+      "date": "2026-05-10T11:30:00.000Z",
+      "home": "Пороховчанин-Тосно",
+      "away": "СШ Экран",
+      "homeTeamId": "420701",
+      "awayTeamId": "420702",
+      "score": null,
+      "isPast": false,
+      "isUpcoming": true,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "Химик Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645",
+      "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png"
+    },
+    {
+      "matchId": "3843792",
+      "date": "2026-05-10T11:30:00.000Z",
+      "home": "Динамо-Центр",
+      "away": "Выборжанин",
+      "homeTeamId": "420699",
+      "awayTeamId": "420700",
+      "score": null,
+      "isPast": false,
+      "isUpcoming": true,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "Московский (Скороход) Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png",
+      "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png"
+    },
+    {
+      "matchId": "3843880",
+      "date": "2026-05-10T11:30:00.000Z",
+      "home": "Лавина",
+      "away": "ЦФКСиЗ Красносельского района",
+      "homeTeamId": "420692",
+      "awayTeamId": "424895",
+      "score": null,
+      "isPast": false,
+      "isUpcoming": true,
+      "isOurMatch": false,
+      "group": "Третья лига",
+      "venue": "ГБОУ СОШ № 494 Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -756,6 +787,7 @@
       "group": "Третья лига",
       "venue": "Искра Металлострой",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -773,42 +805,27 @@
       "group": "Третья лига",
       "venue": "ЦФКСиЗ Московского района (МЗ) Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
     {
-      "matchId": "3843794",
-      "date": "2026-05-17T14:30:00.000Z",
-      "home": "СШОР Лидер",
-      "away": "СШОР Кировского района",
-      "homeTeamId": "420704",
-      "awayTeamId": "420707",
-      "score": null,
-      "isPast": false,
-      "isUpcoming": true,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "СОШ 363 Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472"
-    },
-    {
-      "matchId": "3843795",
-      "date": "2026-05-17T11:30:00.000Z",
-      "home": "Выборжанин",
-      "away": "Легирус (ЦФКСиЗ ВО)",
-      "homeTeamId": "420700",
-      "awayTeamId": "424224",
+      "matchId": "3843793",
+      "date": "2026-05-11T11:30:00.000Z",
+      "home": "Легирус (ЦФКСиЗ ВО)",
+      "away": "СШОР Лидер",
+      "homeTeamId": "424224",
+      "awayTeamId": "420704",
       "score": null,
       "isPast": false,
       "isUpcoming": true,
       "isOurMatch": true,
       "group": "Вторая лига",
-      "venue": "Балтика Санкт-Петербург",
+      "venue": "ЦФКСиЗ Василеостровского района Санкт-Петербург",
       "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png",
-      "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png"
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443"
     },
     {
       "matchId": "3843796",
@@ -824,25 +841,9 @@
       "group": "Вторая лига",
       "venue": "Химик Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/g0eJOVYw.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/q3IAYVUd.png"
-    },
-    {
-      "matchId": "3843797",
-      "date": "2026-05-17T11:30:00.000Z",
-      "home": "СШОР №2 Невского района",
-      "away": "Пороховчанин-Тосно",
-      "homeTeamId": "420706",
-      "awayTeamId": "420701",
-      "score": null,
-      "isPast": false,
-      "isUpcoming": true,
-      "isOurMatch": false,
-      "group": "Вторая лига",
-      "venue": "Московский (Скороход) Санкт-Петербург",
-      "round": null,
-      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373",
-      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645"
     },
     {
       "matchId": "3843798",
@@ -858,8 +859,45 @@
       "group": "Вторая лига",
       "venue": "Ижорец. Поле № 1 Колпино",
       "round": null,
+      "tournament": "league",
       "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/pYOMOZN7.png",
       "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/OCnBslWj.png"
+    },
+    {
+      "matchId": "3843795",
+      "date": "2026-05-17T11:30:00.000Z",
+      "home": "Выборжанин",
+      "away": "Легирус (ЦФКСиЗ ВО)",
+      "homeTeamId": "420700",
+      "awayTeamId": "424224",
+      "score": null,
+      "isPast": false,
+      "isUpcoming": true,
+      "isOurMatch": true,
+      "group": "Вторая лига",
+      "venue": "Балтика Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf24x24/shields/XmWppkHu.png",
+      "awayShield": "https://img.nagradion.ru/images/bf24x24/shields/qTg6VeJ1.png"
+    },
+    {
+      "matchId": "3843797",
+      "date": "2026-05-17T11:30:00.000Z",
+      "home": "СШОР №2 Невского района",
+      "away": "Пороховчанин-Тосно",
+      "homeTeamId": "420706",
+      "awayTeamId": "420701",
+      "score": null,
+      "isPast": false,
+      "isUpcoming": true,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "Московский (Скороход) Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/DiV9d4pu.png?1777977373",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/Ksz9AsQ0.png?1777977645"
     },
     {
       "matchId": "3843884",
@@ -875,6 +913,7 @@
       "group": "Третья лига",
       "venue": "ГБОУ СОШ № 494 Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -892,6 +931,7 @@
       "group": "Третья лига",
       "venue": "ЦФК Красногвардейского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -909,6 +949,7 @@
       "group": "Третья лига",
       "venue": "Дружба Красное Село",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -926,6 +967,7 @@
       "group": "Третья лига",
       "venue": "ЦФКС Красносельского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     },
@@ -943,8 +985,27 @@
       "group": "Третья лига",
       "venue": "ЦФКСиЗ Василеостровского района Санкт-Петербург",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
+    },
+    {
+      "matchId": "3843794",
+      "date": "2026-05-17T14:30:00.000Z",
+      "home": "СШОР Лидер",
+      "away": "СШОР Кировского района",
+      "homeTeamId": "420704",
+      "awayTeamId": "420707",
+      "score": null,
+      "isPast": false,
+      "isUpcoming": true,
+      "isOurMatch": false,
+      "group": "Вторая лига",
+      "venue": "СОШ 363 Санкт-Петербург",
+      "round": null,
+      "tournament": "league",
+      "homeShield": "https://img.nagradion.ru/images/bf300x500/shields/X59vYGd7.png?1777977443",
+      "awayShield": "https://img.nagradion.ru/images/bf300x500/shields/157CBpw0.png?1777977472"
     },
     {
       "matchId": "3843889",
@@ -960,6 +1021,7 @@
       "group": "Третья лига",
       "venue": "Кронштадтский оздоровительно-спортивный центр Кронштадт",
       "round": null,
+      "tournament": "league",
       "homeShield": null,
       "awayShield": null
     }

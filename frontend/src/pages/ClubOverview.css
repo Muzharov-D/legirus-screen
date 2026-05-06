@@ -7,8 +7,9 @@
 
 .club-overview__grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 16px;
+  /* Левая колонка списка матчей — узкая, чтобы основной контент не уезжал. */
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px;
 }
 
 .club-overview__col-left {
