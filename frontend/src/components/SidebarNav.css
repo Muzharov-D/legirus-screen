@@ -1,5 +1,5 @@
 .sidebar-nav {
-  width: 88px;
+  width: 96px;
   background: rgba(8, 8, 32, 0.85);
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
@@ -18,7 +18,7 @@
   justify-content: center;
   text-align: center;
   gap: 6px;
-  padding: 14px 6px;
+  padding: 12px 4px;
   width: 100%;
   min-height: 76px;
   background: transparent;
@@ -26,9 +26,11 @@
   border: 1px solid transparent;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  word-break: keep-all;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
@@ -74,27 +76,42 @@
     position: fixed;
     bottom: 0; left: 0; right: 0; top: auto;
     width: 100%;
-    height: 56px;
+    /* iPhone safe area + контент. На моделях с notch бордюр снизу значимый. */
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     flex-direction: row;
     border-right: none;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 4px 6px;
-    gap: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    gap: 2px;
     z-index: 100;
   }
   .sidebar-nav__item {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 0;
     flex-direction: column;
     padding: 4px 2px;
-    font-size: 10px;
+    min-height: auto;
+    font-size: 9px;
+    letter-spacing: 0;
     text-align: center;
     gap: 2px;
   }
   .sidebar-nav__item::before { display: none; }
-  .sidebar-nav__icon { font-size: 20px; margin-bottom: 0; }
-  .sidebar-nav__label { font-size: 10px; line-height: 1; }
-  /* Аналитика на мобильном не нужна — клуб уже стал главным */
+  .sidebar-nav__icon { font-size: 18px; margin-bottom: 0; }
+  .sidebar-nav__label {
+    font-size: 9px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  /* Аналитика на мобильном не нужна — клуб стал главным */
   .sidebar-nav__item[data-nav-id="analytics"] { display: none !important; }
-  /* Подушка снизу страницы под bottom-nav */
-  .page { padding-bottom: 70px !important; }
+  /* Подушка снизу страницы под bottom-nav, плюс safe-area iPhone */
+  .page { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important; }
+  .app-content { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important; }
 }
