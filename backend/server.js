@@ -12,6 +12,7 @@ import authRoutes from './routes/auth.js';
 import pushRoutes from './routes/push.js';
 import publicRoutes from './routes/public.js';
 import trainingsRoutes from './routes/trainings.js';
+import callupsRoutes from './routes/callups.js';
 import { authenticate, authorize } from './middleware/auth.js';
 import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
@@ -49,6 +50,7 @@ app.use('/api/data', authenticate, dataRoutes);
 app.use('/api/upload-pdf', authenticate, authorize('head_coach', 'team_coach'), uploadRoutes);
 app.use('/api/push', authenticate, pushRoutes);
 app.use('/api/trainings', authenticate, trainingsRoutes);
+app.use('/api/callups', authenticate, callupsRoutes);
 
 ensureMatchesDir();
 startStandingsCron();

@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
 import { isPgEnabled, query } from '../db/pool.js';
+import { autoCreatePendingCallups } from './callupsRepo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -171,6 +172,15 @@ export async function refreshCalendarAge(age) {
   if (isPgEnabled()) {
     try { await persistCalendarToPg(age, out); }
     catch (e) { console.error('[calendar] PG persist failed for ' + age + ':', e.message); }
+
+    // Авто-создание pending callup'ов для новых upcoming наших матчей
+    try {
+      const stats = await autoCreatePendingCallups('legirus', age);
+      if (stats.callups_created > 0) {
+        console.log('[callups] auto-created ' + stats.callups_created + ' pending для ' + age +
+                    ' (' + stats.matches_seen + ' new upcoming matches)');
+      }
+    } catch (e) { console.error('[callups] auto-create failed for ' + age + ':', e.message); }
   }
 
   return out;
