@@ -234,6 +234,8 @@ function parseCupTournamentId(url) {
 }
 
 // Маппинг сетки кубка из API в наш формат rounds_data.
+// API даёт placeholder-матчи (например финал) у которых host=null, guest=null —
+// это значит «команды ещё не определились». Их пропускаем.
 function apiPlayoffsToOur(playoffs) {
   if (!playoffs || playoffs.length === 0) return null;
   const po = playoffs[0];
@@ -241,23 +243,29 @@ function apiPlayoffsToOur(playoffs) {
   for (const grp of po.groups || []) {
     for (const tour of grp.playoffsTours || []) {
       const matches = (tour.tourMatches || []).flatMap((tm) =>
-        (tm.series || []).map((s) => {
-          const score = (s.resultHost != null && s.resultGuest != null && (s.done || 0) >= 4)
-            ? { home: s.resultHost, away: s.resultGuest }
-            : null;
-          return {
-            matchId: String(s.id),
-            home: s.host?.shortName || s.host?.name || null,
-            away: s.guest?.shortName || s.guest?.name || null,
-            homeShield: s.host?.logoSrc || null,
-            awayShield: s.guest?.logoSrc || null,
-            homeTeamId: s.host?.['@id']?.split('/').pop() || null,
-            awayTeamId: s.guest?.['@id']?.split('/').pop() || null,
-            score,
-            date: s.publicDate || null,
-            venue: s.stadium?.name || s.location?.name || null,
-          };
-        }));
+        (tm.series || [])
+          .filter((s) => s.host || s.guest) // скипуем placeholder'ы будущих стадий
+          .map((s) => {
+            const score = (s.resultHost != null && s.resultGuest != null && (s.done || 0) >= 4)
+              ? { home: s.resultHost, away: s.resultGuest }
+              : null;
+            // matchId: s.id отсутствует у некоторых записей, fallback к @id
+            const matchId = s.id != null ? String(s.id) :
+              (s['@id'] ? s['@id'].split('/').pop() : null);
+            return {
+              matchId,
+              home: s.host?.shortName || s.host?.name || null,
+              away: s.guest?.shortName || s.guest?.name || null,
+              homeShield: s.host?.logoSrc || null,
+              awayShield: s.guest?.logoSrc || null,
+              homeTeamId: s.host?.['@id']?.split('/').pop() || null,
+              awayTeamId: s.guest?.['@id']?.split('/').pop() || null,
+              score,
+              date: s.publicDate || null,
+              venue: s.stadium?.name || s.location?.name || null,
+            };
+          }));
+      // Тур включаем даже если matches пустой (для отображения сетки целиком)
       rounds.push({
         name: tour.name,
         position: tour.position,
