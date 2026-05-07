@@ -11,12 +11,14 @@ import uploadRoutes from './routes/upload.js';
 import authRoutes from './routes/auth.js';
 import pushRoutes from './routes/push.js';
 import publicRoutes from './routes/public.js';
+import trainingsRoutes from './routes/trainings.js';
 import { authenticate, authorize } from './middleware/auth.js';
 import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
 import { startCupCron } from './services/cupService.js';
 import { startCalendarCron } from './services/calendarService.js';
 import { configurePush } from './services/pushService.js';
+import { getPool, ping } from './db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,12 +48,25 @@ app.use('/api/public', publicRoutes);
 app.use('/api/data', authenticate, dataRoutes);
 app.use('/api/upload-pdf', authenticate, authorize('head_coach', 'team_coach'), uploadRoutes);
 app.use('/api/push', authenticate, pushRoutes);
+app.use('/api/trainings', authenticate, trainingsRoutes);
 
 ensureMatchesDir();
 startStandingsCron();
 startCupCron();
 startCalendarCron();
 configurePush();
+
+// Eager-инициализация PG пула при старте, чтобы isPgEnabled() сразу возвращал true,
+// и cron'ы / dataRepo использовали PG, а не legacy JSON.
+if (process.env.DATABASE_URL) {
+  getPool(); // создаёт singleton-пул
+  ping().then((r) => {
+    if (r.ok) console.log('[pg] connected: ' + (r.version || '').split(' ').slice(0, 2).join(' '));
+    else console.error('[pg] ping failed:', r.error);
+  });
+} else {
+  console.log('[pg] DATABASE_URL не задан — fallback на JSON');
+}
 
 app.listen(PORT, () => {
   console.log(`Backend listening on :${PORT}`);

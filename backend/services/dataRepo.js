@@ -8,23 +8,55 @@ import { isPgEnabled, query } from '../db/pool.js';
 import * as legacy from './dataLoader.js';
 
 // === TEAMS ===
+// Возвращает форму teams.json: { club: {...}, teams: [...] }.
+// Поля shortName/yearGroup/logo/colors/ageGroupLabel хранятся в teams.meta JSONB,
+// сюда распаковываются в плоский объект (для обратной совместимости с фронтом).
 export async function loadTeams() {
   if (!isPgEnabled()) return legacy.loadTeams();
+
+  const cl = await query(`SELECT id, name, display_name, meta FROM clubs WHERE id = 'legirus'`);
+  const clubRow = cl.rows[0] || {};
+  const club = {
+    id: clubRow.id || 'legirus',
+    name: clubRow.name || 'Легирус',
+    logo: clubRow.meta?.logo || '/assets/logos/legirus.png',
+  };
+
   const r = await query(`
-    SELECT id, club_id AS "clubId", name, age_group AS "ageGroup", year,
+    SELECT id, club_id AS "clubId", name, age_group AS "ageGroupRaw", year,
            head_coach AS "headCoach", is_our_team AS "isOurTeam", active, meta
-    FROM teams ORDER BY year NULLS LAST, name`);
-  return { teams: r.rows };
+    FROM teams WHERE club_id = 'legirus' ORDER BY year NULLS LAST, name`);
+
+  const teams = r.rows.map((t) => {
+    const meta = t.meta || {};
+    return {
+      id: t.id,
+      clubId: t.clubId,
+      name: t.name,
+      shortName: meta.shortName || t.name,
+      ageGroup: meta.ageGroupLabel || t.ageGroupRaw, // "U-17" если есть, иначе "2010"
+      year: t.year,
+      yearGroup: meta.yearGroup || t.year,
+      headCoach: t.headCoach,
+      isOurTeam: t.isOurTeam,
+      active: t.active,
+      logo: meta.logo || null,
+      colors: meta.colors || null,
+    };
+  });
+  return { club, teams };
 }
 
 // === PLAYERS ===
+// photo и photoUrl — оба возвращаем (фронт исторически использует p.photo с именем файла).
 export async function loadPlayers() {
   if (!isPgEnabled()) return legacy.loadPlayers();
   const r = await query(`
     SELECT id, team_id AS "teamId", full_name AS "fullName",
            first_name AS "firstName", last_name AS "lastName",
            number, position, position_full AS "positionFull",
-           birth_date AS "birthDate", photo_url AS "photoUrl"
+           birth_date AS "birthDate",
+           photo_url AS "photoUrl", photo_url AS "photo"
     FROM players ORDER BY team_id, number NULLS LAST`);
   return { players: r.rows };
 }
@@ -38,7 +70,8 @@ export async function loadPlayer(playerId) {
     SELECT id, team_id AS "teamId", full_name AS "fullName",
            first_name AS "firstName", last_name AS "lastName",
            number, position, position_full AS "positionFull",
-           birth_date AS "birthDate", photo_url AS "photoUrl"
+           birth_date AS "birthDate",
+           photo_url AS "photoUrl", photo_url AS "photo"
     FROM players WHERE id = $1`, [playerId]);
   return r.rows[0] || null;
 }
@@ -50,7 +83,9 @@ export async function loadMatchesIndex() {
     SELECT id, team_id AS "teamId", home_team_id AS "homeTeamId", away_team_id AS "awayTeamId",
            home_team_name AS "homeTeamName", away_team_name AS "awayTeamName",
            match_date AS date, season, tournament,
-           jsonb_build_object('home', score_home, 'away', score_away) AS score
+           CASE WHEN score_home IS NOT NULL
+             THEN jsonb_build_object('home', score_home, 'away', score_away)
+             ELSE NULL END AS score
     FROM matches ORDER BY match_date DESC NULLS LAST`);
   return { matches: r.rows };
 }
@@ -74,12 +109,14 @@ export async function loadMatch(matchId) {
     SELECT mp.player_id AS id, mp.number, mp.position, mp.position_full AS "positionFull",
            mp.minutes, mp.ratings, mp.stats, mp.splits, mp.radar, mp.maps,
            p.full_name AS "fullName", p.first_name AS "firstName", p.last_name AS "lastName",
-           p.photo_url AS "photoUrl"
+           p.photo_url AS "photoUrl", p.photo_url AS "photo"
     FROM match_players mp
     JOIN players p ON p.id = mp.player_id
     WHERE mp.match_id = $1
     ORDER BY mp.number NULLS LAST`, [matchId]);
 
+  // score: null если матч не сыгран (оба значения null), иначе {home, away}
+  const score = head.score_home != null ? { home: head.score_home, away: head.score_away } : null;
   return {
     id: head.id,
     teamId: head.teamId,
@@ -88,7 +125,7 @@ export async function loadMatch(matchId) {
     date: head.date,
     season: head.season,
     tournament: head.tournament,
-    score: { home: head.score_home, away: head.score_away },
+    score,
     teamSummaryStats: head.teamSummaryStats,
     teamAggregates: head.teamAggregates,
     teamAvgRatings: head.teamAvgRatings,

@@ -15,8 +15,14 @@ const { Pool } = pg;
 let pool = null;
 let initError = null;
 
+// Проверка доступности PG. ВАЖНО: вызывает getPool() чтобы лениво создать
+// пул при первом обращении (иначе isPgEnabled() всегда вернёт false на старте,
+// потому что pool создается только в getPool/query/tx).
 export function isPgEnabled() {
-  return !!process.env.DATABASE_URL && !!pool && !initError;
+  if (!process.env.DATABASE_URL) return false;
+  if (initError) return false;
+  if (!pool) getPool(); // лениво инициализируем
+  return !!pool && !initError;
 }
 
 export function getPool() {

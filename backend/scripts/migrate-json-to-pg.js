@@ -40,30 +40,45 @@ function listFiles(rel) {
 }
 
 async function importClubsAndTeams(client) {
-  // Один клуб «Легирус» в Sprint 3. Sprint 4 — расширение.
+  const teamsData = loadJson('teams.json');
+  // Сохраняем оригинальные club-meta (logo, colors) в clubs.meta
+  const clubFromJson = teamsData?.club || {};
+  const clubMeta = {
+    logo: clubFromJson.logo || '/assets/logos/legirus.png',
+  };
   const club = {
     id: 'legirus',
     name: 'Легирус',
     display_name: 'ФК Легирус',
     ffspb_matcher: 'Легирус',
+    meta: clubMeta,
   };
   if (DRY) {
     console.log('[clubs] would insert:', club);
     bump('clubs.insert');
   } else {
     await client.query(
-      `INSERT INTO clubs (id, name, display_name, ffspb_matcher)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, display_name = EXCLUDED.display_name`,
-      [club.id, club.name, club.display_name, club.ffspb_matcher],
+      `INSERT INTO clubs (id, name, display_name, ffspb_matcher, meta)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, display_name = EXCLUDED.display_name,
+         meta = EXCLUDED.meta`,
+      [club.id, club.name, club.display_name, club.ffspb_matcher, JSON.stringify(club.meta)],
     );
     bump('clubs.upsert');
   }
 
-  const teamsData = loadJson('teams.json');
   if (!teamsData) { console.warn('[teams] teams.json не найден'); return; }
   for (const t of teamsData.teams || []) {
     if (!t.isOurTeam) continue; // соперников в teams не пишем
+    // Поля, которых нет в normalized-схеме, кладём в meta JSONB —
+    // dataRepo.loadTeams потом их распакует обратно в плоский объект.
+    const meta = {
+      shortName: t.shortName || null,
+      ageGroupLabel: t.ageGroup || null, // "U-17" — отличается от age_group="2010"
+      yearGroup: t.yearGroup || t.year || null,
+      logo: t.logo || null,
+      colors: t.colors || null,
+    };
     const row = {
       id: t.id,
       club_id: 'legirus',
@@ -73,18 +88,21 @@ async function importClubsAndTeams(client) {
       head_coach: t.headCoach || null,
       is_our_team: !!t.isOurTeam,
       active: t.active !== false,
+      meta,
     };
     if (DRY) {
       bump('teams.insert');
       continue;
     }
     await client.query(
-      `INSERT INTO teams (id, club_id, name, age_group, year, head_coach, is_our_team, active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO teams (id, club_id, name, age_group, year, head_coach, is_our_team, active, meta)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (id) DO UPDATE SET
          name = EXCLUDED.name, age_group = EXCLUDED.age_group, year = EXCLUDED.year,
-         head_coach = EXCLUDED.head_coach, active = EXCLUDED.active`,
-      [row.id, row.club_id, row.name, row.age_group, row.year, row.head_coach, row.is_our_team, row.active],
+         head_coach = EXCLUDED.head_coach, active = EXCLUDED.active,
+         meta = EXCLUDED.meta`,
+      [row.id, row.club_id, row.name, row.age_group, row.year, row.head_coach,
+       row.is_our_team, row.active, JSON.stringify(row.meta)],
     );
     bump('teams.upsert');
   }
@@ -104,7 +122,8 @@ async function importPlayers(client) {
       position: p.position || null,
       position_full: p.positionFull || null,
       birth_date: p.birthDate || null,
-      photo_url: p.photoUrl || null,
+      // JSON-фронт использует поле p.photo (имя файла), не p.photoUrl. Берём что есть.
+      photo_url: p.photoUrl || p.photo || null,
     };
     if (DRY) { bump('players.insert'); continue; }
     await client.query(
