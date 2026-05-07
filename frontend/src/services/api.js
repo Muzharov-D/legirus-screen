@@ -80,6 +80,30 @@ export const fetchCupList = () => fetchJson('/data/cup');
 export const fetchCalendar = (ageGroup) => fetchJson(`/data/calendar/${encodeURIComponent(ageGroup)}`);
 export const fetchCalendarList = () => fetchJson('/data/calendar');
 
+// === Trainings (Sprint 5.1) ===
+export const fetchTrainingsByTeam = (teamId, params = {}) => {
+  const q = new URLSearchParams();
+  if (params.scope) q.set('scope', params.scope);
+  if (params.from)  q.set('from', params.from);
+  if (params.to)    q.set('to', params.to);
+  if (params.limit) q.set('limit', params.limit);
+  const qs = q.toString();
+  return fetchJson(`/trainings/team/${encodeURIComponent(teamId)}${qs ? `?${qs}` : ''}`);
+};
+export const fetchTraining = (id) => fetchJson(`/trainings/${encodeURIComponent(id)}`);
+export const createTraining = (body) => fetchJson('/trainings', { method: 'POST', body });
+export const updateTraining = (id, body) => fetchJson(`/trainings/${encodeURIComponent(id)}`, { method: 'PATCH', body });
+export const deleteTraining = (id) => fetchJson(`/trainings/${encodeURIComponent(id)}`, { method: 'DELETE' });
+export const fetchAttendance = (id) => fetchJson(`/trainings/${encodeURIComponent(id)}/attendance`);
+export const saveAttendance = (id, marks) => fetchJson(`/trainings/${encodeURIComponent(id)}/attendance`, { method: 'POST', body: { marks } });
+export const fetchPlayerAttendanceStats = (teamId, playerId, params = {}) => {
+  const q = new URLSearchParams();
+  if (params.from) q.set('from', params.from);
+  if (params.to) q.set('to', params.to);
+  const qs = q.toString();
+  return fetchJson(`/trainings/team/${encodeURIComponent(teamId)}/player/${encodeURIComponent(playerId)}/stats${qs ? `?${qs}` : ''}`);
+};
+
 export async function uploadPdf(file, teamId, tournament) {
   const fd = new FormData();
   fd.append('file', file);
