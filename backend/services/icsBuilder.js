@@ -1,6 +1,3 @@
-// ICS (RFC 5545) генератор для подписки родителей на расписание команды.
-// Используется в routes/public.js.
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,13 +12,11 @@ export function loadVenues() {
   catch { return []; }
 }
 
-function nrm(s) {
-  return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
-}
+function nrm(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
 
-function findVenue(matchVenue, venues) {
-  if (!matchVenue) return null;
-  const k = nrm(matchVenue);
+function findVenue(mv, venues) {
+  if (!mv) return null;
+  const k = nrm(mv);
   for (const v of venues) {
     const vn = nrm(v.name);
     if (k === vn || k.startsWith(vn) || k.includes(vn)) return v;
@@ -29,84 +24,77 @@ function findVenue(matchVenue, venues) {
   return null;
 }
 
-function icsEscape(s) {
-  return String(s || '')
-    .replace(/\\/g, '\\\\').replace(/;/g, '\\;')
-    .replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+function esc(s) {
+  return String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 }
 
-// RFC 5545: max 75 octets per line, continuation через CRLF + space.
-// Continuation начинается с пробела (+1 octet), поэтому второй+ chunk = 74.
-function foldLine(line) {
+function fold(line) {
   const buf = Buffer.from(line, 'utf-8');
   if (buf.length <= 75) return line;
   const chunks = [];
-  let i = 0;
-  let first = true;
+  let i = 0, first = true;
   while (i < buf.length) {
-    const limit = first ? 75 : 74;
-    let end = Math.min(i + limit, buf.length);
+    const lim = first ? 75 : 74;
+    let end = Math.min(i + lim, buf.length);
     while (end < buf.length && (buf[end] & 0xC0) === 0x80) end--;
     chunks.push(buf.slice(i, end).toString('utf-8'));
-    i = end;
-    first = false;
+    i = end; first = false;
   }
   return chunks.join('\r\n ');
 }
 
-function fmtIcsDate(iso) {
+function fmtDt(iso) {
   const d = new Date(iso);
   const p = (n) => String(n).padStart(2, '0');
-  return d.getUTCFullYear() + p(d.getUTCMonth() + 1) + p(d.getUTCDate())
-    + 'T' + p(d.getUTCHours()) + p(d.getUTCMinutes()) + p(d.getUTCSeconds()) + 'Z';
+  return d.getUTCFullYear() + p(d.getUTCMonth()+1) + p(d.getUTCDate()) + 'T' + p(d.getUTCHours()) + p(d.getUTCMinutes()) + p(d.getUTCSeconds()) + 'Z';
 }
 
-export function buildVEvent(match, venues, urlBase) {
-  if (!match.date) return null;
-  const start = new Date(match.date);
+function alarms(m) {
+  if (m.score) return [];
+  const opp = (m.isOurMatch && m.home && m.home.toLowerCase().includes('легирус')) ? (m.away || 'соперник') : (m.home || 'соперник');
+  return [
+    'BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:-P1D',
+    fold('DESCRIPTION:' + esc('Завтра матч с ' + opp)),
+    'END:VALARM',
+    'BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:-PT3H',
+    fold('DESCRIPTION:' + esc('Через 3 часа матч · ' + (m.venue || ''))),
+    'END:VALARM',
+  ];
+}
+
+export function buildVEvent(m, venues, urlBase) {
+  if (!m.date) return null;
+  const start = new Date(m.date);
   if (isNaN(start)) return null;
-  const end = new Date(start.getTime() + 90 * 60 * 1000);
-
-  const v = findVenue(match.venue, venues);
-  const yaUrl = v && v.lat
+  const end = new Date(start.getTime() + 5400000);
+  const v = findVenue(m.venue, venues);
+  const ya = v && v.lat
     ? 'https://yandex.ru/maps/?rtext=~' + v.lat + '%2C' + v.lng + '&rtt=auto'
-    : (match.venue ? 'https://yandex.ru/maps/?text=' + encodeURIComponent(match.venue) : '');
-
-  const tour = match.tournament === 'cup' ? 'Кубок' : 'Лига';
-  const summary = (match.home || '?') + ' — ' + (match.away || '?');
-  const score = match.score ? ' (' + match.score.home + ':' + match.score.away + ')' : '';
-
-  const desc = [
-    tour + (match.group ? ' · ' + match.group : ''),
-    score ? 'Результат:' + score : '',
-    yaUrl ? 'Маршрут: ' + yaUrl : '',
-    urlBase ? 'Подробнее: ' + urlBase : '',
-  ].filter(Boolean).join('\n');
-
-  const uid = (match.matchId || (start.getTime() + '-' + (match.home || ''))) + '@avandata.legirus';
-
+    : (m.venue ? 'https://yandex.ru/maps/?text=' + encodeURIComponent(m.venue) : '');
+  const tour = m.tournament === 'cup' ? 'Кубок' : 'Лига';
+  const sum = (m.home || '?') + ' — ' + (m.away || '?');
+  const sc = m.score ? ' (' + m.score.home + ':' + m.score.away + ')' : '';
+  const desc = [tour + (m.group ? ' · ' + m.group : ''), sc ? 'Результат:' + sc : '', ya ? 'Маршрут: ' + ya : '', urlBase ? 'Подробнее: ' + urlBase : ''].filter(Boolean).join('\n');
+  const uid = (m.matchId || (start.getTime() + '-' + (m.home || ''))) + '@avandata.legirus';
   return [
     'BEGIN:VEVENT',
-    foldLine('UID:' + uid),
-    'DTSTAMP:' + fmtIcsDate(new Date().toISOString()),
-    'DTSTART:' + fmtIcsDate(match.date),
-    'DTEND:' + fmtIcsDate(end.toISOString()),
-    foldLine('SUMMARY:' + icsEscape(summary + score)),
-    match.venue ? foldLine('LOCATION:' + icsEscape(match.venue)) : '',
-    foldLine('DESCRIPTION:' + icsEscape(desc)),
-    yaUrl ? foldLine('URL:' + yaUrl) : '',
+    fold('UID:' + uid),
+    'DTSTAMP:' + fmtDt(new Date().toISOString()),
+    'DTSTART:' + fmtDt(m.date),
+    'DTEND:' + fmtDt(end.toISOString()),
+    fold('SUMMARY:' + esc(sum + sc)),
+    m.venue ? fold('LOCATION:' + esc(m.venue)) : '',
+    fold('DESCRIPTION:' + esc(desc)),
+    ya ? fold('URL:' + ya) : '',
+    ...alarms(m),
     'END:VEVENT',
   ].filter(Boolean).join('\r\n');
 }
 
 export function buildVCalendar(events, name) {
   return [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//AvanData//Legirus//RU',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    foldLine('X-WR-CALNAME:' + icsEscape(name || 'АванDата')),
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//AvanData//Legirus//RU','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    fold('X-WR-CALNAME:' + esc(name || 'АванDата')),
     'X-WR-TIMEZONE:Europe/Moscow',
     ...events,
     'END:VCALENDAR',
