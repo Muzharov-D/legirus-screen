@@ -36,7 +36,12 @@ function parseDate(s) {
   if (m) {
     const [, dd, mm, yy, hh, mi] = m;
     const year = yy.length === 2 ? 2000 + Number(yy) : Number(yy);
-    const d = new Date(Date.UTC(year, Number(mm) - 1, Number(dd), Number(hh || 0), Number(mi || 0)));
+    // ffspb отдаёт время в МСК (UTC+3). Строим ISO с явным offset, чтобы
+    // toLocaleString на фронте корректно показывал локальное время для любого TZ.
+    const pad = (n) => String(n).padStart(2, '0');
+    const iso = year + '-' + pad(Number(mm)) + '-' + pad(Number(dd)) +
+      'T' + pad(Number(hh || 0)) + ':' + pad(Number(mi || 0)) + ':00+03:00';
+    const d = new Date(iso);
     return isNaN(d) ? null : d.toISOString();
   }
   return null;
