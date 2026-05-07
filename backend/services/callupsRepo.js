@@ -196,6 +196,27 @@ export async function callAllPending(clubId, ageGroup, extMatchId, byUser) {
   return r.rows.map(rowToCallup);
 }
 
+// === Получить детали матча из calendar (для текста push'а) ===
+export async function getMatchInfo(clubId, ageGroup, extMatchId) {
+  ensurePg();
+  const r = await query(
+    `SELECT ext_match_id, match_date, home_team, away_team, venue, tournament, is_our_match
+     FROM calendar
+     WHERE club_id = $1 AND age_group = $2 AND ext_match_id = $3`,
+    [clubId, ageGroup, extMatchId]);
+  return r.rows[0] || null;
+}
+
+// === Список user_id игроков, у которых есть привязка в users (т.е. тех, у кого есть login) ===
+export async function getUserIdsForPlayers(playerIds) {
+  ensurePg();
+  if (!Array.isArray(playerIds) || playerIds.length === 0) return [];
+  const r = await query(
+    `SELECT id, player_id FROM users WHERE player_id = ANY($1)`,
+    [playerIds]);
+  return r.rows.map((row) => row.id);
+}
+
 // === Сводка для матча ===
 export async function callupSummary(clubId, ageGroup, extMatchId) {
   ensurePg();

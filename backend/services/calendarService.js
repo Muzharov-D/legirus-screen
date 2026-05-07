@@ -3,7 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
 import { isPgEnabled, query } from '../db/pool.js';
-import { autoCreatePendingCallups } from './callupsRepo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -173,14 +172,10 @@ export async function refreshCalendarAge(age) {
     try { await persistCalendarToPg(age, out); }
     catch (e) { console.error('[calendar] PG persist failed for ' + age + ':', e.message); }
 
-    // Авто-создание pending callup'ов для новых upcoming наших матчей
-    try {
-      const stats = await autoCreatePendingCallups('legirus', age);
-      if (stats.callups_created > 0) {
-        console.log('[callups] auto-created ' + stats.callups_created + ' pending для ' + age +
-                    ' (' + stats.matches_seen + ' new upcoming matches)');
-      }
-    } catch (e) { console.error('[callups] auto-create failed for ' + age + ':', e.message); }
+    // Note: автоматическое создание pending callup'ов отключено по продуктовому решению —
+    // тренер сам выбирает состав на матч из CallupRoster (Model C). Функция
+    // autoCreatePendingCallups оставлена в callupsRepo для возможного использования
+    // через UI ("заполнить всеми" / "повторить состав предыдущего матча").
   }
 
   return out;

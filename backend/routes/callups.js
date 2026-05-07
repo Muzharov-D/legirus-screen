@@ -18,9 +18,41 @@ import express from 'express';
 import {
   listCallupsByMatch, listUpcomingCallupsForPlayer, getCallup,
   callPlayers, callAllPending, respondCallup, removeFromCallup, callupSummary,
+  getMatchInfo, getUserIdsForPlayers,
 } from '../services/callupsRepo.js';
+import { sendNotification } from '../services/pushService.js';
 
 const router = express.Router();
+
+// Helper: отправить пушик о вызове на матч игрокам через user_id из push_subscriptions.
+// playerIds — те, кому только что выписан "called". Шлём пушом тем у кого есть login (user_id).
+async function pushCallupNotice(clubId, age, extMatchId, playerIds) {
+  if (!Array.isArray(playerIds) || playerIds.length === 0) return;
+  const m = await getMatchInfo(clubId, age, extMatchId);
+  if (!m) return;
+  const ourHome = String(m.home_team || '').toLowerCase().includes('легирус');
+  const opp = ourHome ? m.away_team : m.home_team;
+  const dateStr = m.match_date
+    ? new Date(m.match_date).toLocaleString('ru-RU', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+        timeZone: 'Europe/Moscow',
+      })
+    : '';
+  const title = `Вы в составе на матч · ${opp || 'соперник'}`;
+  const body = `${dateStr}` + (m.venue ? `\n📍 ${m.venue}` : '') + '\nПодтвердите участие в приложении.';
+
+  // Шлём только тем, у кого есть user_id (login) и подписка
+  const userIds = await getUserIdsForPlayers(playerIds);
+  if (userIds.length === 0) {
+    // Fallback: broadcast по всей команде (head_coach + кто подписан)
+    return sendNotification(
+      { title, body, url: '/club', tag: `callup-call-${extMatchId}`, matchId: extMatchId },
+      { teamId: `${clubId}-${age}` });
+  }
+  return sendNotification(
+    { title, body, url: '/club', tag: `callup-call-${extMatchId}`, matchId: extMatchId },
+    { userIds });
+}
 
 const CLUB_ID = 'legirus'; // Sprint 5 — single club; Sprint 4 расширит
 
@@ -75,21 +107,45 @@ router.get('/me', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// POST добавить игроков в призыв
+// POST добавить игроков в призыв (без push'а — это просто формирование списка тренером)
 router.post('/match/:age/:extMatchId/call', async (req, res) => {
   try {
     const { age, extMatchId } = req.params;
     if (!canManageAge(req.user, age)) return res.status(403).json({ error: 'Только тренер команды' });
-    const { playerIds } = req.body || {};
+    const { playerIds, notify } = req.body || {};
     if (!Array.isArray(playerIds) || playerIds.length === 0) {
       return res.status(400).json({ error: 'playerIds required' });
     }
     const rows = await callPlayers(CLUB_ID, age, extMatchId, playerIds, req.user);
+    // По умолчанию push сразу не шлём — только сохраняем в составе.
+    // notify=true → шлём всем добавленным игрокам уведомление "ты в составе".
+    if (notify === true) {
+      try { await pushCallupNotice(CLUB_ID, age, extMatchId, playerIds); }
+      catch (e) { console.error('[callups] push failed:', e.message); }
+    }
     res.json({ callups: rows });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
-// POST вызвать всех pending → called (тренер «отправить призыв всем»)
+// POST «Отправить призыв» — шлём push всем в текущем составе (не только pending).
+// Тренер сначала формирует состав через /call, потом нажимает «отправить» — все получают уведомление.
+router.post('/match/:age/:extMatchId/notify', async (req, res) => {
+  try {
+    const { age, extMatchId } = req.params;
+    if (!canManageAge(req.user, age)) return res.status(403).json({ error: 'Только тренер команды' });
+    const callups = await listCallupsByMatch(CLUB_ID, age, extMatchId);
+    if (callups.length === 0) return res.status(400).json({ error: 'Состав пустой — добавьте игроков' });
+    const playerIds = callups.map((c) => c.playerId);
+    // pending → called
+    await callAllPending(CLUB_ID, age, extMatchId, req.user);
+    let pushResult = null;
+    try { pushResult = await pushCallupNotice(CLUB_ID, age, extMatchId, playerIds); }
+    catch (e) { console.error('[callups] notify push failed:', e.message); }
+    res.json({ notified: playerIds.length, push: pushResult });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST (deprecated alias) call-all → теперь это /notify; оставим для backward compat
 router.post('/match/:age/:extMatchId/call-all', async (req, res) => {
   try {
     const { age, extMatchId } = req.params;

@@ -22,11 +22,11 @@ router.get('/public-key', (_req, res) => {
 
 // Сохранение подписки браузера. Тело запроса:
 //   { endpoint, keys: { p256dh, auth } }  — сам PushSubscription
-router.post('/subscribe', (req, res) => {
+router.post('/subscribe', async (req, res) => {
   try {
     const subscription = req.body;
     if (!subscription?.endpoint) return res.status(400).json({ error: 'subscription.endpoint обязателен' });
-    const entry = saveSubscription({
+    const entry = await saveSubscription({
       userId: req.user?.id || req.user?.userId || req.user?.username || null,
       teamId: req.user?.teamId || null,
       role: req.user?.role || null,
@@ -39,10 +39,10 @@ router.post('/subscribe', (req, res) => {
 });
 
 // Удаление подписки (когда пользователь отключил уведомления / разлогинился)
-router.post('/unsubscribe', (req, res) => {
+router.post('/unsubscribe', async (req, res) => {
   try {
     const endpoint = req.body?.endpoint;
-    const removed = removeSubscription(endpoint);
+    const removed = await removeSubscription(endpoint);
     res.json({ ok: removed });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -72,9 +72,9 @@ router.post('/test', async (req, res) => {
 });
 
 // Список подписок (head_coach only)
-router.get('/subscriptions', (req, res) => {
+router.get('/subscriptions', async (req, res) => {
   if (req.user?.role !== 'head_coach') return res.status(403).json({ error: 'Только главный тренер' });
-  const subs = listSubscriptions();
+  const subs = await listSubscriptions();
   res.json({
     count: subs.length,
     subscriptions: subs.map((s) => ({
