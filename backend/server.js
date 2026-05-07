@@ -19,6 +19,7 @@ import { startStandingsCron } from './services/standingsService.js';
 import { startCupCron } from './services/cupService.js';
 import { startCalendarCron } from './services/calendarService.js';
 import { configurePush } from './services/pushService.js';
+import { startNotifCron } from './services/notifCron.js';
 import { getPool, ping } from './db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,6 +58,7 @@ startStandingsCron();
 startCupCron();
 startCalendarCron();
 configurePush();
+startNotifCron();
 
 // Eager-инициализация PG пула при старте, чтобы isPgEnabled() сразу возвращал true,
 // и cron'ы / dataRepo использовали PG, а не legacy JSON.

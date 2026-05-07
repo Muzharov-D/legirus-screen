@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { fetchCalendar, fetchCalendarList } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
+import { useAuth } from '../contexts/AuthContext';
+import CallupRoster from '../components/CallupRoster';
 import './CalendarPage.css';
 
 const FILTERS = [
@@ -35,6 +37,8 @@ function shortName(name) {
 export default function CalendarPage() {
   const navigate = useNavigate();
   const { selectedTeam } = useTeam();
+  const { isCoach } = useAuth();
+  const [openCallup, setOpenCallup] = useState(null); // match object
 
   // Список доступных возрастных групп (тех, для которых есть calendar/{age}.json)
   const listRes = useApi(fetchCalendarList, []);
@@ -170,10 +174,28 @@ export default function CalendarPage() {
                   </div>
                 </div>
                 {m.venue && <div className="cal-card__venue">📍 {m.venue}</div>}
+                {/* Кнопка «Состав» — только для тренера на upcoming наши матчи */}
+                {isCoach && m.isOurMatch && !past && (
+                  <button
+                    className="cal-card__roster-btn"
+                    onClick={(e) => { e.stopPropagation(); setOpenCallup(m); }}
+                  >
+                    👥 Состав на матч
+                  </button>
+                )}
               </div>
             );
           })}
         </div>
+      )}
+
+      {openCallup && (
+        <CallupRoster
+          match={openCallup}
+          age={age}
+          teamId={selectedTeam?.id || `legirus-${age}`}
+          onClose={() => setOpenCallup(null)}
+        />
       )}
 
       {/* Если бэк говорит что парсер не нашёл блок — даём подсказку тренеру */}

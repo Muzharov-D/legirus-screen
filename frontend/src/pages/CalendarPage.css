@@ -201,3 +201,19 @@
   .cal-card__team { font-size: 13px; }
   .cal-card__score { font-size: 14px; min-width: 48px; }
 }
+
+.cal-card__roster-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(59, 130, 246, 0.10));
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  border-radius: 8px;
+  color: #22d3ee;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms;
+}
+.cal-card__roster-btn:hover {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(59, 130, 246, 0.16));
+}

@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import PlayerPhoto from '../components/PlayerPhoto';
 import CupBracket from '../components/CupBracket';
+import MyCallups from '../components/MyCallups';
 import { ratingColor, ratingTextColor } from '../utils/colors';
 import './ClubPage.css';
 
@@ -200,6 +201,8 @@ export default function ClubPage() {
 
   return (
     <div className="page club-page">
+      {/* Блок RSVP на ближайшие матчи (только для игрока) */}
+      <MyCallups />
       {/* HERO */}
       <div className="club-page__hero">
         <div className="club-page__hero-text">

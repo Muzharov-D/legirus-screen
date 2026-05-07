@@ -116,6 +116,31 @@ export function listSubscriptions(filter = {}) {
   });
 }
 
+// Низкоуровневая отправка одному subscription'у. Не выкидывает мёртвые — caller сам решает.
+// Используется notifCron.js, где подписки берутся из PG, а мёртвые удаляются прямо там.
+// Бросает исключение с statusCode (для 404/410 caller'ы делают cleanup).
+export async function sendToSubscription(subscription, payload) {
+  await configurePush();
+  if (!configured) {
+    console.log('[push] no-op send to subscription:', payload.title);
+    return { sent: 0, skipped: 'not-configured' };
+  }
+  const wp = await getWebpush();
+  if (!wp) return { sent: 0, skipped: 'no-webpush' };
+
+  const body = JSON.stringify({
+    title: payload.title || 'АванDата',
+    body: payload.body || '',
+    url: payload.url || '/',
+    icon: payload.icon || '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag: payload.tag || 'avandata',
+    data: { matchId: payload.matchId || null, url: payload.url || '/' },
+  });
+  await wp.sendNotification(subscription, body);
+  return { sent: 1 };
+}
+
 // Отправка нотификации.
 // payload: { title, body, url?, icon?, tag?, matchId? }
 // filter:  { teamId?, role? }

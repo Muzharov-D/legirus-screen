@@ -103,6 +103,29 @@ export const fetchPlayerAttendanceStats = (teamId, playerId, params = {}) => {
   const qs = q.toString();
   return fetchJson(`/trainings/team/${encodeURIComponent(teamId)}/player/${encodeURIComponent(playerId)}/stats${qs ? `?${qs}` : ''}`);
 };
+export const respondTraining = (trainingId, status, note) =>
+  fetchJson(`/trainings/${encodeURIComponent(trainingId)}/respond`, {
+    method: 'POST', body: { status, note },
+  });
+
+// === Callups (Sprint 5.B) ===
+export const fetchCallupsByMatch = (age, extMatchId) =>
+  fetchJson(`/callups/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}`);
+export const fetchCallupSummary = (age, extMatchId) =>
+  fetchJson(`/callups/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}/summary`);
+export const fetchMyCallups = () => fetchJson('/callups/me');
+export const callPlayers = (age, extMatchId, playerIds) =>
+  fetchJson(`/callups/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}/call`,
+            { method: 'POST', body: { playerIds } });
+export const callAllPending = (age, extMatchId) =>
+  fetchJson(`/callups/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}/call-all`,
+            { method: 'POST', body: {} });
+export const removeFromCallup = (age, extMatchId, playerId) =>
+  fetchJson(`/callups/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}/player/${encodeURIComponent(playerId)}`,
+            { method: 'DELETE' });
+export const respondCallup = (age, extMatchId, status, note, playerId) =>
+  fetchJson(`/callups/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}/respond`,
+            { method: 'POST', body: { status, note, playerId } });
 
 export async function uploadPdf(file, teamId, tournament) {
   const fd = new FormData();
