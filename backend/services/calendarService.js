@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
+import { isPgEnabled, query } from '../db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -165,7 +166,55 @@ export async function refreshCalendarAge(age) {
   const fp = path.join(CALENDAR_DIR, age + '.json');
   fs.writeFileSync(fp, JSON.stringify(out, null, 2), 'utf-8');
   invalidateCache(fp);
+
+  // Dual-write в PG: если поднят — UPSERT, иначе тихо пропускаем
+  if (isPgEnabled()) {
+    try { await persistCalendarToPg(age, out); }
+    catch (e) { console.error('[calendar] PG persist failed for ' + age + ':', e.message); }
+  }
+
   return out;
+}
+
+// UPSERT снапшота calendar_meta + всех матчей в calendar.
+// Старые матчи возраста, которых нет в новом фиде — НЕ удаляем (история сохраняется),
+// только обновляем счёт и venue если поменялись.
+async function persistCalendarToPg(age, out) {
+  await query(
+    `INSERT INTO calendar_meta (club_id, age_group, season, title, parser_hint, sources, fetched_at)
+     VALUES ('legirus', $1, $2, $3, $4, $5, $6)
+     ON CONFLICT (club_id, age_group) DO UPDATE SET
+       season=EXCLUDED.season, title=EXCLUDED.title,
+       parser_hint=EXCLUDED.parser_hint, sources=EXCLUDED.sources, fetched_at=EXCLUDED.fetched_at`,
+    [age, out.season || '', out.title || null, out.parserHint || null,
+     JSON.stringify(out.sources || []),
+     out.lastUpdated || new Date().toISOString()],
+  );
+  for (const m of out.matches || []) {
+    if (!m.matchId) continue;
+    await query(
+      `INSERT INTO calendar (club_id, age_group, season, ext_match_id, match_date, home_team, away_team,
+                             ext_home_team_id, ext_away_team_id, score_home, score_away, is_our_match,
+                             venue, group_name, round, tournament, home_shield, away_shield,
+                             source_url, fetched_at)
+       VALUES ('legirus', $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+       ON CONFLICT (club_id, age_group, ext_match_id) DO UPDATE SET
+         match_date=EXCLUDED.match_date, score_home=EXCLUDED.score_home,
+         score_away=EXCLUDED.score_away, venue=EXCLUDED.venue,
+         is_our_match=EXCLUDED.is_our_match,
+         tournament=EXCLUDED.tournament,
+         home_shield=COALESCE(EXCLUDED.home_shield, calendar.home_shield),
+         away_shield=COALESCE(EXCLUDED.away_shield, calendar.away_shield),
+         fetched_at=EXCLUDED.fetched_at`,
+      [age, out.season || '', m.matchId, m.date, m.home, m.away,
+       m.homeTeamId, m.awayTeamId,
+       m.score?.home ?? null, m.score?.away ?? null,
+       !!m.isOurMatch, m.venue, m.group, m.round,
+       m.tournament || 'league', m.homeShield || null, m.awayShield || null,
+       null, // source_url на match-уровне не храним (есть в meta.sources)
+       out.lastUpdated || new Date().toISOString()],
+    );
+  }
 }
 
 export async function refreshCalendarAll() {

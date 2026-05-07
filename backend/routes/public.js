@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { loadCalendar, loadStandings } from '../services/dataLoader.js';
+import { loadCalendar, loadStandings } from '../services/dataRepo.js';
 import { loadVenues, buildVEvent, buildVCalendar } from '../services/icsBuilder.js';
 import { loadAllStandings, buildClubRanking } from '../services/clubRanking.js';
 
@@ -21,17 +21,17 @@ router.get('/venues', (_req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/calendar/:age([0-9]+)', (req, res) => {
+router.get('/calendar/:age([0-9]+)', async (req, res) => {
   try {
-    const data = loadCalendar(req.params.age);
+    const data = await loadCalendar(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
     res.json(data);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/standings/:age([0-9]+)', (req, res) => {
+router.get('/standings/:age([0-9]+)', async (req, res) => {
   try {
-    const data = loadStandings(req.params.age);
+    const data = await loadStandings(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
     res.json(data);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -74,10 +74,10 @@ router.get('/manifest/:age([0-9]+).json', (req, res) => {
   res.json(manifest);
 });
 
-router.get('/calendar/:age.ics', (req, res) => {
+router.get('/calendar/:age.ics', async (req, res) => {
   try {
     const age = req.params.age;
-    const data = loadCalendar(age);
+    const data = await loadCalendar(age);
     if (!data) return res.status(404).type('text/plain').send('not found');
     const venues = loadVenues();
     const ours = (data.matches || []).filter((m) => m.isOurMatch);
@@ -91,9 +91,9 @@ router.get('/calendar/:age.ics', (req, res) => {
   } catch (e) { res.status(500).type('text/plain').send(e.message); }
 });
 
-router.get('/match/:age/:matchId.ics', (req, res) => {
+router.get('/match/:age/:matchId.ics', async (req, res) => {
   try {
-    const data = loadCalendar(req.params.age);
+    const data = await loadCalendar(req.params.age);
     if (!data) return res.status(404).type('text/plain').send('not found');
     const match = (data.matches || []).find((m) => m.matchId === req.params.matchId);
     if (!match) return res.status(404).type('text/plain').send('match not found');

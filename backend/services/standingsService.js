@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
+import { isPgEnabled, query } from '../db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -144,6 +145,21 @@ export async function refreshAge(ageGroup) {
   const filePath = path.join(STANDINGS_DIR, `${ageGroup}.json`);
   fs.writeFileSync(filePath, JSON.stringify(out, null, 2), 'utf-8');
   invalidateCache(filePath);
+
+  // PG dual-write — каждый refresh добавляет новую строку (история таблиц по дням).
+  // dataRepo.loadStandings возвращает последнюю по fetched_at.
+  if (isPgEnabled()) {
+    try {
+      await query(
+        `INSERT INTO standings (club_id, age_group, season, league_name, source_url, table_data, fetched_at)
+         VALUES ('legirus', $1, $2, $3, $4, $5, $6)`,
+        [ageGroup, out.season || '', out.title || null, out.source || null,
+         JSON.stringify(out.table), out.lastUpdated],
+      );
+    } catch (e) {
+      console.error('[standings] PG persist failed for ' + ageGroup + ':', e.message);
+    }
+  }
   return out;
 }
 

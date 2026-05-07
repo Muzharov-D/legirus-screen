@@ -2,6 +2,7 @@ import express from 'express';
 import {
   loadTeams,
   loadPlayers,
+  loadPlayer,
   loadMetrics,
   loadMatchesIndex,
   loadMatch,
@@ -11,7 +12,7 @@ import {
   listCup,
   loadCalendar,
   listCalendar,
-} from '../services/dataLoader.js';
+} from '../services/dataRepo.js';
 import { refreshAge, refreshAll } from '../services/standingsService.js';
 import { refreshCupAge, refreshCupAll } from '../services/cupService.js';
 import { refreshCalendarAge, refreshCalendarAll } from '../services/calendarService.js';
@@ -19,9 +20,9 @@ import { refreshCalendarAge, refreshCalendarAll } from '../services/calendarServ
 const router = express.Router();
 
 // Команды клуба. head_coach видит весь список, остальные — только свою.
-router.get('/teams', (req, res) => {
+router.get('/teams', async (req, res) => {
   try {
-    const all = loadTeams();
+    const all = await loadTeams();
     if (req.user?.role === 'head_coach') return res.json(all);
     if (!req.user?.teamId) return res.json({ ...all, teams: [] });
     const filtered = {
@@ -35,9 +36,9 @@ router.get('/teams', (req, res) => {
 });
 
 // Список игроков — фильтр по teamId / роли.
-router.get('/players', (req, res) => {
+router.get('/players', async (req, res) => {
   try {
-    const all = loadPlayers();
+    const all = await loadPlayers();
     const requestedTeamId = req.query.teamId;
 
     if (req.user?.role === 'head_coach') {
@@ -60,10 +61,9 @@ router.get('/players', (req, res) => {
 // Используется на странице игрока для определения teamId, чтобы корректно
 // подгрузить матчи нужной команды (head_coach может смотреть профиль игрока
 // другой команды клуба).
-router.get('/player/:playerId', (req, res) => {
+router.get('/player/:playerId', async (req, res) => {
   try {
-    const all = loadPlayers();
-    const player = (all.players || []).find((p) => p.id === req.params.playerId);
+    const player = await loadPlayer(req.params.playerId);
     if (!player) return res.status(404).json({ error: 'Игрок не найден' });
 
     if (req.user?.role === 'head_coach') return res.json({ player });
@@ -89,16 +89,16 @@ router.get('/player/:playerId', (req, res) => {
   }
 });
 
-router.get('/metrics', (_req, res) => {
-  try { res.json(loadMetrics()); }
+router.get('/metrics', async (_req, res) => {
+  try { res.json(await loadMetrics()); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // Список матчей — фильтр по teamId / роли.
-function enrichMatch(m) {
+async function enrichMatch(m) {
   if (m.homeTeamName && m.awayTeamName) return m;
   try {
-    const detail = loadMatch(m.id);
+    const detail = await loadMatch(m.id);
     return {
       ...m,
       homeTeamName: m.homeTeamName || detail?.homeTeam?.name || null,
@@ -110,9 +110,9 @@ function enrichMatch(m) {
   }
 }
 
-router.get('/matches', (req, res) => {
+router.get('/matches', async (req, res) => {
   try {
-    const all = loadMatchesIndex();
+    const all = await loadMatchesIndex();
     const requestedTeamId = req.query.teamId;
 
     let matches;
@@ -126,15 +126,16 @@ router.get('/matches', (req, res) => {
       matches = (all.matches || []).filter((m) => m.teamId === ownTeamId);
     }
 
-    res.json({ matches: matches.map(enrichMatch) });
+    const enriched = await Promise.all(matches.map(enrichMatch));
+    res.json({ matches: enriched });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-router.get('/match/:matchId', (req, res) => {
+router.get('/match/:matchId', async (req, res) => {
   try {
-    const match = loadMatch(req.params.matchId);
+    const match = await loadMatch(req.params.matchId);
 
     // Проверка доступа по команде. head_coach — всё; team_coach/player — только свою.
     if (req.user?.role !== 'head_coach') {
@@ -167,9 +168,9 @@ router.get('/match/:matchId', (req, res) => {
 });
 
 // Турнирная таблица возрастной группы (Клубный зачёт)
-router.get('/standings/:ageGroup', (req, res) => {
+router.get('/standings/:ageGroup', async (req, res) => {
   try {
-    const data = loadStandings(req.params.ageGroup);
+    const data = await loadStandings(req.params.ageGroup);
     if (!data) return res.status(404).json({ error: `Таблица для возраста ${req.params.ageGroup} ещё не загружена` });
     res.json(data);
   } catch (e) {
@@ -177,9 +178,9 @@ router.get('/standings/:ageGroup', (req, res) => {
   }
 });
 
-router.get('/standings', (_req, res) => {
+router.get('/standings', async (_req, res) => {
   try {
-    res.json({ ageGroups: listStandings() });
+    res.json({ ageGroups: await listStandings() });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -211,9 +212,9 @@ router.post('/standings/refresh', async (req, res) => {
 });
 
 // Кубковая сетка возрастной группы
-router.get('/cup/:ageGroup', (req, res) => {
+router.get('/cup/:ageGroup', async (req, res) => {
   try {
-    const data = loadCup(req.params.ageGroup);
+    const data = await loadCup(req.params.ageGroup);
     if (!data) return res.status(404).json({ error: `Сетка кубка для возраста ${req.params.ageGroup} ещё не загружена` });
     res.json(data);
   } catch (e) {
@@ -221,9 +222,9 @@ router.get('/cup/:ageGroup', (req, res) => {
   }
 });
 
-router.get('/cup', (_req, res) => {
+router.get('/cup', async (_req, res) => {
   try {
-    res.json({ ageGroups: listCup() });
+    res.json({ ageGroups: await listCup() });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -254,9 +255,9 @@ router.post('/cup/refresh', async (req, res) => {
 });
 
 // Календарь сезона возрастной группы
-router.get('/calendar/:ageGroup', (req, res) => {
+router.get('/calendar/:ageGroup', async (req, res) => {
   try {
-    const data = loadCalendar(req.params.ageGroup);
+    const data = await loadCalendar(req.params.ageGroup);
     if (!data) return res.status(404).json({ error: `Календарь для возраста ${req.params.ageGroup} ещё не загружен` });
     res.json(data);
   } catch (e) {
@@ -264,9 +265,9 @@ router.get('/calendar/:ageGroup', (req, res) => {
   }
 });
 
-router.get('/calendar', (_req, res) => {
+router.get('/calendar', async (_req, res) => {
   try {
-    res.json({ ageGroups: listCalendar() });
+    res.json({ ageGroups: await listCalendar() });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

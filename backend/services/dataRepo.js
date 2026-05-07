@@ -151,12 +151,20 @@ export async function loadCalendar(ageGroup) {
            CASE WHEN score_home IS NOT NULL THEN jsonb_build_object('home', score_home, 'away', score_away) ELSE NULL END AS score,
            score_home IS NOT NULL AS "isPast",
            is_our_match AS "isOurMatch",
-           venue, group_name AS "group", round
+           venue, group_name AS "group", round,
+           tournament,
+           home_shield AS "homeShield",
+           away_shield AS "awayShield"
     FROM calendar
     WHERE club_id = 'legirus' AND age_group = $1
     ORDER BY match_date NULLS LAST`, [ageGroup]);
   if (r.rows.length === 0) return null;
-  // Добавляем isUpcoming на лету — не храним в БД (зависит от сейчас)
+
+  const meta = await query(`
+    SELECT season, title, parser_hint AS "parserHint", sources, fetched_at AS "lastUpdated"
+    FROM calendar_meta WHERE club_id = 'legirus' AND age_group = $1`, [ageGroup]);
+  const head = meta.rows[0] || {};
+
   const now = new Date();
   const matches = r.rows.map((m) => ({
     ...m,
@@ -164,8 +172,12 @@ export async function loadCalendar(ageGroup) {
   }));
   return {
     ageGroup,
+    season: head.season || null,
+    title: head.title || null,
+    parserHint: head.parserHint || null,
+    sources: head.sources || [],
     matches,
-    lastUpdated: matches[0]?.fetched_at || null,
+    lastUpdated: head.lastUpdated || null,
   };
 }
 

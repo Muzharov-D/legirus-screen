@@ -220,21 +220,44 @@ async function importCalendar(client) {
     const age = file.replace('.json', '');
     const data = loadJson(path.join('calendar', file));
     if (!data || !Array.isArray(data.matches)) continue;
+
+    // calendar_meta — верхнеуровневый snapshot (title, sources, parserHint)
+    if (!DRY) {
+      await client.query(
+        `INSERT INTO calendar_meta (club_id, age_group, season, title, parser_hint, sources, fetched_at)
+         VALUES ('legirus', $1, $2, $3, $4, $5, $6)
+         ON CONFLICT (club_id, age_group) DO UPDATE SET
+           season = EXCLUDED.season, title = EXCLUDED.title,
+           parser_hint = EXCLUDED.parser_hint, sources = EXCLUDED.sources,
+           fetched_at = EXCLUDED.fetched_at`,
+        [age, data.season || '', data.title || null, data.parserHint || null,
+         JSON.stringify(data.sources || []),
+         data.lastUpdated || new Date().toISOString()],
+      );
+      bump('calendar_meta.upsert');
+    } else { bump('calendar_meta.insert'); }
+
     for (const m of data.matches) {
       if (DRY) { bump('calendar.insert'); continue; }
       await client.query(
         `INSERT INTO calendar (club_id, age_group, season, ext_match_id, match_date, home_team, away_team,
                                ext_home_team_id, ext_away_team_id, score_home, score_away, is_our_match,
-                               venue, group_name, round, source_url, fetched_at)
-         VALUES ('legirus', $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                               venue, group_name, round, tournament, home_shield, away_shield,
+                               source_url, fetched_at)
+         VALUES ('legirus', $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
          ON CONFLICT (club_id, age_group, ext_match_id) DO UPDATE SET
            match_date = EXCLUDED.match_date, score_home = EXCLUDED.score_home,
            score_away = EXCLUDED.score_away, venue = EXCLUDED.venue,
-           is_our_match = EXCLUDED.is_our_match`,
+           is_our_match = EXCLUDED.is_our_match,
+           tournament = EXCLUDED.tournament,
+           home_shield = COALESCE(EXCLUDED.home_shield, calendar.home_shield),
+           away_shield = COALESCE(EXCLUDED.away_shield, calendar.away_shield)`,
         [age, data.season || '', m.matchId, m.date,
          m.home, m.away, m.homeTeamId, m.awayTeamId,
          m.score?.home ?? null, m.score?.away ?? null,
-         !!m.isOurMatch, m.venue, m.group, m.round, data.source || null,
+         !!m.isOurMatch, m.venue, m.group, m.round,
+         m.tournament || 'league', m.homeShield || null, m.awayShield || null,
+         data.source || null,
          data.lastUpdated || new Date().toISOString()],
       );
       bump('calendar.upsert');

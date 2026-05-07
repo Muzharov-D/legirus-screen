@@ -23,6 +23,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
+import { isPgEnabled, query } from '../db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -244,6 +245,20 @@ export async function refreshCupAge(ageGroup) {
   const filePath = path.join(CUP_DIR, `${ageGroup}.json`);
   fs.writeFileSync(filePath, JSON.stringify(out, null, 2), 'utf-8');
   invalidateCache(filePath);
+
+  // PG dual-write
+  if (isPgEnabled()) {
+    try {
+      await query(
+        `INSERT INTO cup_brackets (club_id, age_group, season, cup_name, source_url, rounds_data, parse_hint, fetched_at)
+         VALUES ('legirus', $1, $2, $3, $4, $5, $6, $7)`,
+        [ageGroup, out.season || '', out.title || null, out.source || null,
+         JSON.stringify(out.rounds || []), out.parseHint || null, out.lastUpdated],
+      );
+    } catch (e) {
+      console.error('[cup] PG persist failed for ' + ageGroup + ':', e.message);
+    }
+  }
   return out;
 }
 
