@@ -30,7 +30,7 @@ function buildYandexMapsUrl(venue, coords) {
   return null;
 }
 
-export default function MatchDetailSheet({ match, venue, onClose }) {
+export default function MatchDetailSheet({ match, venue, age, onClose }) {
   // Esc для закрытия
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -47,6 +47,12 @@ export default function MatchDetailSheet({ match, venue, onClose }) {
   const past = match.isPast;
   const tournamentLabel = match.tournament === 'cup' ? 'Кубок' : 'Лига';
   const yaUrl = buildYandexMapsUrl(match.venue, venue);
+
+  // Single-event ICS для скачивания (только если есть matchId и age)
+  const apiBase = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+  const icsUrl = (match.matchId && age)
+    ? apiBase.replace(/\/+$/, '') + '/api/public/match/' + age + '/' + match.matchId + '.ics'
+    : null;
 
   return (
     <div className="mds-backdrop" onClick={onClose}>
@@ -97,6 +103,17 @@ export default function MatchDetailSheet({ match, venue, onClose }) {
           >
             <span className="mds-cta-icon">🗺</span>
             <span>Маршрут в Я.Картах</span>
+          </a>
+        )}
+
+        {icsUrl && !past && (
+          <a
+            className="mds-cta-secondary"
+            href={icsUrl}
+            download={`match-${match.matchId}.ics`}
+          >
+            <span>📅</span>
+            <span>В мой календарь</span>
           </a>
         )}
 

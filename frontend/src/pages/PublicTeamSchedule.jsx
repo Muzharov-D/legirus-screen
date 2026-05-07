@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
+import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import './PublicTeamSchedule.css';
 
 const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -46,6 +47,7 @@ export default function PublicTeamSchedule() {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('upcoming');
   const [openMatch, setOpenMatch] = useState(null);
+  const [showSubscribe, setShowSubscribe] = useState(false);
 
   useEffect(() => {
     if (!age) return;
@@ -116,6 +118,14 @@ export default function PublicTeamSchedule() {
             </div>
           )}
         </header>
+
+        <button
+          className="public-page__subscribe"
+          onClick={() => setShowSubscribe(true)}
+        >
+          <span>📅</span>
+          <span>Подписаться на расписание в календаре телефона</span>
+        </button>
 
         {loading && <div className="public-page__empty">Загрузка...</div>}
         {error && (
@@ -207,7 +217,22 @@ export default function PublicTeamSchedule() {
         <MatchDetailSheet
           match={openMatch}
           venue={findVenue(openMatch.venue)}
+          age={age}
           onClose={() => setOpenMatch(null)}
+        />
+      )}
+
+      {showSubscribe && (
+        <CalendarSubscribeModal
+          feedUrl={(() => {
+            // Абсолютный URL фида: используется как для подписки, так и в webcal://
+            const apiBase = (typeof window !== 'undefined' ? window.location.origin : '');
+            // Если backend на отдельном поддомене — используем VITE_API_BASE_URL
+            const explicitApi = import.meta.env.VITE_API_BASE_URL;
+            const base = explicitApi || apiBase;
+            return base.replace(/\/+$/, '') + '/api/public/calendar/' + age + '.ics';
+          })()}
+          onClose={() => setShowSubscribe(false)}
         />
       )}
     </div>

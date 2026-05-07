@@ -1,0 +1,199 @@
+.csm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 7, 28, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: csm-fade 180ms ease-out;
+}
+
+@keyframes csm-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.csm-sheet {
+  background: linear-gradient(180deg, #14143c 0%, #0d1424 100%);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.csm-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: #d6e2ff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.csm-close:hover { background: rgba(255, 255, 255, 0.12); }
+
+.csm-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.csm-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f1f5fb;
+  text-align: center;
+  margin: 0 0 8px;
+}
+
+.csm-subtitle {
+  font-size: 13px;
+  color: #94a3c8;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.csm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.csm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 120ms, box-shadow 120ms;
+}
+
+.csm-btn--primary {
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+  color: #07071c;
+  box-shadow: 0 4px 12px rgba(34, 211, 238, 0.25);
+}
+.csm-btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(34, 211, 238, 0.35); }
+
+.csm-btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #d6e2ff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.csm-btn--secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+.csm-divider {
+  text-align: center;
+  margin: 12px 0;
+  position: relative;
+  color: #6b7896;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.csm-divider::before, .csm-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: calc(50% - 50px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.csm-divider::before { left: 0; }
+.csm-divider::after { right: 0; }
+
+.csm-url-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.csm-url {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #d6e2ff;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+.csm-url:focus { outline: none; border-color: rgba(34, 211, 238, 0.4); }
+
+.csm-copy {
+  padding: 10px 14px;
+  background: rgba(34, 211, 238, 0.15);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  border-radius: 8px;
+  color: #22d3ee;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.csm-copy:hover { background: rgba(34, 211, 238, 0.22); }
+
+.csm-help {
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.csm-help summary {
+  padding: 12px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #94a3c8;
+  font-weight: 600;
+  user-select: none;
+}
+.csm-help summary:hover { color: #d6e2ff; }
+.csm-help[open] summary { color: #22d3ee; }
+.csm-help-content {
+  padding: 0 14px 14px;
+  font-size: 12px;
+  color: #94a3c8;
+  line-height: 1.5;
+}
+.csm-help-content h4 {
+  margin: 12px 0 4px;
+  font-size: 13px;
+  color: #d6e2ff;
+}
+.csm-help-content p { margin: 0; }
+.csm-help-content b { color: #f1f5fb; }
+
+.csm-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: #6b7896;
+  text-align: center;
+  line-height: 1.5;
+}

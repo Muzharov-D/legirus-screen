@@ -185,6 +185,29 @@
 .mds-cta:active { transform: translateY(0); }
 .mds-cta-icon { font-size: 20px; }
 
+.mds-cta-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #d6e2ff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 120ms;
+}
+.mds-cta-secondary:hover {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.3);
+  color: #22d3ee;
+}
+
 .mds-no-venue {
   padding: 12px 14px;
   background: rgba(245, 158, 11, 0.08);

@@ -83,6 +83,29 @@
   letter-spacing: 0;
 }
 
+.public-page__subscribe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  border-radius: 10px;
+  color: #22d3ee;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+}
+.public-page__subscribe:hover {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.18) 0%, rgba(59, 130, 246, 0.18) 100%);
+  border-color: rgba(34, 211, 238, 0.55);
+}
+.public-page__subscribe span:first-child { font-size: 18px; }
+
 .public-page__filters {
   display: flex;
   align-items: center;
