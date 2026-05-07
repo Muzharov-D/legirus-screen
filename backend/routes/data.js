@@ -36,6 +36,15 @@ router.get('/teams', async (req, res) => {
 });
 
 // Список игроков — фильтр по teamId / роли.
+// Игрок попадает в команду если она его primary (team_id) или указана в extra_teams
+// (кейс: играет на год старше — заявка в одной возрастной группе, играет в другой).
+function inTeam(p, teamId) {
+  if (!teamId) return true;
+  if (p.teamId === teamId) return true;
+  if (Array.isArray(p.extraTeams) && p.extraTeams.includes(teamId)) return true;
+  return false;
+}
+
 router.get('/players', async (req, res) => {
   try {
     const all = await loadPlayers();
@@ -43,14 +52,14 @@ router.get('/players', async (req, res) => {
 
     if (req.user?.role === 'head_coach') {
       const players = requestedTeamId
-        ? (all.players || []).filter((p) => p.teamId === requestedTeamId)
+        ? (all.players || []).filter((p) => inTeam(p, requestedTeamId))
         : all.players;
       return res.json({ players });
     }
 
     const ownTeamId = req.user?.teamId;
     if (!ownTeamId) return res.json({ players: [] });
-    const players = (all.players || []).filter((p) => p.teamId === ownTeamId);
+    const players = (all.players || []).filter((p) => inTeam(p, ownTeamId));
     res.json({ players });
   } catch (e) {
     res.status(500).json({ error: e.message });

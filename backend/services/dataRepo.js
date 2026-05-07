@@ -49,6 +49,8 @@ export async function loadTeams() {
 
 // === PLAYERS ===
 // photo и photoUrl — оба возвращаем (фронт исторически использует p.photo с именем файла).
+// extraTeams — массив дополнительных team_id, в которых игрок может быть вызван
+// (кейс: играет на год старше, заявка в одной возрастной группе).
 export async function loadPlayers() {
   if (!isPgEnabled()) return legacy.loadPlayers();
   const r = await query(`
@@ -56,7 +58,8 @@ export async function loadPlayers() {
            first_name AS "firstName", last_name AS "lastName",
            number, position, position_full AS "positionFull",
            birth_date AS "birthDate",
-           photo_url AS "photoUrl", photo_url AS "photo"
+           photo_url AS "photoUrl", photo_url AS "photo",
+           COALESCE(extra_teams, ARRAY[]::TEXT[]) AS "extraTeams"
     FROM players ORDER BY team_id, number NULLS LAST`);
   return { players: r.rows };
 }
@@ -71,7 +74,8 @@ export async function loadPlayer(playerId) {
            first_name AS "firstName", last_name AS "lastName",
            number, position, position_full AS "positionFull",
            birth_date AS "birthDate",
-           photo_url AS "photoUrl", photo_url AS "photo"
+           photo_url AS "photoUrl", photo_url AS "photo",
+           COALESCE(extra_teams, ARRAY[]::TEXT[]) AS "extraTeams"
     FROM players WHERE id = $1`, [playerId]);
   return r.rows[0] || null;
 }
