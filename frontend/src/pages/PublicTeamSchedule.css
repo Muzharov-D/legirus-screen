@@ -49,6 +49,12 @@
   color: #f1f5fb;
 }
 
+.public-page__ranks {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .public-page__rank {
   display: flex;
   align-items: center;
@@ -57,6 +63,14 @@
   background: rgba(34, 211, 238, 0.08);
   border: 1px solid rgba(34, 211, 238, 0.3);
   border-radius: 12px;
+}
+
+.public-page__rank--club {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+.public-page__rank--club .public-page__rank-pos {
+  color: #f59e0b;
 }
 
 .public-page__rank-pos {

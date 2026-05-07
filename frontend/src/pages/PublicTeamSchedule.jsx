@@ -48,6 +48,7 @@ export default function PublicTeamSchedule() {
   const [filter, setFilter] = useState('upcoming');
   const [openMatch, setOpenMatch] = useState(null);
   const [showSubscribe, setShowSubscribe] = useState(false);
+  const [clubRank, setClubRank] = useState(null);
 
   useEffect(() => {
     if (!age) return;
@@ -57,10 +58,12 @@ export default function PublicTeamSchedule() {
       fetch(`${PREFIX}/calendar/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : Promise.reject(new Error(`Календарь не найден (${r.status})`))),
       fetch(`${PREFIX}/standings/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : null),
       fetch(`${PREFIX}/venues`).then((r) => r.ok ? r.json() : { venues: [] }),
-    ]).then(([calData, standData, venueData]) => {
+      fetch(`${PREFIX}/club-rank`).then((r) => r.ok ? r.json() : null),
+    ]).then(([calData, standData, venueData, clubRankData]) => {
       setCal(calData);
       setStandings(standData);
       setVenues(venueData?.venues || []);
+      setClubRank(clubRankData);
     }).catch((e) => {
       setError(e.message);
     }).finally(() => setLoading(false));
@@ -108,15 +111,26 @@ export default function PublicTeamSchedule() {
               <h1 className="public-page__title">ФК Легирус · {age} г.р.</h1>
             </div>
           </div>
-          {ourRow && (
-            <div className="public-page__rank">
-              <div className="public-page__rank-pos">{ourRow.pos}</div>
-              <div className="public-page__rank-meta">
-                место в лиге<br />
-                <small>{ourRow.points} очков · {ourRow.wins}–{ourRow.draws}–{ourRow.losses}</small>
+          <div className="public-page__ranks">
+            {ourRow && (
+              <div className="public-page__rank">
+                <div className="public-page__rank-pos">{ourRow.pos}</div>
+                <div className="public-page__rank-meta">
+                  в лиге {age}<br />
+                  <small>{ourRow.points} очк · {ourRow.wins}-{ourRow.draws}-{ourRow.losses}</small>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+            {clubRank?.ourClubRank && (
+              <div className="public-page__rank public-page__rank--club">
+                <div className="public-page__rank-pos">{clubRank.ourClubRank}</div>
+                <div className="public-page__rank-meta">
+                  клубный зачёт<br />
+                  <small>{clubRank.ourClubStats.points} очк · из {clubRank.totalClubs} клубов</small>
+                </div>
+              </div>
+            )}
+          </div>
         </header>
 
         <button
