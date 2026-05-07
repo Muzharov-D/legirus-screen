@@ -1,5 +1,5 @@
 // Модалка с инструкцией подписки на iCal feed.
-// Показывает URL подписки + кнопки для iOS/Android/Google + копирование URL.
+// Адаптируется под платформу пользователя — даёт правильную кнопку и инструкцию.
 
 import { useEffect, useState } from 'react';
 import './CalendarSubscribeModal.css';
@@ -7,7 +7,12 @@ import './CalendarSubscribeModal.css';
 function detectPlatform() {
   if (typeof navigator === 'undefined') return 'desktop';
   const ua = navigator.userAgent.toLowerCase();
-  if (/iphone|ipad|ipod/.test(ua)) return 'ios';
+  if (/iphone|ipad|ipod/.test(ua)) {
+    // На iOS отличаем Safari от других браузеров — webcal:// нормально
+    // обрабатывает только Safari. Chrome iOS этого не умеет.
+    const isSafari = /safari/.test(ua) && !/crios|fxios|edgios/.test(ua);
+    return isSafari ? 'ios-safari' : 'ios-other';
+  }
   if (/android/.test(ua)) return 'android';
   if (/macintosh/.test(ua)) return 'mac';
   return 'desktop';
@@ -28,19 +33,18 @@ export default function CalendarSubscribeModal({ feedUrl, onClose }) {
     };
   }, [onClose]);
 
-  // webcal:// — стандартная схема для подписки на ICS-feed.
-  // iOS Calendar / macOS Calendar / Android (через Google Calendar Web → mobile sync)
-  // открывают её и предлагают добавить подписку.
+  // webcal:// — стандартная схема подписки. iOS/macOS Safari автоматически
+  // открывают Calendar app с диалогом подтверждения.
   const webcalUrl = feedUrl.replace(/^https?:\/\//, 'webcal://');
 
-  // Google Calendar — отдельный link для добавления через web (с дальнейшим sync на Android)
+  // Google Calendar — универсально, работает на всех Android (и десктоп).
   const googleUrl = 'https://calendar.google.com/calendar/u/0/r?cid=' + encodeURIComponent(feedUrl);
 
   function copy() {
     navigator.clipboard.writeText(feedUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    }).catch(() => {});
   }
 
   return (
@@ -52,15 +56,26 @@ export default function CalendarSubscribeModal({ feedUrl, onClose }) {
         <h2 className="csm-title">Расписание в твой календарь</h2>
         <p className="csm-subtitle">
           Подпишись один раз — и матчи будут появляться в календаре телефона
-          автоматически. Когда меняется время или добавляется новый матч —
+          автоматически. Когда меняется время или добавляется матч —
           календарь обновится сам.
         </p>
 
         <div className="csm-actions">
-          {platform === 'ios' && (
+          {platform === 'ios-safari' && (
             <a className="csm-btn csm-btn--primary" href={webcalUrl}>
               <span>📲</span><span>Открыть в Календаре iPhone</span>
             </a>
+          )}
+          {platform === 'ios-other' && (
+            <>
+              <div className="csm-warn">
+                ⚠️ Открой эту страницу в <b>Safari</b> для подписки в один тап.
+                В Chrome / других браузерах iOS подписка не работает напрямую.
+              </div>
+              <a className="csm-btn csm-btn--primary" href={webcalUrl}>
+                <span>📲</span><span>Попробовать webcal://</span>
+              </a>
+            </>
           )}
           {platform === 'mac' && (
             <a className="csm-btn csm-btn--primary" href={webcalUrl}>
@@ -101,14 +116,34 @@ export default function CalendarSubscribeModal({ feedUrl, onClose }) {
         <details className="csm-help">
           <summary>Инструкция по платформам</summary>
           <div className="csm-help-content">
-            <h4>📱 iPhone</h4>
-            <p>Настройки → Календарь → Учётные записи → Добавить учётную запись → Другое → «Подписка на календарь» → вставь URL.</p>
-            <h4>🤖 Android (Google Calendar)</h4>
-            <p>Открой <b>calendar.google.com</b> на компьютере → ➕ слева → «Из URL» → вставь URL → Добавить. На телефоне Android появится автоматически после синхронизации.</p>
+            <h4>📱 iPhone / iPad</h4>
+            <p>
+              Самый быстрый способ — открыть эту страницу в <b>Safari</b> и
+              нажать большую кнопку выше. Календарь спросит подтверждение и
+              добавит расписание.
+            </p>
+            <p>
+              Вручную: <b>Настройки → Календарь → Учётные записи → Добавить
+              учётную запись → Другое → Подписка на календарь</b> → вставь
+              скопированный URL.
+            </p>
+
+            <h4>🤖 Android</h4>
+            <p>
+              <b>С Google Calendar</b> (большинство устройств): тапни жёлтую
+              кнопку выше — откроется Google Calendar с диалогом «Добавить
+              календарь». Подтверди — расписание появится в нативном календаре
+              телефона.
+            </p>
+            <p>
+              <b>Без Google</b> (Samsung Calendar, MIUI и т.п.): поставь
+              бесплатное приложение <b>ICSx<sup>5</sup></b> (Play Store или
+              F-Droid) → жми ➕ → вставь URL. Календарь синхронится в
+              стандартный Календарь телефона.
+            </p>
+
             <h4>💻 macOS Calendar</h4>
-            <p>Файл → Новая подписка на календарь → вставь URL.</p>
-            <h4>📅 Outlook</h4>
-            <p>Календарь → Добавить календарь → Подписаться из интернета → URL.</p>
+            <p><b>Файл → Новая подписка на календарь</b> → вставь URL.</p>
           </div>
         </details>
 

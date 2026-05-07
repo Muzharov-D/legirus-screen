@@ -94,7 +94,8 @@ export default function MatchDetailSheet({ match, venue, age, onClose }) {
           </div>
         )}
 
-        {yaUrl && (
+        {/* Маршрут в Я.Картах только для будущих матчей — на сыгранные ехать незачем */}
+        {yaUrl && !past && (
           <a
             className="mds-cta"
             href={yaUrl}
@@ -110,7 +111,9 @@ export default function MatchDetailSheet({ match, venue, age, onClose }) {
           <a
             className="mds-cta-secondary"
             href={icsUrl}
-            download={`match-${match.matchId}.ics`}
+            // Без download-атрибута: на iOS Safari это позволяет браузеру
+            // распознать text/calendar и открыть превью с кнопкой
+            // «Add to Calendar». На Android Chrome всё равно скачает файл.
           >
             <span>📅</span>
             <span>В мой календарь</span>

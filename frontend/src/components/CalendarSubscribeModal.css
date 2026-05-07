@@ -76,6 +76,17 @@
   margin-bottom: 16px;
 }
 
+.csm-warn {
+  padding: 12px 14px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  color: #d6e2ff;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.csm-warn b { color: #fbbf24; }
+
 .csm-btn {
   display: flex;
   align-items: center;
