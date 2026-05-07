@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
 import { isPgEnabled, query } from '../db/pool.js';
+import { isFfspbConfigured, listMatches as apiListMatches } from './ffspbApi.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -122,6 +123,53 @@ function cupUrl(age, cfg) {
   return b ? b.replace(/\/$/, '') + '/calendar' : null;
 }
 
+// Извлекаем tournament_id из URL вида .../tournament44333/...
+function parseTournamentId(url) {
+  if (!url) return null;
+  const m = String(url).match(/tournament(\d+)/i);
+  return m ? Number(m[1]) : null;
+}
+function tournamentIds(age, cfg) {
+  return {
+    league: parseTournamentId(leagueUrl(age, cfg)),
+    cup: parseTournamentId(cupUrl(age, cfg)),
+  };
+}
+
+// Маппинг матча из API Platform → наш JSON-формат.
+function apiMatchToOurs(m, tournament, ourMatcher = 'Легирус') {
+  const matcher = String(ourMatcher || '').toLowerCase();
+  const homeName = m.host?.name || m.host?.shortName || null;
+  const awayName = m.guest?.name || m.guest?.shortName || null;
+  const isOurMatch = !!matcher && (
+    (homeName || '').toLowerCase().includes(matcher) ||
+    (awayName || '').toLowerCase().includes(matcher)
+  );
+  const score = (m.resultHost != null && m.resultGuest != null && m.done >= 4)
+    ? { home: m.resultHost, away: m.resultGuest }
+    : null;
+  const date = m.publicDate || null;
+  const teamId = (iri) => iri ? String(iri).split('/').pop() : null;
+  return {
+    matchId: String(m.id),
+    date,
+    home: homeName,
+    away: awayName,
+    homeTeamId: teamId(m.host?.['@id']),
+    awayTeamId: teamId(m.guest?.['@id']),
+    score,
+    isPast: !!score,
+    isUpcoming: !score && (!date || new Date(date) >= new Date()),
+    isOurMatch,
+    group: null,
+    venue: m.stadium?.name || m.location?.name || null,
+    round: m.tourId ? `Тур ${m.tourId}` : null,
+    tournament,
+    homeShield: m.host?.logoSrc || null,
+    awayShield: m.guest?.logoSrc || null,
+  };
+}
+
 function nrm(name) {
   return String(name || '').toLowerCase()
     .replace(/\([^)]*\)/g, '')
@@ -139,27 +187,79 @@ function loadShields(age) {
   return map;
 }
 
-export async function refreshCalendarAge(age) {
-  const cfg = readConfig();
+// Старая HTML-логика — теперь запасной путь для случая когда FFSPB_API_KEY отсутствует.
+async function refreshCalendarAgeViaHtml(age, cfg) {
   const sources = [];
   const lu = leagueUrl(age, cfg); if (lu) sources.push({ url: lu, tournament: 'league' });
   const cu = cupUrl(age, cfg); if (cu) sources.push({ url: cu, tournament: 'cup' });
-  if (!sources.length) throw new Error('No URL for ' + age);
-  const all = [];
-  let hint = 'fallback-empty';
+  if (!sources.length) return { matches: [], hint: 'fallback-empty', meta: [] };
+  const matches = [];
   const meta = [];
+  let hint = 'fallback-empty';
   for (const s of sources) {
     try {
       const r = await fetchAndParseCalendar(s.url, cfg.ourClubMatcher, s.tournament);
-      all.push(...r.matches);
+      matches.push(...r.matches);
       if (r.parserHint === 'html-table') hint = 'html-table';
       meta.push({ tournament: s.tournament, url: s.url, found: r.matches.length });
     } catch (e) {
       meta.push({ tournament: s.tournament, url: s.url, error: e.message });
     }
   }
+  return { matches, hint, meta };
+}
+
+// Главная точка входа: обновить календарь для возраста.
+// Если FFSPB_API_KEY задан — тянем через официальный API Platform.
+// Иначе fallback на старый HTML-скрейпер.
+export async function refreshCalendarAge(age) {
+  const cfg = readConfig();
+  const ourMatcher = cfg.ourClubMatcher || 'Легирус';
+
+  let all = [];
+  let hint = 'fallback-empty';
+  const meta = [];
+
+  if (isFfspbConfigured()) {
+    // === API-вариант ===
+    const tids = tournamentIds(age, cfg);
+    for (const [tournament, tid] of [['league', tids.league], ['cup', tids.cup]]) {
+      if (!tid) continue;
+      try {
+        const apiMatches = await apiListMatches(tid);
+        const mapped = apiMatches.map((m) => apiMatchToOurs(m, tournament, ourMatcher));
+        all.push(...mapped);
+        meta.push({ tournament, tournamentId: tid, found: mapped.length });
+        if (mapped.length > 0) hint = 'ffspb-api';
+      } catch (e) {
+        meta.push({ tournament, tournamentId: tid, error: e.message });
+        console.error('[calendar] API failed for ' + age + '/' + tournament + ':', e.message);
+      }
+    }
+    if (all.length === 0) {
+      // Если API ничего не дал — fallback к HTML-скрейперу как safety net
+      console.warn('[calendar] API returned 0 matches для ' + age + ', fallback на HTML');
+      const fb = await refreshCalendarAgeViaHtml(age, cfg);
+      all = fb.matches;
+      meta.push(...fb.meta);
+      if (fb.hint !== 'fallback-empty') hint = fb.hint;
+    }
+  } else {
+    // === HTML fallback (legacy) ===
+    const fb = await refreshCalendarAgeViaHtml(age, cfg);
+    all = fb.matches;
+    meta.push(...fb.meta);
+    hint = fb.hint;
+  }
+
+  // Дополняем shield'ы из локального club-shields.json для команд,
+  // у которых API не вернул logoSrc (бывает для редко обновляемых команд)
   const sh = loadShields(age);
-  const enriched = sh.size === 0 ? all : all.map((m) => ({ ...m, homeShield: sh.get(nrm(m.home)) || null, awayShield: sh.get(nrm(m.away)) || null }));
+  const enriched = all.map((m) => ({
+    ...m,
+    homeShield: m.homeShield || sh.get(nrm(m.home)) || null,
+    awayShield: m.awayShield || sh.get(nrm(m.away)) || null,
+  }));
   enriched.sort((a, b) => !a.date ? 1 : !b.date ? -1 : new Date(a.date) - new Date(b.date));
   const out = { ageGroup: age, season: cfg.season, sources: meta, parserHint: hint, lastUpdated: new Date().toISOString(), matches: enriched };
   if (!fs.existsSync(CALENDAR_DIR)) fs.mkdirSync(CALENDAR_DIR, { recursive: true });
@@ -242,10 +342,11 @@ export async function refreshCalendarAll() {
 }
 
 let timer = null;
+const CALENDAR_CRON_HOURS = 6; // ffspb обновляется не чаще раза в день после игр; 6h хватает с запасом
 export function startCalendarCron() {
   if (timer) return;
   setTimeout(() => refreshCalendarAll().catch(() => {}), 8000);
-  timer = setInterval(() => refreshCalendarAll().catch(() => {}), 24 * 60 * 60 * 1000);
-  console.log('[calendar] cron started');
+  timer = setInterval(() => refreshCalendarAll().catch(() => {}), CALENDAR_CRON_HOURS * 60 * 60 * 1000);
+  console.log('[calendar] cron started, refresh every ' + CALENDAR_CRON_HOURS + 'h');
 }
 export function stopCalendarCron() { if (timer) clearInterval(timer); timer = null; }
