@@ -4,7 +4,8 @@
   "installCommand": "npm install",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/maps/(.*)", "destination": "https://legirus-api.onrender.com/api/maps/$1" },
+    { "source": "/api/(.*)", "destination": "https://legirus-api.onrender.com/api/$1" },
+    { "source": "/assets/maps/(.*)", "destination": "https://legirus-api.onrender.com/assets/maps/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
