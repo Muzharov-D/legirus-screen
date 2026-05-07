@@ -136,6 +136,16 @@
 }
 .pub-card--past { opacity: 0.7; }
 
+.pub-card--clickable {
+  cursor: pointer;
+  user-select: none;
+}
+.pub-card--clickable:hover {
+  border-color: rgba(34, 211, 238, 0.5);
+  transform: translateY(-1px);
+}
+.pub-card--clickable:active { transform: translateY(0); }
+
 .pub-card__date {
   display: flex;
   align-items: center;

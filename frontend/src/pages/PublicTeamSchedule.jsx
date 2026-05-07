@@ -4,8 +4,9 @@
 //
 // Источник: GET /api/public/calendar/:age — sanitized данные без личной статистики.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import MatchDetailSheet from '../components/MatchDetailSheet';
 import './PublicTeamSchedule.css';
 
 const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -32,13 +33,19 @@ function shortName(name) {
   return String(name).replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '').trim();
 }
 
+function nrmName(s) {
+  return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
 export default function PublicTeamSchedule() {
   const { age } = useParams();
   const [cal, setCal] = useState(null);
   const [standings, setStandings] = useState(null);
+  const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('upcoming');
+  const [openMatch, setOpenMatch] = useState(null);
 
   useEffect(() => {
     if (!age) return;
@@ -47,13 +54,36 @@ export default function PublicTeamSchedule() {
     Promise.all([
       fetch(`${PREFIX}/calendar/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : Promise.reject(new Error(`Календарь не найден (${r.status})`))),
       fetch(`${PREFIX}/standings/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : null),
-    ]).then(([calData, standData]) => {
+      fetch(`${PREFIX}/venues`).then((r) => r.ok ? r.json() : { venues: [] }),
+    ]).then(([calData, standData, venueData]) => {
       setCal(calData);
       setStandings(standData);
+      setVenues(venueData?.venues || []);
     }).catch((e) => {
       setError(e.message);
     }).finally(() => setLoading(false));
   }, [age]);
+
+  // Lookup venue по совпадению имени стадиона из match.venue
+  const venueByName = useMemo(() => {
+    const map = new Map();
+    for (const v of venues) {
+      // ffspb даёт venue как "Балтика Санкт-Петербург" — попробуем мечить по началу
+      map.set(nrmName(v.name), v);
+    }
+    return map;
+  }, [venues]);
+
+  function findVenue(matchVenue) {
+    if (!matchVenue) return null;
+    const key = nrmName(matchVenue);
+    // Пробуем точное совпадение, потом — по подстроке
+    if (venueByName.has(key)) return venueByName.get(key);
+    for (const [vn, v] of venueByName) {
+      if (key.startsWith(vn) || key.includes(vn)) return v;
+    }
+    return null;
+  }
 
   const ourMatches = (cal?.matches || []).filter((m) => m.isOurMatch);
   const filtered = ourMatches.filter((m) => {
@@ -122,7 +152,14 @@ export default function PublicTeamSchedule() {
                 const past = m.isPast;
                 const tournamentLabel = m.tournament === 'cup' ? 'Кубок' : 'Лига';
                 return (
-                  <article key={`${m.matchId || i}`} className={`pub-card ${past ? 'pub-card--past' : ''}`}>
+                  <article
+                    key={`${m.matchId || i}`}
+                    className={`pub-card pub-card--clickable ${past ? 'pub-card--past' : ''}`}
+                    onClick={() => setOpenMatch(m)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpenMatch(m); }}
+                  >
                     <div className="pub-card__date">
                       {formatDate(m.date)}
                       {m.tournament && (
@@ -165,6 +202,14 @@ export default function PublicTeamSchedule() {
           </>
         )}
       </div>
+
+      {openMatch && (
+        <MatchDetailSheet
+          match={openMatch}
+          venue={findVenue(openMatch.venue)}
+          onClose={() => setOpenMatch(null)}
+        />
+      )}
     </div>
   );
 }
