@@ -135,6 +135,51 @@
 }
 .cr-helper b { color: #22d3ee; }
 
+/* Раздел «На год младше» */
+.cr-younger-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  color: #f59e0b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms;
+}
+.cr-younger-toggle:hover {
+  background: rgba(245, 158, 11, 0.14);
+}
+.cr-younger-count {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.cr-row--younger {
+  border-color: rgba(245, 158, 11, 0.18) !important;
+  background: rgba(245, 158, 11, 0.04) !important;
+  margin-top: 6px;
+}
+.cr-younger-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
 .cr-section-title {
   font-size: 11px;
   color: #94a3c8;

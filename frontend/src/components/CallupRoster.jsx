@@ -34,25 +34,43 @@ async function notifyAll(age, extMatchId) {
   return res.json();
 }
 
+// На год младше: 2010 → 2011 → 2012 → 2013 → null. Тренер старшей команды
+// может вызвать игроков из младшей (стандартная практика «play-down» в детском футболе).
+function youngerAgeOf(age) {
+  const n = parseInt(age, 10);
+  if (!Number.isFinite(n)) return null;
+  const next = n + 1;
+  // Допустим до 2013 (наш самый младший возраст)
+  return next <= 2013 ? String(next) : null;
+}
+
 export default function CallupRoster({ match, age, teamId, onClose }) {
   const [roster, setRoster] = useState([]);
   const [allPlayers, setAllPlayers] = useState([]);
+  const [youngerPlayers, setYoungerPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState(null);
   const [notice, setNotice] = useState(null);
+  const [youngerExpanded, setYoungerExpanded] = useState(false);
+
+  const youngerAge = youngerAgeOf(age);
+  const youngerTeamId = youngerAge ? `legirus-${youngerAge}` : null;
 
   async function load() {
     if (!match?.matchId || !age) return;
     setLoading(true);
     setErr(null);
     try {
-      const [roR, plR] = await Promise.all([
+      const promises = [
         fetchCallupsByMatch(age, match.matchId),
         fetchPlayers(teamId),
-      ]);
-      setRoster(roR.callups || []);
-      setAllPlayers(plR.players || []);
+      ];
+      if (youngerTeamId) promises.push(fetchPlayers(youngerTeamId));
+      const results = await Promise.all(promises);
+      setRoster(results[0].callups || []);
+      setAllPlayers(results[1].players || []);
+      setYoungerPlayers(results[2]?.players || []);
     } catch (e) { setErr(e.message); }
     finally { setLoading(false); }
   }
@@ -237,6 +255,40 @@ export default function CallupRoster({ match, age, teamId, onClose }) {
                   ))}
                 </>
               )}
+
+              {/* Раздел «На год младше» — игроки из младшей команды, которых тренер старшей может вызвать */}
+              {youngerAge && (() => {
+                const ynotIn = youngerPlayers.filter((p) => !rosterIds.has(p.id));
+                if (ynotIn.length === 0) return null;
+                return (
+                  <>
+                    <button
+                      className="cr-younger-toggle"
+                      onClick={() => setYoungerExpanded(!youngerExpanded)}
+                    >
+                      <span>{youngerExpanded ? '▼' : '▶'} 👶 Игроки {youngerAge} г.р.</span>
+                      <span className="cr-younger-count">{ynotIn.length}</span>
+                    </button>
+                    {youngerExpanded && ynotIn.map((p) => (
+                      <div key={p.id} className="cr-row cr-row--younger">
+                        <div className="cr-player">
+                          {p.number != null && <b>{p.number}</b>}
+                          <span>{p.fullName}</span>
+                          <span className="cr-younger-tag">{youngerAge}</span>
+                        </div>
+                        <div className="cr-status">—</div>
+                        <div className="cr-row-actions">
+                          <button
+                            className="cr-add"
+                            disabled={busy === 'add-' + p.id}
+                            onClick={() => handleAddPlayer(p.id)}
+                          >+ Добавить</button>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                );
+              })()}
             </div>
 
             {roster.length === 0 && (
