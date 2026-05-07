@@ -37,7 +37,6 @@ router.get('/standings/:age([0-9]+)', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Общий клубный зачёт — агрегат всех возрастных standings.
 router.get('/club-rank', (_req, res) => {
   try {
     let matcher = 'Легирус';
@@ -45,9 +44,34 @@ router.get('/club-rank', (_req, res) => {
       try { matcher = JSON.parse(fs.readFileSync(STANDINGS_CONFIG, 'utf-8')).ourClubMatcher || matcher; } catch (_) {}
     }
     const all = loadAllStandings();
-    const r = buildClubRanking(all, matcher);
-    res.json(r);
+    res.json(buildClubRanking(all, matcher));
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PWA-манифест для публичной страницы команды.
+// Открывается как standalone-app с start_url прямо на расписание.
+router.get('/manifest/:age([0-9]+).json', (req, res) => {
+  const age = req.params.age;
+  const manifest = {
+    name: 'ФК Легирус ' + age + ' · Расписание',
+    short_name: 'Легирус ' + age,
+    description: 'Расписание матчей команды ' + age + ' г.р.',
+    start_url: '/public/team/' + age,
+    scope: '/public/',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#07071c',
+    theme_color: '#22d3ee',
+    icons: [
+      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+      { src: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    lang: 'ru-RU',
+  };
+  res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.json(manifest);
 });
 
 router.get('/calendar/:age.ics', (req, res) => {

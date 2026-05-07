@@ -50,6 +50,27 @@ export default function PublicTeamSchedule() {
   const [showSubscribe, setShowSubscribe] = useState(false);
   const [clubRank, setClubRank] = useState(null);
 
+  // Подменяем PWA-манифест на «команда-specific» когда юзер на публичной странице.
+  // start_url=/public/team/:age, чтобы при «Добавить на главный экран» иконка
+  // открывала расписание команды, а не /club (требующий логин).
+  useEffect(() => {
+    if (!age) return;
+    const ageManifestUrl = `${PREFIX}/manifest/${encodeURIComponent(age)}.json`;
+    const original = document.querySelector('link[rel="manifest"]');
+    const originalHref = original ? original.getAttribute('href') : null;
+    if (original) original.setAttribute('href', ageManifestUrl);
+
+    // Apple-specific title для иконки на главном экране iOS
+    let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    const originalAppleTitle = appleTitle ? appleTitle.getAttribute('content') : null;
+    if (appleTitle) appleTitle.setAttribute('content', 'Легирус ' + age);
+
+    return () => {
+      if (original && originalHref) original.setAttribute('href', originalHref);
+      if (appleTitle && originalAppleTitle) appleTitle.setAttribute('content', originalAppleTitle);
+    };
+  }, [age]);
+
   useEffect(() => {
     if (!age) return;
     setLoading(true);
