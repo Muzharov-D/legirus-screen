@@ -101,9 +101,9 @@ export async function listStandings(tournamentId) {
   return listAll('/standings', { tournament: `/api/tournaments/${tournamentId}` });
 }
 
-// Кубок: playoffs (сетка)
+// Кубок: playoffs (сетка). Как и standings — нужен IRI `tournament`, не `tournament_id`.
 export async function listPlayoffs(tournamentId) {
-  return listAll('/playoffs', { tournament_id: tournamentId });
+  return listAll('/playoffs', { tournament: `/api/tournaments/${tournamentId}` });
 }
 
 // Состав команды: GET /api/teams/{id} обычно содержит embedded players,
