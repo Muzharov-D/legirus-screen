@@ -49,24 +49,38 @@ function pe(player, fieldName) {
   return f?.value || null;
 }
 
+// Player из API: @id="/api/players/10369211", id поля нет, member может быть IRI-строкой,
+// имена в этом случае на верхнем уровне (p.surname / p.firstName).
+function extractPlayerId(p) {
+  if (p.id != null) return String(p.id);
+  if (p['@id']) {
+    const m = String(p['@id']).match(/\/(\d+)$/);
+    if (m) return m[1];
+  }
+  return null;
+}
+
 function ffspbPlayerToOur(p, teamId) {
-  const profile = p.member || {};
-  const firstName = profile.firstName || null;
-  const lastName = profile.surname || p.surname || null;
+  const playerId = extractPlayerId(p);
+  if (!playerId) return null; // нет id — пропускаем
+  const profile = (typeof p.member === 'object' && p.member) ? p.member : {};
+  const firstName = p.firstName || profile.firstName || null;
+  const lastName  = p.surname   || profile.surname   || null;
   const numberRaw = pe(p, 'Номер игрока');
   const number = Number.parseInt(numberRaw, 10);
   const position = pe(p, 'Амплуа');
   const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+  const photoUrl = p.photo || profile.photo || null;
   return {
-    id: `ffspb-${p.id}`,
+    id: `ffspb-${playerId}`,
     teamId,
-    fullName: fullName || null,
+    fullName: fullName || lastName || null,
     firstName,
     lastName,
     number: Number.isFinite(number) ? number : null,
     position,
     positionFull: null,
-    photoUrl: profile.photo || p.photo || null,
+    photoUrl,
   };
 }
 
@@ -86,9 +100,11 @@ export async function syncPlayersForAge(age, cfg = null) {
   const players = await listAll('/players', { team: `/api/teams/${ffspbTeamId}` });
   const teamId = `legirus-${age}`;
   let upserted = 0;
+  let skipped = 0;
   for (const p of players) {
     const row = ffspbPlayerToOur(p, teamId);
-    if (!row.fullName) continue;
+    if (!row) { skipped++; continue; }
+    if (!row.fullName) { skipped++; continue; }
     await query(
       `INSERT INTO players (id, team_id, full_name, first_name, last_name, number, position, position_full, photo_url)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -104,7 +120,7 @@ export async function syncPlayersForAge(age, cfg = null) {
        row.number, row.position, row.positionFull, row.photoUrl]);
     upserted++;
   }
-  return { tid, ffspbTeamId, found: players.length, upserted };
+  return { tid, ffspbTeamId, found: players.length, upserted, skipped };
 }
 
 export async function syncAllPlayers() {
