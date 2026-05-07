@@ -195,7 +195,8 @@ export async function loadCalendar(ageGroup) {
            venue, group_name AS "group", round,
            tournament,
            home_shield AS "homeShield",
-           away_shield AS "awayShield"
+           away_shield AS "awayShield",
+           events_data AS "events"
     FROM calendar
     WHERE club_id = 'legirus' AND age_group = $1
     ORDER BY match_date NULLS LAST`, [ageGroup]);

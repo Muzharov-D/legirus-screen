@@ -5,6 +5,7 @@ import { fetchMatch, fetchMatches, fetchMetrics, fetchPlayer } from '../services
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
 import PlayerPhoto from '../components/PlayerPhoto';
+import AttendanceBlock from '../components/AttendanceBlock';
 import RatingCard from '../components/RatingCard';
 import RatingPill from '../components/RatingPill';
 import RadarChart from '../components/RadarChart';
@@ -216,6 +217,9 @@ export default function PlayerDetail() {
           </div>
         </div>
       </div>
+
+      {/* Блок посещаемости тренировок (Sprint 5.E) — появляется только если есть данные */}
+      <AttendanceBlock teamId={player.teamId} playerId={player.id} />
 
       {/* 4 RATING CARDS */}
       <div className="player-detail__ratings">

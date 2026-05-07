@@ -82,6 +82,24 @@ export default function MatchDetailSheet({ match, venue, age, onClose }) {
           </div>
         </div>
 
+        {/* События матча из FFSPB API (голы, карточки, замены) — ниже шапки матча */}
+        {past && Array.isArray(match.events) && match.events.length > 0 && (
+          <div className="mds-events">
+            <div className="mds-events__title">⚽ События</div>
+            {match.events.map((e, i) => (
+              <div key={i} className={`mds-event mds-event--${e.kind} mds-event--${e.team}`}>
+                <span className="mds-event__minute">{e.minute ? e.minute + "'" : '—'}</span>
+                <span className="mds-event__icon">{e.icon}</span>
+                <span className="mds-event__player">
+                  {e.playerName}
+                  {e.assistName && <span className="mds-event__assist"> · ассист: {e.assistName}</span>}
+                  {e.comment && <span className="mds-event__comment"> — {e.comment}</span>}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {match.venue && (
           <div className="mds-venue">
             <div className="mds-venue-icon">📍</div>

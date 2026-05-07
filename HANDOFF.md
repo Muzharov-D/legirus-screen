@@ -4,12 +4,42 @@
 
 ---
 
-## ⚡ Текущий статус (после Sprint 2, май 2026)
+## ⚡ Текущий статус (после Sprint 5 + FFSPB API integration, май 2026)
 
 **Sprint 1 ✅** — клубный лендинг `/club`, парсер ffspb standings, кубковая ветка, мобильный адаптив, ребрендинг в АванDата.
-**Sprint 2 ✅** — PWA push-уведомления о новых разборах матчей, страница календаря сезона `/calendar` с парсером ffspb, уборка мёртвого ИИ-агента.
-**Sprint 3 📋** — миграция JSON → PostgreSQL. ТЗ: см. [`SPEC_SPRINT_3_POSTGRES.md`](./SPEC_SPRINT_3_POSTGRES.md). Срок ~2 недели.
-**Sprint 4 📋** — multi-club поддержка (10 клубов лиги). Требует Sprint 3. ТЗ: см. [`SPEC_SPRINT_4_MULTI_CLUB.md`](./SPEC_SPRINT_4_MULTI_CLUB.md). Срок ~1.5 недели.
+**Sprint 2 ✅** — PWA push-уведомления о новых разборах матчей, страница календаря сезона `/calendar`, уборка мёртвого ИИ-агента.
+**Sprint 3 ✅** — миграция JSON → PostgreSQL (Render Frankfurt). 7 миграций, импорт всех данных, dataRepo с PG/JSON-fallback, dual-write для cron-сервисов.
+**Sprint 4 📋** — multi-club поддержка (10 клубов лиги). ТЗ есть, не реализовано.
+**Sprint 5 ✅** — Тренировки, посещаемость, призыв на матч (Model C — тренер диктует), push-cron 36/24/6h, public-страница для родителей с iCal-фидом.
+**Sprint 5.5 ✅** — FFSPB API integration: HTML-скрейп заменён на официальный API stat.ffspb.org/api (calendar/standings/cup/players auto-sync). Cleanup legacy player-IDs → `ffspb-NNN`.
+
+### Что в проде сейчас (auto-pilot)
+
+- **Каждые 6h:** обновляется календарь матчей (4 возраста × 2 турнира = 8 источников через FFSPB API)
+- **Каждые 24h:** обновляются турнирные таблицы и кубковые сетки
+- **Каждые 12h:** синкается заявочный лист каждой команды (`/api/players?team=...`)
+- **Каждые 30 мин:** push-cron проверяет окна 36h/24h/6h до наших матчей и шлёт напоминания подписчикам
+- **При тренерском «Отправить призыв»:** push сразу выбранным игрокам через PWA-подписку
+
+### Public flow (родители)
+
+- `/public/team/:age` — расписание команды без авторизации, с venue, shields, картой Я.Карт
+- `iCal-feed` `/api/public/calendar/:age.ics` — подписка через webcal:// для iOS/Android/Mac
+- PWA-манифест per-age — родители добавляют команду как app на главный экран
+- **Privacy-first:** индивидуальная статистика остаётся между тренером и игроком; родители видят только базовое расписание
+
+### Coach flow
+
+- `/calendar` — все матчи, для своих upcoming видна кнопка «👥 Состав на матч» (CallupRoster)
+- `/trainings` — CRUD тренировок + массовая отметка посещаемости постфактум (present/late/excused/absent)
+- `/week` — недельный вид (матчи + тренировки на 7 дней)
+- `/club` — таблица лиги + общеклубный зачёт + позиция в лиге
+- CallupRoster — выбор состава на матч, кнопка «👶 Игроки на год младше» для cross-age вызовов
+
+### Player flow
+
+- `/club` MyCallups — блок «Тебя вызвали на матч», три кнопки: Иду / Не смогу (раскрытие: уваж. причина / просто не могу)
+- `/players/:id` — индивидуальная статистика SportVisor + блок «Посещаемость тренировок» (% явки за месяц/3мес/сезон)
 
 ---
 
@@ -35,13 +65,15 @@
 
 **Деплой:**
 - Frontend: Vercel (push в `main` → авто-сборка)
-- Backend: Render Web Service (push в `main` → пересборка); ENV `JWT_SECRET`, опц. `MATCHES_DIR`/`MAPS_DIR`/`CORS_ORIGIN`
-- DNS/ENV: Vite использует `VITE_API_BASE_URL` для подключения к бэку
+- Backend: Render Web Service (push в `main` → пересборка)
+- БД: Render PostgreSQL Starter, Frankfurt EU
+- DNS: `legirus.sportdata.tech` → Vercel; rewrite `/api/*` → Render (обход RKN-блокировок)
+- ENV (Render): `DATABASE_URL`, `JWT_SECRET`, `VAPID_*`, `FFSPB_API_KEY`, `FFSPB_ENDPOINT`, `CORS_ORIGIN`, `FRONTEND_URL`
 
 **Хранилище:**
-- Все данные — JSON-файлы в `backend/data/`. БД нет.
-- Загруженные карты-PNG — `frontend/public/assets/maps/`
-- На Render опционально подключается Persistent Disk через `MATCHES_DIR` env (для матчей с долгой жизнью); если не подключён — данные живут в bundle и сбрасываются при редеплое.
+- **PostgreSQL** — все данные (clubs/teams/players/users/matches/match_players/standings/calendar/cup_brackets/trainings/training_attendance/match_callups/notif_log/push_subscriptions/training_templates)
+- **JSON в `backend/data/`** — теперь только fallback на случай отсутствия `DATABASE_URL` (никакой prod-data там нет; используется как кэш cron-сервисов до записи в PG)
+- Загруженные карты-PNG — `frontend/public/assets/maps/` (на Render — Persistent Disk через `MAPS_DIR`)
 
 ---
 

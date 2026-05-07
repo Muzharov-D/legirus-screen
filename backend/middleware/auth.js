@@ -8,14 +8,17 @@ if (process.env.NODE_ENV === 'production' && SECRET === 'dev-secret-change-me-in
   process.exit(1);
 }
 
-export function authenticate(req, res, next) {
+export async function authenticate(req, res, next) {
   const auth = req.headers.authorization || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'Требуется авторизация' });
 
+  let payload;
+  try { payload = jwt.verify(token, SECRET); }
+  catch (e) { return res.status(401).json({ error: 'Недействительный или истёкший токен' }); }
+
   try {
-    const payload = jwt.verify(token, SECRET);
-    const user = findUserById(payload.userId);
+    const user = await findUserById(payload.userId);
     if (!user) return res.status(401).json({ error: 'Пользователь не найден' });
     req.user = {
       id: user.id,
@@ -27,7 +30,7 @@ export function authenticate(req, res, next) {
     };
     next();
   } catch (e) {
-    return res.status(401).json({ error: 'Недействительный или истёкший токен' });
+    return res.status(500).json({ error: 'Ошибка авторизации: ' + e.message });
   }
 }
 

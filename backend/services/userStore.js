@@ -1,7 +1,16 @@
+// Sprint 5.F: userStore стал PG-aware. При DATABASE_URL читает/пишет в users table,
+// иначе fallback на JSON-файл. Сигнатуры async (для совместимости пути PG).
+//
+// ВНИМАНИЕ: ранее экспортировались SYNC-функции (findUserByUsername, findUserById).
+// Теперь они async — caller'ы должны await'ить. Места использования:
+//   - middleware/auth.js (findUserById)
+//   - routes/auth.js (findUserByUsername, verifyPassword)
+
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 import { PATHS } from './dataLoader.js';
+import { isPgEnabled, query } from '../db/pool.js';
 
 const USERS_PATH = process.env.USERS_PATH
   ? path.resolve(process.env.USERS_PATH)
@@ -9,6 +18,7 @@ const USERS_PATH = process.env.USERS_PATH
 
 let _cache = null;
 
+// === JSON fallback ===
 function load() {
   if (_cache) return _cache;
   if (!fs.existsSync(USERS_PATH)) {
@@ -21,14 +31,40 @@ function load() {
 
 export function invalidateUsersCache() { _cache = null; }
 
-export function findUserByUsername(username) {
-  if (!username) return null;
-  return load().users.find((u) => u.username === username);
+function rowToUser(r) {
+  return {
+    id: r.id,
+    username: r.username,
+    passwordHash: r.password_hash,
+    fullName: r.full_name,
+    role: r.role,
+    teamId: r.team_id,
+    playerId: r.player_id,
+    clubId: r.club_id,
+    createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at,
+  };
 }
 
-export function findUserById(id) {
+export async function findUserByUsername(username) {
+  if (!username) return null;
+  if (isPgEnabled()) {
+    const r = await query(
+      `SELECT id, username, password_hash, full_name, role, team_id, player_id, club_id, created_at
+       FROM users WHERE username = $1 LIMIT 1`, [username]);
+    return r.rows[0] ? rowToUser(r.rows[0]) : null;
+  }
+  return load().users.find((u) => u.username === username) || null;
+}
+
+export async function findUserById(id) {
   if (!id) return null;
-  return load().users.find((u) => u.id === id);
+  if (isPgEnabled()) {
+    const r = await query(
+      `SELECT id, username, password_hash, full_name, role, team_id, player_id, club_id, created_at
+       FROM users WHERE id = $1 LIMIT 1`, [id]);
+    return r.rows[0] ? rowToUser(r.rows[0]) : null;
+  }
+  return load().users.find((u) => u.id === id) || null;
 }
 
 export async function verifyPassword(user, password) {
@@ -38,11 +74,40 @@ export async function verifyPassword(user, password) {
 
 export function getUsersFilePath() { return USERS_PATH; }
 
-export function listUsers() {
+export async function listUsers() {
+  if (isPgEnabled()) {
+    const r = await query(
+      `SELECT id, username, full_name, role, team_id, player_id, club_id, created_at
+       FROM users ORDER BY username`);
+    return r.rows.map((row) => ({
+      id: row.id, username: row.username, fullName: row.full_name,
+      role: row.role, teamId: row.team_id, playerId: row.player_id,
+      clubId: row.club_id, createdAt: row.created_at?.toISOString?.() || row.created_at,
+    }));
+  }
   return load().users.map(({ passwordHash, ...rest }) => rest);
 }
 
-export function persist(users) {
+export async function persist(users) {
+  // PG: применяем по одному UPSERT (full sync — сначала truncate? нет, безопаснее merge)
+  if (isPgEnabled()) {
+    for (const u of users) {
+      await query(
+        `INSERT INTO users (id, username, password_hash, full_name, role, team_id, player_id, club_id, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($9::timestamptz, NOW()))
+         ON CONFLICT (id) DO UPDATE SET
+           username = EXCLUDED.username,
+           password_hash = EXCLUDED.password_hash,
+           full_name = EXCLUDED.full_name,
+           role = EXCLUDED.role,
+           team_id = EXCLUDED.team_id,
+           player_id = EXCLUDED.player_id`,
+        [u.id, u.username, u.passwordHash, u.fullName, u.role,
+         u.teamId || null, u.playerId || null, u.clubId || 'legirus', u.createdAt || null]);
+    }
+    return;
+  }
+  // JSON fallback
   const dir = path.dirname(USERS_PATH);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(USERS_PATH, JSON.stringify({ users }, null, 2), 'utf-8');

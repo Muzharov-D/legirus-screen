@@ -20,7 +20,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ error: 'Логин и пароль обязательны' });
     }
-    const user = findUserByUsername(String(username).toLowerCase().trim());
+    const user = await findUserByUsername(String(username).toLowerCase().trim());
     if (!user) return res.status(401).json({ error: 'Неверный логин или пароль' });
     const ok = await verifyPassword(user, password);
     if (!ok) return res.status(401).json({ error: 'Неверный логин или пароль' });
