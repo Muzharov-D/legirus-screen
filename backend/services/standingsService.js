@@ -8,6 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
 import { isPgEnabled, query } from '../db/pool.js';
+import { isFfspbConfigured, listStandings as apiListStandings } from './ffspbApi.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -125,18 +126,85 @@ export async function fetchAndParse(url, leagueName, ourClubMatcher) {
   };
 }
 
+// Извлечь tournament_id из URL вида .../tournament44333
+function parseTournamentId(url) {
+  if (!url) return null;
+  const m = String(url).match(/tournament(\d+)/i);
+  return m ? Number(m[1]) : null;
+}
+
+// Маппинг standings из API в наш JSON-формат.
+// API даёт несколько групп (Вторая лига / Третья лига / Группы / Четвёртая лига) —
+// выбираем ту, в которой играет наша команда.
+function apiStandingsToOur(groups, ourMatcher) {
+  const matcher = String(ourMatcher || 'Легирус').toLowerCase();
+  let our = null;
+  for (const g of groups || []) {
+    const has = (g.teams || []).some((t) =>
+      String(t.teamName || t.team?.name || '').toLowerCase().includes(matcher));
+    if (has) { our = g; break; }
+  }
+  if (!our) return null;
+
+  const table = (our.teams || []).map((t) => {
+    const s = t.stats || {};
+    const team = t.team || {};
+    const name = t.teamName || team.name || '';
+    return {
+      pos: t.position,
+      team: name,
+      teamId: team.id != null ? String(team.id) : null,
+      games: s.games || 0,
+      wins: s.wins || 0,
+      draws: s.draws || 0,
+      losses: s.loses || 0, // API: loses, наш формат: losses
+      scored: s.scored || 0,
+      missed: s.missed || 0,
+      difference: s.difference || 0,
+      points: s.points || 0,
+      shield: team.logoSrc || team.thumbnails?.square_xs || null,
+      isOurClub: name.toLowerCase().includes(matcher),
+    };
+  });
+  table.sort((a, b) => (a.pos ?? 999) - (b.pos ?? 999));
+  return { groupName: our.groupName, table };
+}
+
 export async function refreshAge(ageGroup) {
   const cfg = readConfig();
   const url = cfg.sources?.[ageGroup];
   if (!url) throw new Error(`URL для возраста ${ageGroup} не настроен в _config.json`);
 
-  const { leagueName, table } = await fetchAndParse(url, cfg.league, cfg.ourClubMatcher);
+  let leagueName, table, source;
+  if (isFfspbConfigured()) {
+    const tid = parseTournamentId(url);
+    if (!tid) throw new Error('tournament_id не определён в URL ' + url);
+    try {
+      const groups = await apiListStandings(tid);
+      const mapped = apiStandingsToOur(groups, cfg.ourClubMatcher);
+      if (mapped) {
+        leagueName = mapped.groupName || cfg.league;
+        table = mapped.table;
+        source = `ffspb-api://tournaments/${tid}`;
+      }
+    } catch (e) {
+      console.error('[standings] API failed for ' + ageGroup + ':', e.message);
+    }
+  }
+
+  // Fallback: старый HTML-скрейпер
+  if (!table) {
+    const fb = await fetchAndParse(url, cfg.league, cfg.ourClubMatcher);
+    leagueName = fb.leagueName;
+    table = fb.table;
+    source = url;
+  }
 
   const out = {
     ageGroup,
     season: cfg.season,
     title: `${leagueName} · ${ageGroup} г.р.`,
-    source: url,
+    source,
     lastUpdated: new Date().toISOString(),
     table,
   };

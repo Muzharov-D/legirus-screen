@@ -24,6 +24,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
 import { isPgEnabled, query } from '../db/pool.js';
+import { isFfspbConfigured, listPlayoffs as apiListPlayoffs } from './ffspbApi.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -226,19 +227,88 @@ export async function fetchAndParseCup(url, ourClubMatcher) {
   return { rounds, parseHint };
 }
 
+function parseCupTournamentId(url) {
+  if (!url) return null;
+  const m = String(url).match(/tournament(\d+)/i);
+  return m ? Number(m[1]) : null;
+}
+
+// Маппинг сетки кубка из API в наш формат rounds_data.
+function apiPlayoffsToOur(playoffs) {
+  if (!playoffs || playoffs.length === 0) return null;
+  const po = playoffs[0];
+  const rounds = [];
+  for (const grp of po.groups || []) {
+    for (const tour of grp.playoffsTours || []) {
+      const matches = (tour.tourMatches || []).flatMap((tm) =>
+        (tm.series || []).map((s) => {
+          const score = (s.resultHost != null && s.resultGuest != null && (s.done || 0) >= 4)
+            ? { home: s.resultHost, away: s.resultGuest }
+            : null;
+          return {
+            matchId: String(s.id),
+            home: s.host?.shortName || s.host?.name || null,
+            away: s.guest?.shortName || s.guest?.name || null,
+            homeShield: s.host?.logoSrc || null,
+            awayShield: s.guest?.logoSrc || null,
+            homeTeamId: s.host?.['@id']?.split('/').pop() || null,
+            awayTeamId: s.guest?.['@id']?.split('/').pop() || null,
+            score,
+            date: s.publicDate || null,
+            venue: s.stadium?.name || s.location?.name || null,
+          };
+        }));
+      rounds.push({
+        name: tour.name,
+        position: tour.position,
+        matches,
+      });
+    }
+  }
+  rounds.sort((a, b) => (a.position ?? 999) - (b.position ?? 999));
+  return { name: po.name, rounds };
+}
+
 export async function refreshCupAge(ageGroup) {
   const cfg = readConfig();
   const url = cfg.cup?.sources?.[ageGroup];
   if (!url) throw new Error(`Cup URL для возраста ${ageGroup} не настроен`);
 
-  const { rounds, parseHint } = await fetchAndParseCup(url, cfg.ourClubMatcher);
+  let rounds, parseHint, source, title;
+  if (isFfspbConfigured()) {
+    const tid = parseCupTournamentId(url);
+    if (tid) {
+      try {
+        const playoffs = await apiListPlayoffs(tid);
+        const mapped = apiPlayoffsToOur(playoffs);
+        if (mapped && mapped.rounds.length > 0) {
+          rounds = mapped.rounds;
+          parseHint = 'ffspb-api';
+          source = `ffspb-api://playoffs?tournament=${tid}`;
+          title = mapped.name || `${cfg.cup?.name || 'Кубок'} · ${ageGroup} г.р.`;
+        }
+      } catch (e) {
+        console.error('[cup] API failed for ' + ageGroup + ':', e.message);
+      }
+    }
+  }
+
+  // Fallback: HTML
+  if (!rounds) {
+    const fb = await fetchAndParseCup(url, cfg.ourClubMatcher);
+    rounds = fb.rounds;
+    parseHint = fb.parseHint;
+    source = url;
+    title = `${cfg.cup?.name || 'Кубок'} · ${ageGroup} г.р.`;
+  }
+
   const out = {
     ageGroup,
     season: cfg.season,
-    title: `${cfg.cup?.name || 'Кубок'} · ${ageGroup} г.р.`,
-    source: url,
+    title,
+    source,
     lastUpdated: new Date().toISOString(),
-    parseHint,            // отладочная подсказка (для нас, не для UI)
+    parseHint,
     rounds,
   };
   if (!fs.existsSync(CUP_DIR)) fs.mkdirSync(CUP_DIR, { recursive: true });
