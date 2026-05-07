@@ -18,6 +18,7 @@ import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
 import { startCupCron } from './services/cupService.js';
 import { startCalendarCron } from './services/calendarService.js';
+import { startPlayersSyncCron } from './services/playersSyncService.js';
 import { configurePush } from './services/pushService.js';
 import { startNotifCron } from './services/notifCron.js';
 import { getPool, ping } from './db/pool.js';
@@ -57,6 +58,7 @@ ensureMatchesDir();
 startStandingsCron();
 startCupCron();
 startCalendarCron();
+startPlayersSyncCron();
 configurePush();
 startNotifCron();
 
