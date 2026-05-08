@@ -2,6 +2,7 @@
 // Использует те же стили что MatchDetailSheet (mds-*) для консистентности.
 
 import { useEffect } from 'react';
+import useModalBack from '../utils/useModalBack';
 import './MatchDetailSheet.css';
 
 const TYPES = {
@@ -35,6 +36,8 @@ export default function TrainingDetailSheet({ training, onClose, theme = 'defaul
       document.body.style.overflow = '';
     };
   }, [onClose]);
+  // Android back / swipe-back — закрывает модалку
+  useModalBack(onClose, !!training);
 
   if (!training) return null;
   const typ = TYPES[training.type] || TYPES.training;
@@ -93,8 +96,8 @@ export default function TrainingDetailSheet({ training, onClose, theme = 'defaul
 
         <div className="mds-footer">
           {past
-            ? 'Тренировка прошла. Тренер мог отметить посещаемость.'
-            : 'Сбор за 15 минут до начала. Уточните время у тренера если изменилось.'}
+            ? 'Тренировка уже прошла. Подробности — у тренера.'
+            : 'Сбор за 15 минут до начала. Уточните детали у тренера.'}
         </div>
       </div>
     </div>

@@ -2,11 +2,20 @@
 // Открывается по клику на карточку матча. Главная фича — кнопка маршрута в Я.Картах.
 
 import { useEffect } from 'react';
+import useModalBack from '../utils/useModalBack';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
   if (!name) return '—';
   return String(name).replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '').trim();
+}
+
+// Подмена некачественного логотипа Легируса с FFSPB на наш локальный
+function isLegirus(name) {
+  return String(name || '').toLowerCase().includes('легирус');
+}
+function shieldFor(name, fallback) {
+  return isLegirus(name) ? '/icons/legirus.png' : fallback;
 }
 
 function fmtDate(iso) {
@@ -41,6 +50,8 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
       document.body.style.overflow = '';
     };
   }, [onClose]);
+  // Android back / swipe-back — закрывает модалку
+  useModalBack(onClose, !!match);
 
   if (!match) return null;
 
@@ -60,15 +71,26 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
         <button className="mds-close" onClick={onClose} aria-label="Закрыть">✕</button>
 
         <div className="mds-header">
-          <span className={`mds-badge mds-badge--${match.tournament || 'league'}`}>
-            🏆 {tournamentLabel}
-          </span>
-          <div className="mds-date">{fmtDate(match.date)}</div>
+          <div className="mds-header-left">
+            <span className={`mds-badge mds-badge--${match.tournament || 'league'}`}>
+              🏆 {tournamentLabel}
+            </span>
+            {match.round && (
+              <span className="mds-round">{match.round}</span>
+            )}
+          </div>
+          <div className="mds-date">
+            {match.date ? fmtDate(match.date) : <span className="mds-no-date">Дата уточняется</span>}
+          </div>
         </div>
 
         <div className="mds-teams">
           <div className="mds-team mds-team--home">
-            {match.homeShield && <img src={match.homeShield} alt="" />}
+            <img
+              src={shieldFor(match.home, match.homeShield)}
+              alt=""
+              onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+            />
             <span>{shortName(match.home)}</span>
           </div>
           <div className="mds-vs">
@@ -77,26 +99,60 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
               : <span className="mds-vs-text">vs</span>}
           </div>
           <div className="mds-team mds-team--away">
-            {match.awayShield && <img src={match.awayShield} alt="" />}
+            <img
+              src={shieldFor(match.away, match.awayShield)}
+              alt=""
+              onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+            />
             <span>{shortName(match.away)}</span>
           </div>
         </div>
 
-        {/* События матча из FFSPB API (голы, карточки, замены) — ниже шапки матча */}
+        {/* События матча в виде 2 колонок: home слева, away справа, минута по центру */}
         {past && Array.isArray(match.events) && match.events.length > 0 && (
           <div className="mds-events">
-            <div className="mds-events__title">⚽ События</div>
-            {match.events.map((e, i) => (
-              <div key={i} className={`mds-event mds-event--${e.kind} mds-event--${e.team}`}>
-                <span className="mds-event__minute">{e.minute ? e.minute + "'" : '—'}</span>
-                <span className="mds-event__icon">{e.icon}</span>
-                <span className="mds-event__player">
-                  {e.playerName}
-                  {e.assistName && <span className="mds-event__assist"> · ассист: {e.assistName}</span>}
-                  {e.comment && <span className="mds-event__comment"> — {e.comment}</span>}
-                </span>
-              </div>
-            ))}
+            <div className="mds-events__title">⚽ Ход матча</div>
+            <div className="mds-tl-headrow">
+              <div className="mds-tl-side mds-tl-side--home">{shortName(match.home)}</div>
+              <div className="mds-tl-minute">мин</div>
+              <div className="mds-tl-side mds-tl-side--away">{shortName(match.away)}</div>
+            </div>
+            <div className="mds-tl-list">
+              {[...match.events]
+                .sort((a, b) => (a.minute || 0) - (b.minute || 0))
+                .map((e, i) => {
+                  const side = (e.team === 'away' || e.team === 'guest') ? 'away' : 'home';
+                  return (
+                    <div key={i} className={`mds-tl-row mds-tl-row--${e.kind} mds-tl-row--${side}`}>
+                      <div className="mds-tl-side mds-tl-side--home">
+                        {side === 'home' && (
+                          <span className="mds-tl-event">
+                            <span className="mds-tl-text">
+                              <b>{e.playerName || ''}</b>
+                              {e.assistName && <small> · ассист: {e.assistName}</small>}
+                              {e.comment && <small> — {e.comment}</small>}
+                            </span>
+                            <span className="mds-tl-icon">{e.icon}</span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="mds-tl-minute">{e.minute ? e.minute + "'" : '—'}</div>
+                      <div className="mds-tl-side mds-tl-side--away">
+                        {side === 'away' && (
+                          <span className="mds-tl-event">
+                            <span className="mds-tl-icon">{e.icon}</span>
+                            <span className="mds-tl-text">
+                              <b>{e.playerName || ''}</b>
+                              {e.assistName && <small> · ассист: {e.assistName}</small>}
+                              {e.comment && <small> — {e.comment}</small>}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         )}
 
@@ -112,7 +168,6 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
-        {/* Маршрут в Я.Картах только для будущих матчей — на сыгранные ехать незачем */}
         {yaUrl && !past && (
           <a
             className="mds-cta"
@@ -126,13 +181,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
         )}
 
         {icsUrl && !past && (
-          <a
-            className="mds-cta-secondary"
-            href={icsUrl}
-            // Без download-атрибута: на iOS Safari это позволяет браузеру
-            // распознать text/calendar и открыть превью с кнопкой
-            // «Add to Calendar». На Android Chrome всё равно скачает файл.
-          >
+          <a className="mds-cta-secondary" href={icsUrl}>
             <span>📅</span>
             <span>В мой календарь</span>
           </a>
@@ -144,7 +193,6 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
-        {/* Extra-блок: например кнопка «Состав на матч» для тренера */}
         {extra}
 
         <div className="mds-footer">

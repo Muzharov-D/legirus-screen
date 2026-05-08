@@ -1,4 +1,5 @@
-/* Flashscore-style шапка для public-страницы. */
+/* Шапка public-страницы:
+   [длинный лого АванDата] ← воздух → [ФК Легирус U17 + щит] */
 
 .public-header {
   margin-bottom: 14px;
@@ -7,103 +8,89 @@
 }
 
 .public-header__row {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 0 14px;
-}
-
-.public-header__brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0 14px;
+}
+
+/* === Платформа АванDата (слева) — длинный лого === */
+.public-header__platform {
+  display: flex;
+  align-items: center;
   text-decoration: none;
   background: none;
   border: none;
-  padding: 6px;
+  padding: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 120ms;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.public-header__platform:hover { opacity: 0.85; }
+.public-header__platform-logo {
+  height: 32px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* === Клуб (справа) — текст + щит === */
+.public-header__club {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 4px 6px;
   border-radius: 10px;
   cursor: pointer;
   font-family: inherit;
   color: inherit;
   -webkit-tap-highlight-color: transparent;
   transition: background 120ms;
-  min-height: 56px;
-}
-.public-header__brand:hover { background: rgba(220, 38, 38, 0.08); }
-.public-header__brand--club { justify-self: start; }
-.public-header__brand--platform { justify-self: end; }
-
-.public-header__logo {
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
-.public-header__logo--club {
-  filter: drop-shadow(0 2px 8px rgba(220, 38, 38, 0.45));
-}
+.public-header__club:hover { background: rgba(220, 38, 38, 0.08); }
+.public-header__club:active { transform: scale(0.98); }
 
-.public-header__brand-meta {
+.public-header__club-text {
   display: flex;
   flex-direction: column;
-  text-align: left;
+  align-items: flex-end;
+  text-align: right;
+  line-height: 1.05;
   min-width: 0;
 }
-.public-header__brand-meta--right {
-  text-align: right;
-}
-.public-header__brand-name {
+.public-header__club-name {
   font-size: 13px;
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
-.public-header__brand-sub {
-  font-size: 10px;
-  color: #c5a3a3;
-  margin-top: 1px;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-.public-header__center {
-  text-align: center;
-  padding: 0 8px;
-  position: relative;
-}
-.public-header__center::before,
-.public-header__center::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 14px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(220, 38, 38, 0.6), transparent);
-}
-.public-header__center::before { left: -16px; transform: scaleX(-1); }
-.public-header__center::after { right: -16px; }
-
-.public-header__tier {
-  font-size: 28px;
+.public-header__club-tier {
+  font-size: 18px;
   font-weight: 900;
   color: #ef4444;
   letter-spacing: 0.04em;
-  line-height: 1;
-  text-shadow: 0 2px 6px rgba(220, 38, 38, 0.5);
-}
-.public-header__division {
-  font-size: 10px;
-  color: #c5a3a3;
-  letter-spacing: 0.08em;
-  margin-top: 4px;
-  text-transform: uppercase;
-  font-weight: 600;
-  white-space: nowrap;
+  margin-top: 2px;
+  text-shadow: 0 1px 4px rgba(220, 38, 38, 0.45);
 }
 
+.public-header__club-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(220, 38, 38, 0.45));
+}
+
+/* === Возрастной свитчер === */
 .public-header__age-switcher {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -149,12 +136,12 @@
   font-weight: 500;
 }
 
+/* === Ранг-блоки === */
 .public-header__ranks {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
-
 .public-header__rank {
   display: flex;
   align-items: center;
@@ -173,34 +160,26 @@
 }
 .public-header__rank:hover { transform: translateY(-1px); }
 .public-header__rank:active { transform: scale(0.98); }
-
 .public-header__rank--club {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.55) 100%);
   border-color: rgba(255, 255, 255, 0.25);
 }
-
 .public-header__rank.rank-medal--gold {
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.28) 0%, rgba(120, 80, 0, 0.5) 100%);
   border-color: #ffd700;
   box-shadow: 0 4px 14px rgba(255, 215, 0, 0.25);
 }
 .public-header__rank.rank-medal--gold .public-header__rank-pos { color: #ffd700; }
-.public-header__rank.rank-medal--gold .public-header__rank-meta { color: #fff; }
-
 .public-header__rank.rank-medal--silver {
   background: linear-gradient(135deg, rgba(192, 192, 192, 0.28) 0%, rgba(60, 60, 60, 0.55) 100%);
   border-color: #c0c0c0;
-  box-shadow: 0 4px 14px rgba(192, 192, 192, 0.18);
 }
 .public-header__rank.rank-medal--silver .public-header__rank-pos { color: #e8e8e8; }
-
 .public-header__rank.rank-medal--bronze {
   background: linear-gradient(135deg, rgba(205, 127, 50, 0.28) 0%, rgba(80, 40, 0, 0.55) 100%);
   border-color: #cd7f32;
-  box-shadow: 0 4px 14px rgba(205, 127, 50, 0.18);
 }
 .public-header__rank.rank-medal--bronze .public-header__rank-pos { color: #cd7f32; }
-
 .public-header__rank-pos {
   font-size: 28px;
   font-weight: 800;
@@ -211,12 +190,8 @@
   align-items: baseline;
   gap: 4px;
 }
-.public-header__rank-medal {
-  font-size: 18px;
-  line-height: 1;
-}
+.public-header__rank-medal { font-size: 18px; line-height: 1; }
 .public-header__rank--club .public-header__rank-pos { color: #fff; }
-
 .public-header__rank-meta {
   font-size: 10px;
   color: #f1f5fb;
@@ -237,31 +212,34 @@
   text-overflow: ellipsis;
 }
 
-@media (max-width: 380px) {
-  .public-header__logo { width: 38px; height: 38px; }
-  .public-header__brand-name { font-size: 12px; }
-  .public-header__brand-sub { font-size: 9px; }
-  .public-header__tier { font-size: 22px; }
-  .public-header__division { font-size: 9px; }
-  .public-header__age-tier { font-size: 12px; }
-  .public-header__age-year { font-size: 9px; }
-  .public-header__rank-pos { font-size: 24px; }
+@media (max-width: 480px) {
+  .public-header__row { padding: 4px 0 10px; gap: 8px; }
+  .public-header__platform-logo { height: 28px; }
+  .public-header__club-name { font-size: 12px; }
+  .public-header__club-tier { font-size: 16px; }
+  .public-header__club-logo { width: 40px; height: 40px; }
+  .public-header__rank { padding: 8px 10px; }
+  .public-header__rank-pos { font-size: 26px; }
   .public-header__rank-medal { font-size: 16px; }
   .public-header__rank-meta { font-size: 9px; }
   .public-header__rank-meta small { font-size: 9px; }
 }
 
+@media (max-width: 380px) {
+  .public-header__platform-logo { height: 26px; }
+  .public-header__club-name { font-size: 11px; }
+  .public-header__club-tier { font-size: 14px; }
+  .public-header__club-logo { width: 36px; height: 36px; }
+  .public-header__age-tier { font-size: 11px; }
+  .public-header__age-year { font-size: 9px; }
+  .public-header__rank-pos { font-size: 22px; }
+  .public-header__age-btn { padding: 4px 0; min-height: 40px; }
+  .public-header__age-switcher { gap: 4px; padding: 3px; }
+}
+
 @media (min-width: 641px) {
-  .public-header__row { padding: 8px 0 18px; gap: 16px; }
-  .public-header__logo { width: 56px; height: 56px; }
-  .public-header__brand-name { font-size: 15px; }
-  .public-header__brand-sub { font-size: 11px; }
-  .public-header__tier { font-size: 36px; }
-  .public-header__division { font-size: 11px; }
-  .public-header__age-tier { font-size: 14px; }
-  .public-header__age-year { font-size: 11px; }
-  .public-header__rank-pos { font-size: 32px; }
-  .public-header__rank-medal { font-size: 22px; }
-  .public-header__rank-meta { font-size: 11px; }
-  .public-header__rank-meta small { font-size: 11px; }
+  .public-header__platform-logo { height: 40px; }
+  .public-header__club-name { font-size: 15px; }
+  .public-header__club-tier { font-size: 24px; }
+  .public-header__club-logo { width: 56px; height: 56px; }
 }

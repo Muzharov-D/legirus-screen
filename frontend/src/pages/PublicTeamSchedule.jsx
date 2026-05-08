@@ -204,7 +204,10 @@ export default function PublicTeamSchedule() {
     }
     function inWeek(iso) {
       if (!weekStart) return true;
+      // Без даты или невалидная дата — НЕ попадает в "Будущие" (только в "Все")
+      if (!iso) return false;
       const t = new Date(iso).getTime();
+      if (isNaN(t)) return false;
       return t >= weekStart.getTime() && t <= weekEnd.getTime();
     }
     for (const m of ourMatches) {
@@ -221,7 +224,18 @@ export default function PublicTeamSchedule() {
         }
       }
     }
-    items.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Сортировка: с валидной датой → по возрастанию;
+    // без даты (FFSPB ещё не указал) → в конец, в исходном порядке
+    items.sort((a, b) => {
+      const da = a.date ? new Date(a.date).getTime() : NaN;
+      const db = b.date ? new Date(b.date).getTime() : NaN;
+      const aHas = !isNaN(da);
+      const bHas = !isNaN(db);
+      if (aHas && !bHas) return -1;
+      if (!aHas && bHas) return 1;
+      if (!aHas && !bHas) return 0;
+      return da - db;
+    });
     return items;
   }, [ourMatches, trainings, filter, showTrainings, weekOffset]);
   const filtered = events;
@@ -456,11 +470,14 @@ export default function PublicTeamSchedule() {
                       onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setOpenMatch(m); }}
                     >
                       <div className="pub-card__date">
-                        {formatDate(m.date)}
+                        {m.date ? formatDate(m.date) : <span className="pub-card__no-date">Дата уточняется</span>}
                         {m.tournament && (
                           <span className={`pub-card__badge pub-card__badge--${m.tournament}`}>
                             {tournamentLabel}
                           </span>
+                        )}
+                        {m.round && (
+                          <span className="pub-card__round">{m.round}</span>
                         )}
                       </div>
                       <div className="pub-card__teams">
@@ -631,11 +648,14 @@ export default function PublicTeamSchedule() {
                               tabIndex={0}
                             >
                               <div className="pub-card__date">
-                                {fmtTime(m.date)}
+                                {m.date ? fmtTime(m.date) : <span className="pub-card__no-date">Дата уточняется</span>}
                                 {m.tournament && (
                                   <span className={`pub-card__badge pub-card__badge--${m.tournament}`}>
                                     {tournamentLabel}
                                   </span>
+                                )}
+                                {m.round && (
+                                  <span className="pub-card__round">{m.round}</span>
                                 )}
                               </div>
                               <div className="pub-card__teams">

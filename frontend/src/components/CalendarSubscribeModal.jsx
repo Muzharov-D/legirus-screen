@@ -2,6 +2,7 @@
 // Адаптируется под платформу пользователя — даёт правильную кнопку и инструкцию.
 
 import { useEffect, useState } from 'react';
+import useModalBack from '../utils/useModalBack';
 import './CalendarSubscribeModal.css';
 
 function detectPlatform() {
@@ -32,6 +33,7 @@ export default function CalendarSubscribeModal({ feedUrl, onClose }) {
       document.body.style.overflow = '';
     };
   }, [onClose]);
+  useModalBack(onClose, true);
 
   // webcal:// — стандартная схема подписки. iOS/macOS Safari автоматически
   // открывают Calendar app с диалогом подтверждения.
@@ -148,8 +150,7 @@ export default function CalendarSubscribeModal({ feedUrl, onClose }) {
         </details>
 
         <div className="csm-footer">
-          ⓘ Календарь публичный, без логина. Если ссылку придётся отозвать —
-          обнови сезон в админке клуба.
+          ⓘ Календарь публичный, без логина. Если ссылку придётся отозвать — обнови сезон в админке клуба.
         </div>
       </div>
     </div>

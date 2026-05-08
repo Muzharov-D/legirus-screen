@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { tierForAge, leaguePosClass, clubPosClass } from '../utils/ageRating';
+import useModalBack from '../utils/useModalBack';
 import './StandingsModal.css';
 
 function shortName(name) {
@@ -33,6 +34,7 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
       document.body.style.overflow = '';
     };
   }, [onClose]);
+  useModalBack(onClose, true);
 
   return (
     <div className="sm-backdrop" onClick={onClose}>
