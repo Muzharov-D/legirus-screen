@@ -43,12 +43,9 @@ export default function PublicTeamHeader({
           </div>
         </button>
 
-        {/* Центр — турнирная категория + дивизион */}
+        {/* Центр — только турнирная категория, чтобы не ломать вёрстку на mobile */}
         <div className="public-header__center">
           <div className="public-header__tier">{tier}</div>
-          {divisionName && (
-            <div className="public-header__division">{divisionName}</div>
-          )}
         </div>
 
         {/* Справа — платформа АванDата (clickable → TG): лого, потом название */}

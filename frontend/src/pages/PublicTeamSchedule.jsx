@@ -399,7 +399,7 @@ export default function PublicTeamSchedule() {
               <div className="public-page__empty">
                 <div style={{ fontSize: '40px', marginBottom: '8px' }}>📭</div>
                 <div style={{ fontWeight: 600, color: '#fff', marginBottom: '4px' }}>
-                  {filter === 'upcoming' ? 'Будущих событий пока нет' :
+                  {filter === 'upcoming' ? 'Событий пока нет' :
                    filter === 'past' ? 'Сыгранных матчей нет' :
                                        'Событий не найдено'}
                 </div>
