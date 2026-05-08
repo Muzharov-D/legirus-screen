@@ -49,11 +49,11 @@ async function hasMatchOnDate(teamId, date) {
   const dayStart = new Date(date); dayStart.setHours(0,0,0,0);
   const dayEnd   = new Date(date); dayEnd.setHours(23,59,59,999);
   try {
-    const rows = await query(
+    const result = await query(
       `SELECT id FROM matches WHERE team_id = $1 AND date_iso >= $2 AND date_iso <= $3 LIMIT 1`,
       [teamId, dayStart.toISOString(), dayEnd.toISOString()]
     );
-    return rows.length > 0;
+    return (result.rows || []).length > 0;
   } catch {
     return false;
   }
@@ -100,8 +100,9 @@ async function seedTeam(teamId) {
   console.log('Seeding regular trainings for 2011/2012/2013...');
   console.log('PG enabled:', isPgEnabled());
 
-  const heads = await query(`SELECT id, full_name FROM users WHERE role = 'head_coach' LIMIT 1`);
-  if (!heads || heads.length === 0) {
+  const headsResult = await query(`SELECT id, full_name FROM users WHERE role = 'head_coach' LIMIT 1`);
+  const heads = headsResult.rows || [];
+  if (heads.length === 0) {
     console.error('Нет ни одного head_coach в users — сначала создайте аккаунт.');
     process.exit(1);
   }
