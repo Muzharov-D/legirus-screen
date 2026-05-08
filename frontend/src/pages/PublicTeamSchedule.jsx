@@ -360,8 +360,6 @@ export default function PublicTeamSchedule() {
           onOpenClub={() => setShowStandings('club')}
         />
 
-        <div className="public-page__wave" aria-hidden="true"></div>
-
         {loading && <div className="public-page__empty">Загрузка...</div>}
         {error && (
           <div className="public-page__empty public-page__empty--error">
