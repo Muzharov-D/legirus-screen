@@ -11,6 +11,7 @@ import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import StandingsModal from '../components/StandingsModal';
 import './PublicTeamSchedule.css';
+import './CalendarPage.css'; // переиспользуем стили месячного канбана; цвета переопределяем в legirus-варианте
 
 const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
 const API_BASE = String(RAW_BASE).replace(/\/+$/, '');
@@ -54,6 +55,10 @@ export default function PublicTeamSchedule() {
   const [showStandings, setShowStandings] = useState(null); // 'league' | 'club' | null
   const [trainings, setTrainings] = useState([]);
   const [openTraining, setOpenTraining] = useState(null);
+  const [view, setView] = useState('list'); // 'list' | 'month'
+  const [monthCursor, setMonthCursor] = useState(() => {
+    const d = new Date(); d.setDate(1); d.setHours(0, 0, 0, 0); return d;
+  });
 
   // Подменяем PWA-манифест на «команда-specific» когда юзер на публичной странице.
   // start_url=/public/team/:age, чтобы при «Добавить на главный экран» иконка
@@ -129,6 +134,18 @@ export default function PublicTeamSchedule() {
     return null;
   }
 
+  function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+  function isoWeekKey(d) {
+    const t = new Date(d); t.setHours(0,0,0,0);
+    t.setDate(t.getDate() + 4 - (t.getDay() || 7));
+    const yearStart = new Date(t.getFullYear(), 0, 1);
+    return t.getFullYear() + '-W' + String(Math.ceil(((t - yearStart) / 86400000 + 1) / 7)).padStart(2, '0');
+  }
+  function fmtTime(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
   // Объединяем матчи команды и тренировки в единый хронологический список
   const ourMatches = (cal?.matches || []).filter((m) => m.isOurMatch);
   const events = useMemo(() => {
@@ -151,6 +168,50 @@ export default function PublicTeamSchedule() {
     return items;
   }, [ourMatches, trainings, filter]);
   const filtered = events;
+
+  // Месячная сетка для view='month'
+  const monthGrid = useMemo(() => {
+    const first = new Date(monthCursor);
+    const dow = (first.getDay() + 6) % 7;
+    const gridStart = new Date(first); gridStart.setDate(first.getDate() - dow);
+    const last = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0);
+    const lastDow = (last.getDay() + 6) % 7;
+    const gridEnd = new Date(last); gridEnd.setDate(last.getDate() + (6 - lastDow));
+    const days = [];
+    for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate() + 1)) {
+      const day = new Date(d); day.setHours(0,0,0,0);
+      days.push({
+        date: day, iso: day.toISOString().slice(0,10),
+        weekKey: isoWeekKey(day),
+        inMonth: day.getMonth() === monthCursor.getMonth(),
+        isToday: day.getTime() === startOfDay(new Date()).getTime(),
+        events: [],
+      });
+    }
+    function bucketFor(iso) {
+      if (!iso) return null;
+      const k = startOfDay(new Date(iso)).toISOString().slice(0,10);
+      return days.find((b) => b.iso === k);
+    }
+    for (const m of ourMatches) {
+      const b = bucketFor(m.date); if (b) b.events.push({ kind: 'match', time: m.date, data: m });
+    }
+    for (const t of trainings) {
+      const b = bucketFor(t.startsAt); if (b) b.events.push({ kind: 'training', time: t.startsAt, data: t });
+    }
+    for (const b of days) b.events.sort((a, b) => new Date(a.time) - new Date(b.time));
+    const rows = [];
+    for (let i = 0; i < days.length; i += 7) rows.push(days.slice(i, i + 7));
+    return { rows, todayWeekKey: isoWeekKey(new Date()) };
+  }, [ourMatches, trainings, monthCursor]);
+
+  function shiftMonth(delta) {
+    const d = new Date(monthCursor); d.setMonth(d.getMonth() + delta); setMonthCursor(d);
+  }
+  function gotoToday() {
+    const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); setMonthCursor(d);
+  }
+  const monthLabel = monthCursor.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
 
   // Позиция Легируса в таблице
   const ourRow = standings?.table?.find((t) => t.isOurClub);
@@ -215,6 +276,19 @@ export default function PublicTeamSchedule() {
 
         {!loading && !error && (
           <>
+            {/* Переключатель режима просмотра */}
+            <div className="public-page__filters public-page__view-toggle">
+              <button
+                className={`public-page__filter ${view === 'list' ? 'is-active' : ''}`}
+                onClick={() => setView('list')}
+              >📋 Список</button>
+              <button
+                className={`public-page__filter ${view === 'month' ? 'is-active' : ''}`}
+                onClick={() => setView('month')}
+              >📆 Календарь</button>
+            </div>
+
+            {view === 'list' && (
             <div className="public-page__filters">
               {FILTERS.map((f) => (
                 <button
@@ -227,8 +301,9 @@ export default function PublicTeamSchedule() {
                 {filtered.length} {filtered.length === 1 ? 'событие' : 'событий'}
               </span>
             </div>
+            )}
 
-            {filtered.length === 0 && (
+            {view === 'list' && filtered.length === 0 && (
               <div className="public-page__empty">
                 {filter === 'upcoming' ? 'Будущих событий нет' :
                  filter === 'past' ? 'Сыгранных матчей нет' :
@@ -236,6 +311,7 @@ export default function PublicTeamSchedule() {
               </div>
             )}
 
+            {view === 'list' && (
             <div className="public-page__list">
               {filtered.map((e, i) => {
                 if (e.kind === 'training') {
@@ -311,6 +387,85 @@ export default function PublicTeamSchedule() {
                 );
               })}
             </div>
+            )}
+
+            {/* Канбан-вид (месячный календарь) */}
+            {view === 'month' && (
+              <div className="cal-month cal-month--legirus">
+                <div className="cal-month__nav">
+                  <button className="cal-month__nav-btn" onClick={() => shiftMonth(-1)} aria-label="Предыдущий">◀</button>
+                  <div className="cal-month__title">{monthLabel}</div>
+                  <button className="cal-month__nav-btn" onClick={() => shiftMonth(1)} aria-label="Следующий">▶</button>
+                  <button className="cal-month__today" onClick={gotoToday}>Сегодня</button>
+                </div>
+                <div className="cal-month__weekday-row">
+                  {['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map((d) => (
+                    <div key={d} className="cal-month__weekday">{d}</div>
+                  ))}
+                </div>
+                <div className="cal-month__grid">
+                  {monthGrid.rows.map((row, ri) => {
+                    const isCurrentWeek = row.length > 0 && row[0].weekKey === monthGrid.todayWeekKey;
+                    return (
+                      <div key={ri} className={`cal-month__row ${isCurrentWeek ? 'cal-month__row--current' : ''}`}>
+                        {row.map((d) => (
+                          <div
+                            key={d.iso}
+                            className={
+                              'cal-month__day' +
+                              (d.inMonth ? '' : ' cal-month__day--out') +
+                              (d.isToday ? ' cal-month__day--today' : '')
+                            }
+                          >
+                            <div className="cal-month__day-num">{d.date.getDate()}</div>
+                            {d.events.length > 0 && (
+                              <div className="cal-month__events">
+                                {d.events.map((e, i) => {
+                                  if (e.kind === 'match') {
+                                    const m = e.data;
+                                    const ourHome = (m.home || '').toLowerCase().includes('легирус');
+                                    const opp = ourHome ? m.away : m.home;
+                                    return (
+                                      <button
+                                        key={'m' + i}
+                                        className={`cal-month__event cal-month__event--match ${m.tournament === 'cup' ? 'cal-month__event--cup' : ''} ${m.isPast ? 'cal-month__event--past' : ''}`}
+                                        type="button"
+                                        onClick={() => setOpenMatch(m)}
+                                        title={`${fmtTime(m.date)} · ${shortName(m.home)} vs ${shortName(m.away)}`}
+                                      >
+                                        <span className="cal-month__event-time">{fmtTime(m.date)}</span>
+                                        <span className="cal-month__event-icon">{m.tournament === 'cup' ? '🏆' : '⚽'}</span>
+                                        <span className="cal-month__event-text">{shortName(opp)}</span>
+                                      </button>
+                                    );
+                                  }
+                                  const t = e.data;
+                                  const TYPE_ICONS = { training:'🏃', extra:'⚡', warmup:'🔥', recovery:'💧', meet:'👥' };
+                                  const TYPE_LABELS = { training:'Тренировка', extra:'Доп.', warmup:'Разминка', recovery:'Восст.', meet:'Сбор' };
+                                  return (
+                                    <button
+                                      key={'t' + i}
+                                      className="cal-month__event cal-month__event--training"
+                                      type="button"
+                                      onClick={() => setOpenTraining(t)}
+                                      title={`${fmtTime(t.startsAt)} · ${TYPE_LABELS[t.type] || 'Тренировка'}${t.venueText ? ' · ' + t.venueText : ''}`}
+                                    >
+                                      <span className="cal-month__event-time">{fmtTime(t.startsAt)}</span>
+                                      <span className="cal-month__event-icon">{TYPE_ICONS[t.type] || '🏃'}</span>
+                                      <span className="cal-month__event-text">{TYPE_LABELS[t.type] || 'Тренировка'}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <footer className="public-page__footer">
               <p>
