@@ -1,6 +1,6 @@
 {
-  "name": "АванDата · Экран Легирус",
-  "short_name": "АванDата",
+  "name": "ФК Легирус · Расписание",
+  "short_name": "ФК Легирус",
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -36,6 +36,6 @@
   "theme_color": "#1a0606",
   "background_color": "#1a0606",
   "display": "standalone",
-  "start_url": "/club",
+  "start_url": "/public/team/2010",
   "scope": "/"
 }

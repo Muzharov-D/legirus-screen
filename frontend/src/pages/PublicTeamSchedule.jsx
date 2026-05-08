@@ -4,7 +4,7 @@
 //
 // Источник: GET /api/public/calendar/:age — sanitized данные без личной статистики.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
 import TrainingDetailSheet from '../components/TrainingDetailSheet';
@@ -114,16 +114,24 @@ export default function PublicTeamSchedule() {
     try { localStorage.setItem(PREF_KEY_HIDE_TRAININGS, hideTrainings ? '1' : '0'); } catch {}
   }, [hideTrainings, PREF_KEY_HIDE_TRAININGS]);
 
-  useEffect(() => {
+  // CRITICAL: подмена manifest должна произойти ДО того как браузер встретит
+  // beforeinstallprompt и сохранит install-snapshot. useLayoutEffect выполняется
+  // синхронно после DOM-mutations, до paint — это самое раннее что можно сделать.
+  // Дополнительно: создаём НОВЫЙ <link> и удаляем старый, чтобы Chrome точно перечитал manifest.
+  useLayoutEffect(() => {
     if (!age) return;
-    const ageManifestUrl = `${PREFIX}/manifest/${encodeURIComponent(age)}.json`;
-    const original = document.querySelector('link[rel="manifest"]');
-    const originalHref = original ? original.getAttribute('href') : null;
-    if (original) original.setAttribute('href', ageManifestUrl);
+    // cache-bust чтобы Chrome не отдал старый закешированный manifest при A2HS
+    const ageManifestUrl = `${PREFIX}/manifest/${encodeURIComponent(age)}.json?v=${Date.now()}`;
+    const old = document.querySelector('link[rel="manifest"]');
+    const fresh = document.createElement('link');
+    fresh.rel = 'manifest';
+    fresh.href = ageManifestUrl;
+    if (old) old.parentNode.replaceChild(fresh, old);
+    else document.head.appendChild(fresh);
 
     let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
     const originalAppleTitle = appleTitle ? appleTitle.getAttribute('content') : null;
-    if (appleTitle) appleTitle.setAttribute('content', 'Легирус ' + age);
+    if (appleTitle) appleTitle.setAttribute('content', `Легирус ${tierForAge(age)}`);
 
     const originalTitle = document.title;
     document.title = `ФК Легирус ${tierForAge(age)} · Расписание`;
@@ -133,7 +141,9 @@ export default function PublicTeamSchedule() {
     if (themeColor) themeColor.setAttribute('content', '#1a0606');
 
     return () => {
-      if (original && originalHref) original.setAttribute('href', originalHref);
+      // НЕ возвращаем старый manifest — пусть остаётся public-specific.
+      // Это безопасно: тренер может перейти на /club через ссылку, и тогда там
+      // index.html заново отрендерится с дефолтным /icons/site.webmanifest.
       if (appleTitle && originalAppleTitle) appleTitle.setAttribute('content', originalAppleTitle);
       document.title = originalTitle;
       if (themeColor && originalTheme) themeColor.setAttribute('content', originalTheme);
