@@ -10,8 +10,10 @@ import MatchDetailSheet from '../components/MatchDetailSheet';
 import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import StandingsModal from '../components/StandingsModal';
+import PublicTeamHeader from '../components/PublicTeamHeader';
+import { tierForAge } from '../utils/ageRating';
 import './PublicTeamSchedule.css';
-import './CalendarPage.css'; // переиспользуем стили месячного канбана; цвета переопределяем в legirus-варианте
+import './CalendarPage.css';
 
 const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
 const API_BASE = String(RAW_BASE).replace(/\/+$/, '');
@@ -52,14 +54,13 @@ export default function PublicTeamSchedule() {
   const [openMatch, setOpenMatch] = useState(null);
   const [showSubscribe, setShowSubscribe] = useState(false);
   const [clubRank, setClubRank] = useState(null);
-  const [showStandings, setShowStandings] = useState(null); // 'league' | 'club' | null
+  const [showStandings, setShowStandings] = useState(null);
   const [trainings, setTrainings] = useState([]);
   const [openTraining, setOpenTraining] = useState(null);
-  const [view, setView] = useState('list'); // 'list' | 'month'
+  const [view, setView] = useState('list');
   const [monthCursor, setMonthCursor] = useState(() => {
     const d = new Date(); d.setDate(1); d.setHours(0, 0, 0, 0); return d;
   });
-  // На мобильнике тап по дню в dot-grid режиме открывает inline-список событий дня
   const [selectedDayIso, setSelectedDayIso] = useState(null);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches
@@ -71,30 +72,16 @@ export default function PublicTeamSchedule() {
     mq.addEventListener?.('change', onChange);
     return () => mq.removeEventListener?.('change', onChange);
   }, []);
-  // Сброс выбранного дня при смене месяца или вида
   useEffect(() => { setSelectedDayIso(null); }, [monthCursor, view]);
 
-  // Persisted user preferences — родитель может скрыть кнопку подписки
-  // (если уже подписался) и тренировки (если интересуют только матчи).
-  // Ключи привязаны к команде: чтобы для разных команд настройки помнились отдельно.
-  const PREF_KEY_HIDE_SUBSCRIBE = `legirus.public.hideSubscribe.${age}`;
   const PREF_KEY_HIDE_TRAININGS = `legirus.public.hideTrainings.${age}`;
-  const [hideSubscribe, setHideSubscribe] = useState(() => {
-    try { return localStorage.getItem(PREF_KEY_HIDE_SUBSCRIBE) === '1'; } catch { return false; }
-  });
   const [hideTrainings, setHideTrainings] = useState(() => {
     try { return localStorage.getItem(PREF_KEY_HIDE_TRAININGS) === '1'; } catch { return false; }
   });
   useEffect(() => {
-    try { localStorage.setItem(PREF_KEY_HIDE_SUBSCRIBE, hideSubscribe ? '1' : '0'); } catch {}
-  }, [hideSubscribe, PREF_KEY_HIDE_SUBSCRIBE]);
-  useEffect(() => {
     try { localStorage.setItem(PREF_KEY_HIDE_TRAININGS, hideTrainings ? '1' : '0'); } catch {}
   }, [hideTrainings, PREF_KEY_HIDE_TRAININGS]);
 
-  // Подменяем PWA-манифест на «команда-specific» когда юзер на публичной странице.
-  // start_url=/public/team/:age, чтобы при «Добавить на главный экран» иконка
-  // открывала расписание команды, а не /club (требующий логин).
   useEffect(() => {
     if (!age) return;
     const ageManifestUrl = `${PREFIX}/manifest/${encodeURIComponent(age)}.json`;
@@ -102,16 +89,13 @@ export default function PublicTeamSchedule() {
     const originalHref = original ? original.getAttribute('href') : null;
     if (original) original.setAttribute('href', ageManifestUrl);
 
-    // Apple-specific title для иконки на главном экране iOS
     let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
     const originalAppleTitle = appleTitle ? appleTitle.getAttribute('content') : null;
     if (appleTitle) appleTitle.setAttribute('content', 'Легирус ' + age);
 
-    // Tab-title в браузере
     const originalTitle = document.title;
-    document.title = `ФК Легирус ${age} · Расписание`;
+    document.title = `ФК Легирус ${tierForAge(age)} · Расписание`;
 
-    // theme-color (адресная строка iOS Safari / Android Chrome)
     let themeColor = document.querySelector('meta[name="theme-color"]');
     const originalTheme = themeColor ? themeColor.getAttribute('content') : null;
     if (themeColor) themeColor.setAttribute('content', '#1a0606');
@@ -145,11 +129,9 @@ export default function PublicTeamSchedule() {
     }).finally(() => setLoading(false));
   }, [age]);
 
-  // Lookup venue по совпадению имени стадиона из match.venue
   const venueByName = useMemo(() => {
     const map = new Map();
     for (const v of venues) {
-      // ffspb даёт venue как "Балтика Санкт-Петербург" — попробуем мечить по началу
       map.set(nrmName(v.name), v);
     }
     return map;
@@ -158,7 +140,6 @@ export default function PublicTeamSchedule() {
   function findVenue(matchVenue) {
     if (!matchVenue) return null;
     const key = nrmName(matchVenue);
-    // Пробуем точное совпадение, потом — по подстроке
     if (venueByName.has(key)) return venueByName.get(key);
     for (const [vn, v] of venueByName) {
       if (key.startsWith(vn) || key.includes(vn)) return v;
@@ -178,7 +159,6 @@ export default function PublicTeamSchedule() {
     return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   }
 
-  // Объединяем матчи команды и тренировки в единый хронологический список
   const ourMatches = (cal?.matches || []).filter((m) => m.isOurMatch);
   const events = useMemo(() => {
     const items = [];
@@ -189,8 +169,6 @@ export default function PublicTeamSchedule() {
         (filter === 'past' && m.isPast);
       if (inFilter) items.push({ kind: 'match', date: m.date, data: m });
     }
-    // Тренировки: показываем только в фильтре 'upcoming' и 'all', и только
-    // если родитель не скрыл их в настройках (hideTrainings).
     if (filter !== 'past' && !hideTrainings) {
       for (const t of trainings) {
         items.push({ kind: 'training', date: t.startsAt, data: t });
@@ -201,10 +179,8 @@ export default function PublicTeamSchedule() {
   }, [ourMatches, trainings, filter, hideTrainings]);
   const filtered = events;
 
-  // Список тренировок для месячного вида с учётом тогла «скрыть тренировки»
   const visibleTrainings = hideTrainings ? [] : trainings;
 
-  // Месячная сетка для view='month'
   const monthGrid = useMemo(() => {
     const first = new Date(monthCursor);
     const dow = (first.getDay() + 6) % 7;
@@ -248,69 +224,49 @@ export default function PublicTeamSchedule() {
   }
   const monthLabel = monthCursor.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
 
-  // Позиция Легируса в таблице
   const ourRow = standings?.table?.find((t) => t.isOurClub);
+
+  async function handleShare() {
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const shareData = {
+      title: `ФК Легирус ${tierForAge(age)} · Расписание`,
+      text: `Расписание ФК Легирус ${tierForAge(age)} (${age} г.р.)`,
+      url: shareUrl,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Ссылка скопирована в буфер обмена');
+      } else {
+        prompt('Скопируй ссылку:', shareUrl);
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        console.warn('share failed', err);
+      }
+    }
+  }
+
+  const TYPE_LABELS = {
+    training: 'Тренировка', extra: 'Доп. занятие',
+    warmup: 'Разминка', recovery: 'Восстановление', meet: 'Сбор',
+  };
+  const TYPE_ICONS = { training:'🏃', extra:'⚡', warmup:'🔥', recovery:'💧', meet:'👥' };
+  const TYPE_LABELS_SHORT = { training:'Трен.', extra:'Доп.', warmup:'Разм.', recovery:'Восст.', meet:'Сбор' };
 
   return (
     <div className="public-page">
       <div className="public-page__container">
-        <header className="public-page__head">
-          <div className="public-page__brand">
-            <img src="/assets/logos/legirus.png" alt="" className="public-page__logo" />
-            <div>
-              <div className="public-page__brand-eyebrow">ФК Легирус</div>
-              <h1 className="public-page__title">{age} г.р.</h1>
-            </div>
-          </div>
-          <div className="public-page__ranks">
-            {ourRow && (
-              <button
-                type="button"
-                className="public-page__rank"
-                onClick={() => setShowStandings('league')}
-                title="Открыть таблицу лиги"
-              >
-                <div className="public-page__rank-pos">{ourRow.pos}</div>
-                <div className="public-page__rank-meta">
-                  в лиге {age}<br />
-                  <small>{ourRow.points} очк · {ourRow.wins}-{ourRow.draws}-{ourRow.losses}</small>
-                </div>
-              </button>
-            )}
-            {clubRank?.ourClubRank && (
-              <button
-                type="button"
-                className="public-page__rank public-page__rank--club"
-                onClick={() => setShowStandings('club')}
-                title="Открыть клубный зачёт"
-              >
-                <div className="public-page__rank-pos">{clubRank.ourClubRank}</div>
-                <div className="public-page__rank-meta">
-                  клубный зачёт<br />
-                  <small>{clubRank.ourClubStats.points} очк · из {clubRank.totalClubs} клубов</small>
-                </div>
-              </button>
-            )}
-          </div>
-        </header>
-
-        {!hideSubscribe && (
-          <div className="public-page__subscribe-row">
-            <button
-              className="public-page__subscribe"
-              onClick={() => setShowSubscribe(true)}
-            >
-              <span>📅</span>
-              <span>{isMobile ? 'Добавить в календарь телефона' : 'Подписаться на расписание в календаре телефона'}</span>
-            </button>
-            <button
-              className="public-page__subscribe-dismiss"
-              onClick={() => setHideSubscribe(true)}
-              title="Скрыть кнопку (всегда можно вернуть из футера)"
-              aria-label="Скрыть кнопку подписки"
-            >✕</button>
-          </div>
-        )}
+        <PublicTeamHeader
+          age={age}
+          divisionName={standings?.title}
+          ourLeagueRow={ourRow}
+          clubRank={clubRank}
+          onOpenLeague={() => setShowStandings('league')}
+          onOpenClub={() => setShowStandings('club')}
+        />
 
         {loading && <div className="public-page__empty">Загрузка...</div>}
         {error && (
@@ -321,7 +277,6 @@ export default function PublicTeamSchedule() {
 
         {!loading && !error && (
           <>
-            {/* Тогл показа тренировок — родитель может скрыть, если интересуют только матчи. */}
             <div className="public-page__settings">
               <label className="public-page__settings-toggle">
                 <input
@@ -329,12 +284,11 @@ export default function PublicTeamSchedule() {
                   checked={!hideTrainings}
                   onChange={(e) => setHideTrainings(!e.target.checked)}
                 />
-                <span className="public-page__settings-track" aria-hidden></span>
+                <span className="public-page__settings-track" aria-hidden="true"></span>
                 <span className="public-page__settings-label">🏃 Показывать тренировки</span>
               </label>
             </div>
 
-            {/* Переключатель режима просмотра */}
             <div className="public-page__filters public-page__view-toggle">
               <button
                 className={`public-page__filter ${view === 'list' ? 'is-active' : ''}`}
@@ -379,85 +333,80 @@ export default function PublicTeamSchedule() {
               </div>
             )}
 
-            {view === 'list' && (
-            <div className="public-page__list">
-              {filtered.map((e, i) => {
-                if (e.kind === 'training') {
-                  const t = e.data;
-                  const TYPE_LABELS = {
-                    training: 'Тренировка', extra: 'Доп. занятие',
-                    warmup: 'Разминка', recovery: 'Восстановление', meet: 'Сбор',
-                  };
+            {view === 'list' && filtered.length > 0 && (
+              <div className="public-page__list">
+                {filtered.map((e, i) => {
+                  if (e.kind === 'training') {
+                    const t = e.data;
+                    return (
+                      <article
+                        key={`tr-${t.id || i}`}
+                        className="pub-card pub-card--clickable pub-card--training"
+                        onClick={() => setOpenTraining(t)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setOpenTraining(t); }}
+                      >
+                        <div className="pub-card__date">
+                          {formatDate(t.startsAt)}
+                          <span className="pub-card__badge pub-card__badge--training">
+                            🏃 {TYPE_LABELS[t.type] || 'Тренировка'}
+                          </span>
+                        </div>
+                        <div className="pub-card__training-row">
+                          <div className="pub-card__training-info">
+                            <div className="pub-card__training-title">
+                              {TYPE_LABELS[t.type] || 'Тренировка'}
+                            </div>
+                            <div className="pub-card__training-sub">{t.durationMin || 90} минут</div>
+                          </div>
+                        </div>
+                        {t.venueText && <div className="pub-card__venue">📍 {t.venueText}</div>}
+                      </article>
+                    );
+                  }
+                  const m = e.data;
+                  const past = m.isPast;
+                  const tournamentLabel = m.tournament === 'cup' ? 'Кубок' : 'Лига';
                   return (
                     <article
-                      key={`tr-${t.id || i}`}
-                      className="pub-card pub-card--clickable pub-card--training"
-                      onClick={() => setOpenTraining(t)}
+                      key={`m-${m.matchId || i}`}
+                      className={`pub-card pub-card--clickable ${past ? 'pub-card--past' : ''}`}
+                      onClick={() => setOpenMatch(m)}
                       role="button"
                       tabIndex={0}
-                      onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setOpenTraining(t); }}
+                      onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setOpenMatch(m); }}
                     >
                       <div className="pub-card__date">
-                        {formatDate(t.startsAt)}
-                        <span className="pub-card__badge pub-card__badge--training">
-                          🏃 {TYPE_LABELS[t.type] || 'Тренировка'}
-                        </span>
+                        {formatDate(m.date)}
+                        {m.tournament && (
+                          <span className={`pub-card__badge pub-card__badge--${m.tournament}`}>
+                            {tournamentLabel}
+                          </span>
+                        )}
                       </div>
-                      <div className="pub-card__training-row">
-                        <div className="pub-card__training-info">
-                          <div className="pub-card__training-title">
-                            {TYPE_LABELS[t.type] || 'Тренировка'}
-                          </div>
-                          <div className="pub-card__training-sub">{t.durationMin || 90} минут</div>
+                      <div className="pub-card__teams">
+                        <div className="pub-card__team pub-card__team--home">
+                          {m.homeShield && <img className="pub-card__shield" src={m.homeShield} alt="" loading="lazy" />}
+                          <span className="pub-card__team-name">{shortName(m.home)}</span>
+                        </div>
+                        <div className="pub-card__score">
+                          {past && m.score
+                            ? <span><b>{m.score.home}</b> : <b>{m.score.away}</b></span>
+                            : <span className="pub-card__vs">vs</span>}
+                        </div>
+                        <div className="pub-card__team pub-card__team--away">
+                          <span className="pub-card__team-name">{shortName(m.away)}</span>
+                          {m.awayShield && <img className="pub-card__shield" src={m.awayShield} alt="" loading="lazy" />}
                         </div>
                       </div>
-                      {t.venueText && <div className="pub-card__venue">📍 {t.venueText}</div>}
+                      {m.venue && <div className="pub-card__venue">📍 {m.venue}</div>}
                     </article>
                   );
-                }
-                const m = e.data;
-                const past = m.isPast;
-                const tournamentLabel = m.tournament === 'cup' ? 'Кубок' : 'Лига';
-                return (
-                  <article
-                    key={`m-${m.matchId || i}`}
-                    className={`pub-card pub-card--clickable ${past ? 'pub-card--past' : ''}`}
-                    onClick={() => setOpenMatch(m)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setOpenMatch(m); }}
-                  >
-                    <div className="pub-card__date">
-                      {formatDate(m.date)}
-                      {m.tournament && (
-                        <span className={`pub-card__badge pub-card__badge--${m.tournament}`}>
-                          {tournamentLabel}
-                        </span>
-                      )}
-                    </div>
-                    <div className="pub-card__teams">
-                      <div className="pub-card__team pub-card__team--home">
-                        {m.homeShield && <img className="pub-card__shield" src={m.homeShield} alt="" loading="lazy" />}
-                        <span className="pub-card__team-name">{shortName(m.home)}</span>
-                      </div>
-                      <div className="pub-card__score">
-                        {past && m.score
-                          ? <span><b>{m.score.home}</b> : <b>{m.score.away}</b></span>
-                          : <span className="pub-card__vs">vs</span>}
-                      </div>
-                      <div className="pub-card__team pub-card__team--away">
-                        <span className="pub-card__team-name">{shortName(m.away)}</span>
-                        {m.awayShield && <img className="pub-card__shield" src={m.awayShield} alt="" loading="lazy" />}
-                      </div>
-                    </div>
-                    {m.venue && <div className="pub-card__venue">📍 {m.venue}</div>}
-                  </article>
-                );
-              })}
-            </div>
+                })}
+              </div>
             )}
 
-            {/* Канбан-вид (месячный календарь) */}
             {view === 'month' && (
               <div className="cal-month cal-month--legirus">
                 <div className="cal-month__nav">
@@ -479,74 +428,71 @@ export default function PublicTeamSchedule() {
                         {row.map((d) => {
                           const hasEvents = d.events.length > 0;
                           const isSelected = isMobile && selectedDayIso === d.iso;
-                          // На мобильнике клик по самой клетке — открывает inline-список событий дня
                           const onDayClick = () => {
                             if (!isMobile || !hasEvents) return;
                             setSelectedDayIso((prev) => prev === d.iso ? null : d.iso);
                           };
                           return (
-                          <div
-                            key={d.iso}
-                            className={
-                              'cal-month__day' +
-                              (d.inMonth ? '' : ' cal-month__day--out') +
-                              (d.isToday ? ' cal-month__day--today' : '') +
-                              (isSelected ? ' cal-month__day--selected' : '')
-                            }
-                            onClick={onDayClick}
-                            role={isMobile && hasEvents ? 'button' : undefined}
-                            tabIndex={isMobile && hasEvents ? 0 : undefined}
-                          >
-                            <div className="cal-month__day-num">{d.date.getDate()}</div>
-                            {hasEvents && (
-                              <div className="cal-month__events">
-                                {d.events.map((e, i) => {
-                                  if (e.kind === 'match') {
-                                    const m = e.data;
-                                    const ourHome = (m.home || '').toLowerCase().includes('легирус');
-                                    const opp = ourHome ? m.away : m.home;
+                            <div
+                              key={d.iso}
+                              className={
+                                'cal-month__day' +
+                                (d.inMonth ? '' : ' cal-month__day--out') +
+                                (d.isToday ? ' cal-month__day--today' : '') +
+                                (isSelected ? ' cal-month__day--selected' : '')
+                              }
+                              onClick={onDayClick}
+                              role={isMobile && hasEvents ? 'button' : undefined}
+                              tabIndex={isMobile && hasEvents ? 0 : undefined}
+                            >
+                              <div className="cal-month__day-num">{d.date.getDate()}</div>
+                              {hasEvents && (
+                                <div className="cal-month__events">
+                                  {d.events.map((e, i) => {
+                                    if (e.kind === 'match') {
+                                      const m = e.data;
+                                      const ourHome = (m.home || '').toLowerCase().includes('легирус');
+                                      const opp = ourHome ? m.away : m.home;
+                                      return (
+                                        <button
+                                          key={'m' + i}
+                                          className={`cal-month__event cal-month__event--match ${m.tournament === 'cup' ? 'cal-month__event--cup' : ''} ${m.isPast ? 'cal-month__event--past' : ''}`}
+                                          type="button"
+                                          onClick={(ev) => {
+                                            ev.stopPropagation();
+                                            if (isMobile) onDayClick();
+                                            else setOpenMatch(m);
+                                          }}
+                                          title={`${fmtTime(m.date)} · ${shortName(m.home)} vs ${shortName(m.away)}`}
+                                        >
+                                          <span className="cal-month__event-time">{fmtTime(m.date)}</span>
+                                          <span className="cal-month__event-icon">{m.tournament === 'cup' ? '🏆' : '⚽'}</span>
+                                          <span className="cal-month__event-text">{shortName(opp)}</span>
+                                        </button>
+                                      );
+                                    }
+                                    const t = e.data;
                                     return (
                                       <button
-                                        key={'m' + i}
-                                        className={`cal-month__event cal-month__event--match ${m.tournament === 'cup' ? 'cal-month__event--cup' : ''} ${m.isPast ? 'cal-month__event--past' : ''}`}
+                                        key={'t' + i}
+                                        className="cal-month__event cal-month__event--training"
                                         type="button"
                                         onClick={(ev) => {
                                           ev.stopPropagation();
                                           if (isMobile) onDayClick();
-                                          else setOpenMatch(m);
+                                          else setOpenTraining(t);
                                         }}
-                                        title={`${fmtTime(m.date)} · ${shortName(m.home)} vs ${shortName(m.away)}`}
+                                        title={`${fmtTime(t.startsAt)} · ${TYPE_LABELS[t.type] || 'Тренировка'}${t.venueText ? ' · ' + t.venueText : ''}`}
                                       >
-                                        <span className="cal-month__event-time">{fmtTime(m.date)}</span>
-                                        <span className="cal-month__event-icon">{m.tournament === 'cup' ? '🏆' : '⚽'}</span>
-                                        <span className="cal-month__event-text">{shortName(opp)}</span>
+                                        <span className="cal-month__event-time">{fmtTime(t.startsAt)}</span>
+                                        <span className="cal-month__event-icon">{TYPE_ICONS[t.type] || '🏃'}</span>
+                                        <span className="cal-month__event-text">{TYPE_LABELS_SHORT[t.type] || 'Трен.'}</span>
                                       </button>
                                     );
-                                  }
-                                  const t = e.data;
-                                  const TYPE_ICONS = { training:'🏃', extra:'⚡', warmup:'🔥', recovery:'💧', meet:'👥' };
-                                  const TYPE_LABELS = { training:'Тренировка', extra:'Доп.', warmup:'Разминка', recovery:'Восст.', meet:'Сбор' };
-                                  return (
-                                    <button
-                                      key={'t' + i}
-                                      className="cal-month__event cal-month__event--training"
-                                      type="button"
-                                      onClick={(ev) => {
-                                        ev.stopPropagation();
-                                        if (isMobile) onDayClick();
-                                        else setOpenTraining(t);
-                                      }}
-                                      title={`${fmtTime(t.startsAt)} · ${TYPE_LABELS[t.type] || 'Тренировка'}${t.venueText ? ' · ' + t.venueText : ''}`}
-                                    >
-                                      <span className="cal-month__event-time">{fmtTime(t.startsAt)}</span>
-                                      <span className="cal-month__event-icon">{TYPE_ICONS[t.type] || '🏃'}</span>
-                                      <span className="cal-month__event-text">{TYPE_LABELS[t.type] || 'Тренировка'}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
+                                  })}
+                                </div>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
@@ -554,12 +500,10 @@ export default function PublicTeamSchedule() {
                   })}
                 </div>
 
-                {/* Mobile: inline список событий выбранного дня */}
                 {isMobile && selectedDayIso && (() => {
                   const day = monthGrid.rows.flat().find((x) => x.iso === selectedDayIso);
                   if (!day || !day.events.length) return null;
                   const dayLabel = day.date.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
-                  const TYPE_LABELS = { training:'Тренировка', extra:'Доп. занятие', warmup:'Разминка', recovery:'Восстановление', meet:'Сбор' };
                   return (
                     <div className="public-page__day-details">
                       <div className="public-page__day-details-head">
@@ -642,20 +586,29 @@ export default function PublicTeamSchedule() {
               </div>
             )}
 
+            <div className="public-page__actions">
+              <button
+                type="button"
+                className="public-page__action public-page__action--secondary"
+                onClick={() => setShowSubscribe(true)}
+              >
+                <span>📅</span>
+                <span>{isMobile ? 'В календарь' : 'Подписаться на календарь'}</span>
+              </button>
+              <button
+                type="button"
+                className="public-page__action public-page__action--primary"
+                onClick={handleShare}
+              >
+                <span>🔗</span>
+                <span>Поделиться</span>
+              </button>
+            </div>
+
             <footer className="public-page__footer">
               <p>
-                Расписание обновляется автоматически.<br />
-                Последнее обновление: {cal?.lastUpdated ? new Date(cal.lastUpdated).toLocaleString('ru-RU') : '—'}
+                Обновлено: {cal?.lastUpdated ? new Date(cal.lastUpdated).toLocaleString('ru-RU') : '—'}
               </p>
-              {hideSubscribe && (
-                <p>
-                  <button
-                    type="button"
-                    className="public-page__footer-link"
-                    onClick={() => setHideSubscribe(false)}
-                  >📅 Вернуть кнопку подписки на календарь</button>
-                </p>
-              )}
             </footer>
           </>
         )}
@@ -692,9 +645,7 @@ export default function PublicTeamSchedule() {
       {showSubscribe && (
         <CalendarSubscribeModal
           feedUrl={(() => {
-            // Абсолютный URL фида: используется как для подписки, так и в webcal://
             const apiBase = (typeof window !== 'undefined' ? window.location.origin : '');
-            // Если backend на отдельном поддомене — используем VITE_API_BASE_URL
             const explicitApi = import.meta.env.VITE_API_BASE_URL;
             const base = explicitApi || apiBase;
             return base.replace(/\/+$/, '') + '/api/public/calendar/' + age + '.ics';
@@ -705,3 +656,4 @@ export default function PublicTeamSchedule() {
     </div>
   );
 }
+

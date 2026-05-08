@@ -95,6 +95,32 @@
 .sm-row--ours .sm-pos { color: #ef4444; }
 .sm-row--ours .sm-team span { color: #fff; font-weight: 700; }
 
+/* Медали — подсветка строк по позиции в лиге/клубном зачёте */
+.sm-row--medal-gold {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.16) 0%, rgba(255, 215, 0, 0) 60%);
+}
+.sm-row--medal-silver {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.14) 0%, rgba(192, 192, 192, 0) 60%);
+}
+.sm-row--medal-bronze {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.14) 0%, rgba(205, 127, 50, 0) 60%);
+}
+/* Если строка наша + медальная — комбинируем (наш приоритет, плюс medal-glow по бокам) */
+.sm-row--ours.sm-row--medal-gold {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(220, 38, 38, 0.15) 50%, rgba(220, 38, 38, 0) 100%);
+}
+.sm-row--ours.sm-row--medal-silver {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.18) 0%, rgba(220, 38, 38, 0.15) 50%, rgba(220, 38, 38, 0) 100%);
+}
+.sm-row--ours.sm-row--medal-bronze {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.18) 0%, rgba(220, 38, 38, 0.15) 50%, rgba(220, 38, 38, 0) 100%);
+}
+.sm-row--medal-gold .sm-pos,
+.sm-row--medal-silver .sm-pos,
+.sm-row--medal-bronze .sm-pos {
+  font-size: 16px;
+}
+
 @media (max-width: 640px) {
   .sm-backdrop {
     align-items: flex-end;
@@ -128,7 +154,6 @@
   .sm-table th, .sm-table td { padding: 8px 4px; }
   .sm-team { min-width: 120px; }
   .sm-team img { width: 18px; height: 18px; margin-right: 6px; }
-  /* Скрываем колонки И/Н/П — оставляем самые важные #/Команда/В/±/О */
   .sm-table th:nth-child(3), .sm-table td:nth-child(3),
   .sm-table th:nth-child(5), .sm-table td:nth-child(5),
   .sm-table th:nth-child(6), .sm-table td:nth-child(6) {
@@ -136,7 +161,6 @@
   }
 }
 
-/* Очень узкие — оставляем только #/Команда/О/± */
 @media (max-width: 380px) {
   .sm-sheet { padding: 18px 10px 22px; }
   .sm-table { font-size: 12px; }

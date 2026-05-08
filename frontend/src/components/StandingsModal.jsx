@@ -1,12 +1,26 @@
 // Модалка с двумя таблицами: турнир и клубный зачёт.
-// Открывается с public-страницы по клику на ранг-блоки.
 
 import { useEffect } from 'react';
+import { tierForAge, leaguePosClass, clubPosClass } from '../utils/ageRating';
 import './StandingsModal.css';
 
 function shortName(name) {
   if (!name) return '—';
   return String(name).replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '').trim();
+}
+
+function medalRowClass(posClass) {
+  if (posClass === 'rank-medal--gold') return 'sm-row--medal-gold';
+  if (posClass === 'rank-medal--silver') return 'sm-row--medal-silver';
+  if (posClass === 'rank-medal--bronze') return 'sm-row--medal-bronze';
+  return '';
+}
+
+function posCell(pos) {
+  if (pos === 1) return '🥇';
+  if (pos === 2) return '🥈';
+  if (pos === 3) return '🥉';
+  return pos;
 }
 
 export default function StandingsModal({ tab = 'league', onClose, standings, clubRank, age }) {
@@ -28,7 +42,7 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
         {tab === 'league' && standings?.table && (
           <>
             <div className="sm-head">
-              <h3>Лига {age}</h3>
+              <h3>{tierForAge(age)} · Лига {age}</h3>
               {standings.title && <div className="sm-sub">{standings.title}</div>}
             </div>
             <div className="sm-table-wrap">
@@ -46,21 +60,25 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
                   </tr>
                 </thead>
                 <tbody>
-                  {standings.table.map((t) => (
-                    <tr key={t.team + (t.pos ?? '')} className={t.isOurClub ? 'sm-row--ours' : ''}>
-                      <td className="sm-pos">{t.pos}</td>
-                      <td className="sm-team">
-                        {t.shield && <img src={t.shield} alt="" />}
-                        <span>{shortName(t.team)}</span>
-                      </td>
-                      <td>{t.games ?? '—'}</td>
-                      <td>{t.wins ?? '—'}</td>
-                      <td>{t.draws ?? '—'}</td>
-                      <td>{t.losses ?? '—'}</td>
-                      <td>{(t.scored ?? 0) - (t.missed ?? 0)}</td>
-                      <td className="sm-pts"><b>{t.points ?? '—'}</b></td>
-                    </tr>
-                  ))}
+                  {standings.table.map((t) => {
+                    const medalCls = medalRowClass(leaguePosClass(t.pos));
+                    const oursCls = t.isOurClub ? 'sm-row--ours' : '';
+                    return (
+                      <tr key={t.team + (t.pos ?? '')} className={(oursCls + ' ' + medalCls).trim()}>
+                        <td className="sm-pos">{posCell(t.pos)}</td>
+                        <td className="sm-team">
+                          {t.shield && <img src={t.shield} alt="" />}
+                          <span>{shortName(t.team)}</span>
+                        </td>
+                        <td>{t.games ?? '—'}</td>
+                        <td>{t.wins ?? '—'}</td>
+                        <td>{t.draws ?? '—'}</td>
+                        <td>{t.losses ?? '—'}</td>
+                        <td>{(t.scored ?? 0) - (t.missed ?? 0)}</td>
+                        <td className="sm-pts"><b>{t.points ?? '—'}</b></td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -88,21 +106,28 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
                   </tr>
                 </thead>
                 <tbody>
-                  {clubRank.ranking.map((c) => (
-                    <tr key={c.name + c.rank} className={c.name.toLowerCase().includes('легирус') ? 'sm-row--ours' : ''}>
-                      <td className="sm-pos">{c.rank}</td>
-                      <td className="sm-team">
-                        {c.shield && <img src={c.shield} alt="" />}
-                        <span>{c.name}</span>
-                      </td>
-                      <td>{c.games}</td>
-                      <td>{c.wins}</td>
-                      <td>{c.draws}</td>
-                      <td>{c.losses}</td>
-                      <td>{c.goalsFor - c.goalsAgainst}</td>
-                      <td className="sm-pts"><b>{c.points}</b></td>
-                    </tr>
-                  ))}
+                  {clubRank.ranking.map((c) => {
+                    const medalCls = medalRowClass(clubPosClass(c.rank));
+                    const isOurs = c.name.toLowerCase().includes('легирус');
+                    const oursCls = isOurs ? 'sm-row--ours' : '';
+                    return (
+                      <tr key={c.name + c.rank} className={(oursCls + ' ' + medalCls).trim()}>
+                        <td className="sm-pos">
+                          {c.rank === 1 ? '🥇' : c.rank === 2 ? '🥈' : c.rank}
+                        </td>
+                        <td className="sm-team">
+                          {c.shield && <img src={c.shield} alt="" />}
+                          <span>{c.name}</span>
+                        </td>
+                        <td>{c.games}</td>
+                        <td>{c.wins}</td>
+                        <td>{c.draws}</td>
+                        <td>{c.losses}</td>
+                        <td>{c.goalsFor - c.goalsAgainst}</td>
+                        <td className="sm-pts"><b>{c.points}</b></td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
