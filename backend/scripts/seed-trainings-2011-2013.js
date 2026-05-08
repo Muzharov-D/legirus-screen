@@ -114,6 +114,16 @@ async function seedTeam(teamId) {
   console.log('Seeding regular trainings for 2011/2012/2013...');
   console.log('PG enabled:', isPgEnabled());
 
+  // --reset: удалить ВСЕ будущие тренировки 2011/2012/2013 перед пересозданием
+  const args = process.argv.slice(2);
+  if (args.includes('--reset')) {
+    console.log('[--reset] Удаляю все будущие тренировки 2011/2012/2013...');
+    const del = await query(
+      `DELETE FROM trainings WHERE team_id IN ('legirus-2011','legirus-2012','legirus-2013') AND starts_at >= NOW()`
+    );
+    console.log(`[--reset] Удалено: ${del.rowCount || 0} записей`);
+  }
+
   const headsResult = await query(`SELECT id, full_name FROM users WHERE role = 'head_coach' LIMIT 1`);
   const heads = headsResult.rows || [];
   if (heads.length === 0) {
