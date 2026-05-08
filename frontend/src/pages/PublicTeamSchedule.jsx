@@ -736,13 +736,13 @@ export default function PublicTeamSchedule() {
               </button>
             </div>
 
-            <div className="public-page__wave public-page__wave--bottom" aria-hidden="true"></div>
-
             <footer className="public-page__footer">
               <p>
                 Обновлено: {cal?.lastUpdated ? new Date(cal.lastUpdated).toLocaleString('ru-RU') : '—'}
               </p>
             </footer>
+
+            <div className="public-page__wave public-page__wave--bottom" aria-hidden="true"></div>
           </>
         )}
       </div>
