@@ -43,15 +43,15 @@ export default function PublicTeamHeader({
           </div>
         </button>
 
-        {/* Центр — турнирная категория + дивизион + год.р. */}
+        {/* Центр — турнирная категория + дивизион */}
         <div className="public-header__center">
           <div className="public-header__tier">{tier}</div>
-          <div className="public-header__division">
-            {divisionName ? `${divisionName} · ${age} г.р.` : `${age} г.р.`}
-          </div>
+          {divisionName && (
+            <div className="public-header__division">{divisionName}</div>
+          )}
         </div>
 
-        {/* Справа — платформа АванDата (clickable → TG, без подписи) */}
+        {/* Справа — платформа АванDата (clickable → TG): лого, потом название */}
         <a
           className="public-header__brand public-header__brand--platform"
           href={TG_AVANDATA}
@@ -59,15 +59,15 @@ export default function PublicTeamHeader({
           rel="noreferrer"
           title="Канал АванDата в Telegram"
         >
-          <div className="public-header__brand-meta public-header__brand-meta--right">
-            <div className="public-header__brand-name">АванDата</div>
-          </div>
           <img
             src="/icons/avandata.png"
             onError={(e) => { e.currentTarget.src = '/assets/logos/log-3_white.png'; }}
             alt="АванDата"
             className="public-header__logo public-header__logo--platform"
           />
+          <div className="public-header__brand-meta">
+            <div className="public-header__brand-name">АванDата</div>
+          </div>
         </a>
       </div>
 

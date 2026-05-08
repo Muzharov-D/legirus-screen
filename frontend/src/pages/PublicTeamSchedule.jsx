@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
+import MatchReportCard from '../components/MatchReportCard';
 import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import StandingsModal from '../components/StandingsModal';
@@ -445,11 +446,21 @@ export default function PublicTeamSchedule() {
                   }
                   const m = e.data;
                   const past = m.isPast;
+                  // Прошедшие матчи — вау-карточка с inline-таймлайном
+                  if (past) {
+                    return (
+                      <MatchReportCard
+                        key={`m-${m.matchId || i}`}
+                        match={m}
+                        onOpen={(mm) => setOpenMatch(mm)}
+                      />
+                    );
+                  }
                   const tournamentLabel = m.tournament === 'cup' ? 'Кубок' : 'Лига';
                   return (
                     <article
                       key={`m-${m.matchId || i}`}
-                      className={`pub-card pub-card--clickable ${past ? 'pub-card--past' : ''}`}
+                      className="pub-card pub-card--clickable"
                       onClick={() => setOpenMatch(m)}
                       role="button"
                       tabIndex={0}
@@ -469,9 +480,7 @@ export default function PublicTeamSchedule() {
                           <span className="pub-card__team-name">{shortName(m.home)}</span>
                         </div>
                         <div className="pub-card__score">
-                          {past && m.score
-                            ? <span><b>{m.score.home}</b> : <b>{m.score.away}</b></span>
-                            : <span className="pub-card__vs">vs</span>}
+                          <span className="pub-card__vs">vs</span>
                         </div>
                         <div className="pub-card__team pub-card__team--away">
                           <span className="pub-card__team-name">{shortName(m.away)}</span>
@@ -621,11 +630,20 @@ export default function PublicTeamSchedule() {
                             );
                           }
                           const m = e.data;
+                          if (m.isPast) {
+                            return (
+                              <MatchReportCard
+                                key={'dm-' + i}
+                                match={m}
+                                onOpen={(mm) => setOpenMatch(mm)}
+                              />
+                            );
+                          }
                           const tournamentLabel = m.tournament === 'cup' ? 'Кубок' : 'Лига';
                           return (
                             <article
                               key={'dm-' + i}
-                              className={`pub-card pub-card--clickable ${m.isPast ? 'pub-card--past' : ''}`}
+                              className="pub-card pub-card--clickable"
                               onClick={() => setOpenMatch(m)}
                               role="button"
                               tabIndex={0}
