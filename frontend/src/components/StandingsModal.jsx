@@ -7,7 +7,14 @@ import './StandingsModal.css';
 
 function shortName(name) {
   if (!name) return '—';
-  return String(name).replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '').trim();
+  return String(name)
+    .replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '')
+    // Сокращения чтобы влезла полная статистика
+    .replace(/\bСШОР\s+/gi, '')
+    .replace(/\bрайона\b/gi, 'р-на')
+    .replace(/\bрайон\b/gi, 'р-н')
+    .replace(/\bобл\.\s+/gi, '')
+    .trim();
 }
 
 function medalRowClass(posClass) {
@@ -44,8 +51,7 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
         {tab === 'league' && standings?.table && (
           <>
             <div className="sm-head">
-              <h3>{tierForAge(age)} · Лига {age}</h3>
-              {standings.title && <div className="sm-sub">{standings.title}</div>}
+              <h3>Турнирная таблица {tierForAge(age)}</h3>
             </div>
             <div className="sm-table-wrap">
               <table className="sm-table">

@@ -118,7 +118,10 @@ export default function PublicTeamHeader({
             <div className="public-header__rank-meta">
               клубный зачёт
               <small>
-                {clubRank.ourClubStats?.points} очк · из {clubRank.totalClubs}
+                {clubRank.ourClubStats?.points} очк
+                {typeof clubRank.ourClubStats?.wins === 'number' && (
+                  <> · {clubRank.ourClubStats.wins}-{clubRank.ourClubStats.draws ?? 0}-{clubRank.ourClubStats.losses ?? 0}</>
+                )}
               </small>
             </div>
           </button>

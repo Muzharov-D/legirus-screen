@@ -112,11 +112,6 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
         {past && Array.isArray(match.events) && match.events.length > 0 && (
           <div className="mds-events">
             <div className="mds-events__title">⚽ Ход матча</div>
-            <div className="mds-tl-headrow">
-              <div className="mds-tl-side mds-tl-side--home">{shortName(match.home)}</div>
-              <div className="mds-tl-minute">мин</div>
-              <div className="mds-tl-side mds-tl-side--away">{shortName(match.away)}</div>
-            </div>
             <div className="mds-tl-list">
               {[...match.events]
                 .sort((a, b) => (a.minute || 0) - (b.minute || 0))

@@ -127,13 +127,30 @@
     padding: 0;
   }
   .sm-sheet {
-    padding: 22px 14px 24px;
+    padding: 22px 8px 24px;
     padding-bottom: max(24px, env(safe-area-inset-bottom));
     max-height: 92vh;
     border-radius: 18px 18px 0 0;
     margin-bottom: 0;
     animation: sm-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
   }
+  /* Таблица на mobile — компактные колонки, чтобы все 8 колонок поместились */
+  .sm-table { font-size: 12px; }
+  .sm-table th, .sm-table td { padding: 7px 2px; }
+  .sm-table th { font-size: 10px; }
+  .sm-team { min-width: 0 !important; }
+  .sm-team img { width: 18px !important; height: 18px !important; margin-right: 4px !important; }
+  .sm-team span {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+  .sm-pos { width: 28px; }
+  .sm-table th:not(.sm-team):not(.sm-pos),
+  .sm-table td:not(.sm-team):not(.sm-pos) { width: 26px; }
   .sm-sheet::before {
     content: '';
     display: block;
