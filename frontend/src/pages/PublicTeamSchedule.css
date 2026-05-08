@@ -2,6 +2,7 @@
    Mobile-first redesign — все touch-targets ≥44px, компактный header, dot-grid календарь. */
 
 .public-page {
+  position: relative;
   min-height: 100vh;
   background:
     radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.18) 0%, transparent 55%),
@@ -9,9 +10,34 @@
     linear-gradient(180deg, #1a0606 0%, #0a0202 100%);
   color: #f1f5fb;
   padding: 16px 12px 80px;
-  /* iOS safe-area для notch */
   padding-top: max(16px, env(safe-area-inset-top));
   padding-bottom: max(80px, env(safe-area-inset-bottom));
+  overflow-x: hidden; /* волна не должна давать горизонтальный скролл */
+}
+
+/* Декоративная волна между фоном и контентом — повторяется по всей высоте скролла */
+.public-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/icons/wave.png');
+  background-repeat: repeat-y;
+  background-position: top center;
+  background-size: 100% auto;
+  pointer-events: none;
+  opacity: 0.55;
+  z-index: 0;
+}
+
+/* Контент строго НАД волной */
+.public-page__container {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .public-page__container {
@@ -311,6 +337,21 @@
   -webkit-tap-highlight-color: transparent;
 }
 .public-page__footer-link:hover { color: #fff; }
+
+/* === Единый фон-токен для кнопок public-страницы === */
+.public-page__filter,
+.public-page__filter:not(.is-active),
+.public-page__week-btn:not(.is-active),
+.public-page__action--secondary,
+.public-page__rank,
+.public-page__day-details-close,
+.public-page__subscribe-dismiss {
+  background: rgba(234, 6, 6, 0.10) !important;
+}
+.public-page__filter.is-active,
+.public-page__week-btn.is-active {
+  background: rgba(234, 6, 6, 0.40) !important;
+}
 
 /* === ACTION BAR — две кнопки внизу: календарь + поделиться === */
 .public-page__actions {

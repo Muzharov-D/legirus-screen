@@ -118,9 +118,10 @@
   min-height: 44px;
   line-height: 1.1;
 }
-.public-header__age-btn:hover { background: rgba(220, 38, 38, 0.08); color: #fff; }
+.public-header__age-btn { background: rgba(234, 6, 6, 0.10); }
+.public-header__age-btn:hover { background: rgba(234, 6, 6, 0.18); color: #fff; }
 .public-header__age-btn.is-active {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(120, 20, 20, 0.6) 100%);
+  background: rgba(234, 6, 6, 0.40);
   color: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }

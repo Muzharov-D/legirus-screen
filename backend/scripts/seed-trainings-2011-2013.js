@@ -60,8 +60,14 @@ function nextOccurrence(weekOffset, dow, hour, minute) {
 
 async function hasMatchOnDate(teamId, date) {
   if (!isPgEnabled()) return false;
-  const dayStart = new Date(date); dayStart.setHours(0,0,0,0);
-  const dayEnd   = new Date(date); dayEnd.setHours(23,59,59,999);
+  // Границы дня считаем в МСК — иначе матч ВС 22:00 МСК (= ВС 19:00 UTC)
+  // в UTC-сутках сдвинется и не найдётся.
+  const mskDate = new Date(date.getTime() + MSK_OFFSET_HOURS * 3600 * 1000);
+  const y = mskDate.getUTCFullYear();
+  const m = mskDate.getUTCMonth();
+  const d = mskDate.getUTCDate();
+  const dayStart = new Date(Date.UTC(y, m, d, 0 - MSK_OFFSET_HOURS, 0, 0, 0));
+  const dayEnd   = new Date(Date.UTC(y, m, d, 24 - MSK_OFFSET_HOURS, 0, 0, -1));
   try {
     const result = await query(
       `SELECT id FROM matches WHERE team_id = $1 AND date_iso >= $2 AND date_iso <= $3 LIMIT 1`,
