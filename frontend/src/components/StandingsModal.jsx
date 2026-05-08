@@ -7,14 +7,18 @@ import './StandingsModal.css';
 
 function shortName(name) {
   if (!name) return '—';
-  return String(name)
+  const cleaned = String(name)
+    // Префиксы юридических форм — режем
+    .replace(/^(ГБОУ|ГБУ|МБОУ|МАОУ|ГКУ|МКУ|ГКОУ)\s+(ДО\s+|ДОД\s+|ДОУ\s+)?/i, '')
     .replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '')
     // Сокращения чтобы влезла полная статистика
-    .replace(/\bСШОР\s+/gi, '')
     .replace(/\bрайона\b/gi, 'р-на')
     .replace(/\bрайон\b/gi, 'р-н')
-    .replace(/\bобл\.\s+/gi, '')
+    .replace(/\s+/g, ' ')
     .trim();
+  // Не больше 3 слов — режем хвост типа "Санкт-Петербурга", "Ленинградской области" и т.п.
+  const words = cleaned.split(' ');
+  return words.slice(0, 3).join(' ');
 }
 
 function medalRowClass(posClass) {

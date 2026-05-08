@@ -64,7 +64,15 @@ function formatDate(iso) {
 
 function shortName(name) {
   if (!name) return '—';
-  return String(name).replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '').trim();
+  const cleaned = String(name)
+    .replace(/^(ГБОУ|ГБУ|МБОУ|МАОУ|ГКУ|МКУ|ГКОУ)\s+(ДО\s+|ДОД\s+|ДОУ\s+)?/i, '')
+    .replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '')
+    .replace(/\bрайона\b/gi, 'р-на')
+    .replace(/\bрайон\b/gi, 'р-н')
+    .replace(/\s+/g, ' ')
+    .trim();
+  // Не больше 3 слов
+  return cleaned.split(' ').slice(0, 3).join(' ');
 }
 
 function nrmName(s) {
@@ -224,9 +232,26 @@ export default function PublicTeamSchedule() {
         }
       }
     }
-    // Сортировка: с валидной датой → по возрастанию;
-    // без даты (FFSPB ещё не указал) → в конец, в исходном порядке
+    // Сортировка матчей в режиме «Все»: по номеру тура если он есть (1, 2, 3, 6, 17),
+    // иначе по дате; матчи без даты и без тура — в конец списка.
+    // В «Будущие» / «Прошедшие» — обычная хронологическая сортировка по дате.
+    function tourNum(item) {
+      if (item.kind !== 'match') return null;
+      const r = item.data?.round;
+      if (!r) return null;
+      const m = String(r).match(/(\d+)/);
+      return m ? parseInt(m[1], 10) : null;
+    }
     items.sort((a, b) => {
+      if (filter === 'all') {
+        const ta = tourNum(a);
+        const tb = tourNum(b);
+        // Оба с туром — сортируем по номеру тура
+        if (ta !== null && tb !== null) return ta - tb;
+        if (ta !== null && tb === null) return -1;
+        if (ta === null && tb !== null) return 1;
+      }
+      // По дате
       const da = a.date ? new Date(a.date).getTime() : NaN;
       const db = b.date ? new Date(b.date).getTime() : NaN;
       const aHas = !isNaN(da);

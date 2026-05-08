@@ -7,7 +7,14 @@ import './MatchDetailSheet.css';
 
 function shortName(name) {
   if (!name) return '—';
-  return String(name).replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '').trim();
+  const cleaned = String(name)
+    .replace(/^(ГБОУ|ГБУ|МБОУ|МАОУ|ГКУ|МКУ|ГКОУ)\s+(ДО\s+|ДОД\s+|ДОУ\s+)?/i, '')
+    .replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '')
+    .replace(/\bрайона\b/gi, 'р-на')
+    .replace(/\bрайон\b/gi, 'р-н')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return cleaned.split(' ').slice(0, 3).join(' ');
 }
 
 // Подмена некачественного логотипа Легируса с FFSPB на наш локальный
