@@ -11,6 +11,7 @@ import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import StandingsModal from '../components/StandingsModal';
 import PublicTeamHeader from '../components/PublicTeamHeader';
+import UiIcon from '../components/UiIcon';
 import { tierForAge } from '../utils/ageRating';
 import { shieldFor, isLegirus } from '../utils/legirus';
 import './PublicTeamSchedule.css';
@@ -368,7 +369,7 @@ export default function PublicTeamSchedule() {
                 />
                 <span className="public-page__settings-track" aria-hidden="true"></span>
                 <span className="public-page__settings-label">
-                  🏃 Показывать тренировки
+                  <UiIcon name="running" size={13} /> Показывать тренировки
                   {!trainingsAvailable && filter !== 'upcoming' && (
                     <small> · только в Будущих</small>
                   )}
@@ -383,11 +384,11 @@ export default function PublicTeamSchedule() {
               <button
                 className={`public-page__filter ${view === 'list' ? 'is-active' : ''}`}
                 onClick={() => setView('list')}
-              >📋 Список</button>
+              ><UiIcon name="list" size={14} /> Список</button>
               <button
                 className={`public-page__filter ${view === 'month' ? 'is-active' : ''}`}
                 onClick={() => setView('month')}
-              >📆 Календарь</button>
+              ><UiIcon name="calendar" size={14} /> Календарь</button>
             </div>
 
             {view === 'list' && (
@@ -461,7 +462,7 @@ export default function PublicTeamSchedule() {
                         <div className="pub-card__date">
                           {formatDate(t.startsAt)}
                           <span className="pub-card__badge pub-card__badge--training">
-                            🏃 {TYPE_LABELS[t.type] || 'Тренировка'}
+                            <UiIcon name="running" size={14} /> {TYPE_LABELS[t.type] || 'Тренировка'}
                           </span>
                         </div>
                         <div className="pub-card__training-row">
@@ -472,7 +473,7 @@ export default function PublicTeamSchedule() {
                             <div className="pub-card__training-sub">{t.durationMin || 90} минут</div>
                           </div>
                         </div>
-                        {t.venueText && <div className="pub-card__venue">📍 {t.venueText}</div>}
+                        {t.venueText && <div className="pub-card__venue"><UiIcon name="pin" size={14} /> {t.venueText}</div>}
                       </article>
                     );
                   }
@@ -514,7 +515,7 @@ export default function PublicTeamSchedule() {
                           <img className="pub-card__shield" src={shieldFor(m.away, m.awayShield)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                         </div>
                       </div>
-                      {m.venue && <div className="pub-card__venue">📍 {m.venue}</div>}
+                      {m.venue && <div className="pub-card__venue"><UiIcon name="pin" size={14} /> {m.venue}</div>}
                     </article>
                   );
                 })}
@@ -580,12 +581,13 @@ export default function PublicTeamSchedule() {
                                           title={`${fmtTime(m.date)} · ${shortName(m.home)} vs ${shortName(m.away)}`}
                                         >
                                           <span className="cal-month__event-time">{fmtTime(m.date)}</span>
-                                          <span className="cal-month__event-icon">{m.tournament === 'cup' ? '🏆' : '⚽'}</span>
+                                          <UiIcon name={m.tournament === 'cup' ? 'trophy' : 'ball'} size={11} className="cal-month__event-icon" />
                                           <span className="cal-month__event-text">{shortName(opp)}</span>
                                         </button>
                                       );
                                     }
                                     const t = e.data;
+                                    const TYPE_TO_ICON = { training:'running', extra:'training-extra', warmup:'training-warmup', recovery:'training-recovery', meet:'training-meet' };
                                     return (
                                       <button
                                         key={'t' + i}
@@ -599,7 +601,7 @@ export default function PublicTeamSchedule() {
                                         title={`${fmtTime(t.startsAt)} · ${TYPE_LABELS[t.type] || 'Тренировка'}${t.venueText ? ' · ' + t.venueText : ''}`}
                                       >
                                         <span className="cal-month__event-time">{fmtTime(t.startsAt)}</span>
-                                        <span className="cal-month__event-icon">{TYPE_ICONS[t.type] || '🏃'}</span>
+                                        <UiIcon name={TYPE_TO_ICON[t.type] || 'running'} size={11} className="cal-month__event-icon" />
                                         <span className="cal-month__event-text">{TYPE_LABELS_SHORT[t.type] || 'Трен.'}</span>
                                       </button>
                                     );
@@ -643,7 +645,7 @@ export default function PublicTeamSchedule() {
                                 <div className="pub-card__date">
                                   {fmtTime(t.startsAt)}
                                   <span className="pub-card__badge pub-card__badge--training">
-                                    🏃 {TYPE_LABELS[t.type] || 'Тренировка'}
+                                    <UiIcon name="running" size={14} /> {TYPE_LABELS[t.type] || 'Тренировка'}
                                   </span>
                                 </div>
                                 <div className="pub-card__training-row">
@@ -652,7 +654,7 @@ export default function PublicTeamSchedule() {
                                     <div className="pub-card__training-sub">{t.durationMin || 90} минут</div>
                                   </div>
                                 </div>
-                                {t.venueText && <div className="pub-card__venue">📍 {t.venueText}</div>}
+                                {t.venueText && <div className="pub-card__venue"><UiIcon name="pin" size={14} /> {t.venueText}</div>}
                               </article>
                             );
                           }
@@ -692,7 +694,7 @@ export default function PublicTeamSchedule() {
                                   <img className="pub-card__shield" src={shieldFor(m.away, m.awayShield)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                                 </div>
                               </div>
-                              {m.venue && <div className="pub-card__venue">📍 {m.venue}</div>}
+                              {m.venue && <div className="pub-card__venue"><UiIcon name="pin" size={14} /> {m.venue}</div>}
                             </article>
                           );
                         })}
@@ -709,7 +711,7 @@ export default function PublicTeamSchedule() {
                 className="public-page__action public-page__action--secondary"
                 onClick={() => setShowSubscribe(true)}
               >
-                <span>📅</span>
+                <UiIcon name="calendar" size={18} />
                 <span>{isMobile ? 'В календарь' : 'Подписаться на календарь'}</span>
               </button>
               <button
@@ -717,7 +719,7 @@ export default function PublicTeamSchedule() {
                 className="public-page__action public-page__action--primary"
                 onClick={handleShare}
               >
-                <span>🔗</span>
+                <UiIcon name="share" size={18} />
                 <span>Поделиться</span>
               </button>
             </div>

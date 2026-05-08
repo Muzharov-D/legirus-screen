@@ -4,7 +4,9 @@
 .public-page {
   position: relative;
   min-height: 100vh;
+  /* Волна — слой 1 (сразу над базовым градиентом). Repeat-y чтобы шла через весь скролл */
   background:
+    url('/icons/wave.png') top center / 100% auto repeat-y,
     radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.18) 0%, transparent 55%),
     radial-gradient(circle at 80% 100%, rgba(220, 38, 38, 0.12) 0%, transparent 50%),
     linear-gradient(180deg, #1a0606 0%, #0a0202 100%);
@@ -12,30 +14,10 @@
   padding: 16px 12px 80px;
   padding-top: max(16px, env(safe-area-inset-top));
   padding-bottom: max(80px, env(safe-area-inset-bottom));
-  overflow-x: hidden; /* волна не должна давать горизонтальный скролл */
+  overflow-x: hidden;
 }
 
-/* Декоративная волна между фоном и контентом — повторяется по всей высоте скролла */
-.public-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/icons/wave.png');
-  background-repeat: repeat-y;
-  background-position: top center;
-  background-size: 100% auto;
-  pointer-events: none;
-  opacity: 0.55;
-  z-index: 0;
-}
-
-/* Контент строго НАД волной */
 .public-page__container {
-  position: relative;
-  z-index: 1;
   max-width: 800px;
   margin: 0 auto;
 }
@@ -338,7 +320,7 @@
 }
 .public-page__footer-link:hover { color: #fff; }
 
-/* === Единый фон-токен для кнопок public-страницы === */
+/* === Единый фон-токен для кнопок public-страницы + blur === */
 .public-page__filter,
 .public-page__filter:not(.is-active),
 .public-page__week-btn:not(.is-active),
@@ -347,10 +329,20 @@
 .public-page__day-details-close,
 .public-page__subscribe-dismiss {
   background: rgba(234, 6, 6, 0.10) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .public-page__filter.is-active,
 .public-page__week-btn.is-active {
   background: rgba(234, 6, 6, 0.40) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+/* Контейнерные обёртки фильтр-row тоже с blur, чтобы за ними волна размывалась */
+.public-page__filters,
+.public-page__week-nav {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 /* === ACTION BAR — две кнопки внизу: календарь + поделиться === */

@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import useModalBack from '../utils/useModalBack';
 import { shieldFor } from '../utils/legirus';
+import UiIcon from './UiIcon';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
@@ -19,6 +20,20 @@ function shortName(name) {
 }
 
 // shieldFor() и isLegirus() — из utils/legirus (single source of truth)
+
+// Маппинг типа события матча → имя UI-иконки в /icons/ui/
+const EVENT_KIND_TO_ICON = {
+  goal: 'ball',
+  penalty: 'ball',
+  own_goal: 'ball',
+  yellow_card: 'yellow-card',
+  yellow: 'yellow-card',
+  red_card: 'red-card',
+  red: 'red-card',
+  substitution: 'running',
+  substitution_in: 'running',
+  substitution_out: 'running',
+};
 
 function fmtDate(iso) {
   if (!iso) return '—';
@@ -75,7 +90,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
         <div className="mds-header">
           <div className="mds-header-left">
             <span className={`mds-badge mds-badge--${match.tournament || 'league'}`}>
-              🏆 {tournamentLabel}
+              <UiIcon name={match.tournament === 'cup' ? 'trophy' : 'ball'} size={12} /> {tournamentLabel}
             </span>
             {match.round && (
               <span className="mds-round">{match.round}</span>
@@ -113,7 +128,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
         {/* События матча в виде 2 колонок: home слева, away справа, минута по центру */}
         {past && Array.isArray(match.events) && match.events.length > 0 && (
           <div className="mds-events">
-            <div className="mds-events__title">⚽ Ход матча</div>
+            <div className="mds-events__title"><UiIcon name="ball" size={12} /> Ход матча</div>
             <div className="mds-tl-list">
               {[...match.events]
                 .sort((a, b) => (a.minute || 0) - (b.minute || 0))
@@ -129,7 +144,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                               {e.assistName && <small> · ассист: {e.assistName}</small>}
                               {e.comment && <small> — {e.comment}</small>}
                             </span>
-                            <span className="mds-tl-icon">{e.icon}</span>
+                            <UiIcon name={EVENT_KIND_TO_ICON[e.kind] || 'ball'} size={16} className="mds-tl-icon" />
                           </span>
                         )}
                       </div>
@@ -137,7 +152,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                       <div className="mds-tl-side mds-tl-side--away">
                         {side === 'away' && (
                           <span className="mds-tl-event">
-                            <span className="mds-tl-icon">{e.icon}</span>
+                            <UiIcon name={EVENT_KIND_TO_ICON[e.kind] || 'ball'} size={16} className="mds-tl-icon" />
                             <span className="mds-tl-text">
                               <b>{e.playerName || ''}</b>
                               {e.assistName && <small> · ассист: {e.assistName}</small>}
@@ -172,14 +187,14 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="mds-cta-icon">🗺</span>
+            <UiIcon name="map" size={20} className="mds-cta-icon" />
             <span>Маршрут в Я.Картах</span>
           </a>
         )}
 
         {icsUrl && !past && (
           <a className="mds-cta-secondary" href={icsUrl}>
-            <span>📅</span>
+            <UiIcon name="calendar" size={18} />
             <span>В мой календарь</span>
           </a>
         )}
