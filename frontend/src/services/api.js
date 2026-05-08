@@ -63,6 +63,10 @@ export async function login(username, password) {
 }
 export async function fetchMe() { return fetchJson('/auth/me'); }
 export function logout() { setToken(null); }
+export const changePassword = (currentPassword, newPassword) =>
+  fetchJson('/auth/change-password', {
+    method: 'POST', body: { currentPassword, newPassword },
+  });
 
 // Data
 export const fetchTeams = () => fetchJson('/data/teams');

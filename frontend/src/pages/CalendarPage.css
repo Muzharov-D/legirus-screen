@@ -218,91 +218,148 @@
   background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(59, 130, 246, 0.16));
 }
 
-/* === Week view === */
+/* === Calendar month view === */
 .calendar-page__view-toggle { margin-right: 8px; }
 
-.calendar-page__week-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  margin-top: 8px;
-}
-@media (max-width: 1100px) { .calendar-page__week-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 640px)  { .calendar-page__week-grid { grid-template-columns: 1fr; } }
-
-.cal-week-day {
-  background: rgba(255, 255, 255, 0.03);
+.cal-month {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   padding: 12px;
-  min-height: 140px;
 }
-.cal-week-day__head {
-  display: flex; justify-content: space-between; align-items: center;
+
+.cal-month__nav {
+  display: flex; align-items: center; gap: 10px;
   margin-bottom: 10px;
 }
-.cal-week-day__title {
-  font-size: 12px; font-weight: 600;
-  color: #94a3c8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.cal-week-day__count {
-  background: rgba(34, 211, 238, 0.18);
-  color: #22d3ee;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 700;
-}
-.cal-week-day__empty {
-  color: #6b7896; font-size: 12px; text-align: center;
-  padding: 20px 0; opacity: 0.5;
-}
-.cal-week-day__events { display: flex; flex-direction: column; gap: 6px; }
-
-.cal-week-card {
-  display: block;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.cal-month__nav-btn {
+  width: 32px; height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  padding: 8px 10px;
+  color: #d6e2ff;
+  font-size: 12px;
   cursor: pointer;
-  transition: border-color 120ms;
-  position: relative;
+}
+.cal-month__nav-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.cal-month__title {
+  flex: 1;
+  font-size: 16px; font-weight: 700;
+  color: #f1f5fb;
+  text-transform: capitalize;
+}
+.cal-month__today {
+  padding: 6px 14px;
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  border-radius: 8px;
+  color: #22d3ee;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+}
+.cal-month__today:hover { background: rgba(34, 211, 238, 0.2); }
+
+.cal-month__weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.cal-month__weekday {
+  text-align: center;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3c8;
+  padding: 6px 0;
+  font-weight: 600;
+}
+
+.cal-month__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cal-month__row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  border-radius: 10px;
+  padding: 2px;
+  border: 2px solid transparent;
+  transition: border-color 200ms;
+}
+/* Текущая неделя — обводка */
+.cal-month__row--current {
+  border-color: rgba(34, 211, 238, 0.55);
+  background: rgba(34, 211, 238, 0.04);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.18);
+}
+
+.cal-month__day {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 6px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+}
+.cal-month__day--out { opacity: 0.35; }
+.cal-month__day--today {
+  background: rgba(34, 211, 238, 0.10);
+  border-color: rgba(34, 211, 238, 0.5);
+}
+.cal-month__day--today .cal-month__day-num {
+  color: #22d3ee;
+  font-weight: 800;
+}
+.cal-month__day-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3c8;
+  margin-bottom: 4px;
+}
+.cal-month__events {
+  display: flex; flex-direction: column; gap: 3px;
+  overflow: hidden;
+}
+.cal-month__event {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 10px;
+  color: #f1f5fb;
   text-align: left;
-  color: inherit;
+  cursor: pointer;
+  white-space: nowrap; overflow: hidden;
   font-family: inherit;
 }
-.cal-week-card:hover:not(:disabled) { border-color: rgba(34, 211, 238, 0.4); }
-.cal-week-card:disabled { cursor: default; }
+.cal-month__event:disabled { cursor: default; }
+.cal-month__event:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
+.cal-month__event-time {
+  font-weight: 700; color: #22d3ee;
+  font-variant-numeric: tabular-nums;
+  font-size: 9px;
+}
+.cal-month__event-icon { font-size: 10px; flex-shrink: 0; }
+.cal-month__event-text {
+  overflow: hidden; text-overflow: ellipsis;
+  font-weight: 500;
+}
+.cal-month__event--match { border-left: 2px solid #22d3ee; }
+.cal-month__event--cup   { border-left-color: #f59e0b; }
+.cal-month__event--cup .cal-month__event-time { color: #f59e0b; }
+.cal-month__event--past  { opacity: 0.55; }
+.cal-month__event--training { border-left: 2px solid #22c55e; }
+.cal-month__event--training .cal-month__event-time { color: #22c55e; }
 
-.cal-week-card__time {
-  font-size: 11px; font-weight: 700;
-  color: #22d3ee;
-  text-transform: uppercase; letter-spacing: 0.04em;
+@media (max-width: 768px) {
+  .cal-month__day { min-height: 70px; padding: 4px; }
+  .cal-month__day-num { font-size: 11px; }
+  .cal-month__event { font-size: 9px; padding: 2px 4px; }
+  .cal-month__event-text { display: none; } /* на мобильных только время и иконка */
 }
-.cal-week-card__title {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 13px; font-weight: 600; color: #f1f5fb;
-  margin-top: 4px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.cal-week-card__shield { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
-.cal-week-card__venue {
-  font-size: 11px; color: #94a3c8; margin-top: 4px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.cal-week-card__sub { font-size: 11px; color: #6b7896; margin-top: 2px; }
-.cal-week-card__badge {
-  position: absolute; top: 6px; right: 6px;
-  background: rgba(245, 158, 11, 0.2); color: #f59e0b;
-  font-size: 9px; font-weight: 700;
-  padding: 1px 6px; border-radius: 4px; text-transform: uppercase;
-}
-
-.cal-week-card--match    { border-left: 3px solid #22d3ee; }
-.cal-week-card--cup      { border-left-color: #f59e0b; }
-.cal-week-card--training { border-left: 3px solid #22c55e; }
-.cal-week-card--training .cal-week-card__time { color: #22c55e; }

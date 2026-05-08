@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadCalendar, loadStandings } from '../services/dataRepo.js';
+import { listTrainings } from '../services/trainingsRepo.js';
 import { loadVenues, buildVEvent, buildVCalendar } from '../services/icsBuilder.js';
 import { loadAllStandings, buildClubRanking } from '../services/clubRanking.js';
 
@@ -18,6 +19,24 @@ router.get('/venues', (_req, res) => {
   try {
     if (!fs.existsSync(VENUES_PATH)) return res.json({ venues: [] });
     res.json(JSON.parse(fs.readFileSync(VENUES_PATH, 'utf-8')));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Публичные тренировки команды (родителям) — без личной посещаемости.
+// Только future, sanitized: id, startsAt, durationMin, type, venueText, notes.
+router.get('/trainings/:age([0-9]+)', async (req, res) => {
+  try {
+    const teamId = `legirus-${req.params.age}`;
+    const list = await listTrainings(teamId, { scope: 'upcoming', limit: 100 });
+    const sanitized = list.map((t) => ({
+      id: t.id,
+      startsAt: t.startsAt,
+      durationMin: t.durationMin,
+      type: t.type,
+      venueText: t.venueText,
+      notes: t.notes,
+    }));
+    res.json({ trainings: sanitized });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
+import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import StandingsModal from '../components/StandingsModal';
 import './PublicTeamSchedule.css';
@@ -51,6 +52,8 @@ export default function PublicTeamSchedule() {
   const [showSubscribe, setShowSubscribe] = useState(false);
   const [clubRank, setClubRank] = useState(null);
   const [showStandings, setShowStandings] = useState(null); // 'league' | 'club' | null
+  const [trainings, setTrainings] = useState([]);
+  const [openTraining, setOpenTraining] = useState(null);
 
   // Подменяем PWA-манифест на «команда-specific» когда юзер на публичной странице.
   // start_url=/public/team/:age, чтобы при «Добавить на главный экран» иконка
@@ -93,11 +96,13 @@ export default function PublicTeamSchedule() {
       fetch(`${PREFIX}/standings/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : null),
       fetch(`${PREFIX}/venues`).then((r) => r.ok ? r.json() : { venues: [] }),
       fetch(`${PREFIX}/club-rank`).then((r) => r.ok ? r.json() : null),
-    ]).then(([calData, standData, venueData, clubRankData]) => {
+      fetch(`${PREFIX}/trainings/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : { trainings: [] }),
+    ]).then(([calData, standData, venueData, clubRankData, trData]) => {
       setCal(calData);
       setStandings(standData);
       setVenues(venueData?.venues || []);
       setClubRank(clubRankData);
+      setTrainings(trData?.trainings || []);
     }).catch((e) => {
       setError(e.message);
     }).finally(() => setLoading(false));
@@ -124,12 +129,28 @@ export default function PublicTeamSchedule() {
     return null;
   }
 
+  // Объединяем матчи команды и тренировки в единый хронологический список
   const ourMatches = (cal?.matches || []).filter((m) => m.isOurMatch);
-  const filtered = ourMatches.filter((m) => {
-    if (filter === 'upcoming') return m.isUpcoming;
-    if (filter === 'past')     return m.isPast;
-    return true;
-  });
+  const events = useMemo(() => {
+    const items = [];
+    for (const m of ourMatches) {
+      const inFilter =
+        filter === 'all' ||
+        (filter === 'upcoming' && m.isUpcoming) ||
+        (filter === 'past' && m.isPast);
+      if (inFilter) items.push({ kind: 'match', date: m.date, data: m });
+    }
+    // Тренировки: показываем только в фильтре 'upcoming' и 'all' (past храниться, но не показываем родителям —
+    // приватная посещаемость, родителю они не интересны)
+    if (filter !== 'past') {
+      for (const t of trainings) {
+        items.push({ kind: 'training', date: t.startsAt, data: t });
+      }
+    }
+    items.sort((a, b) => new Date(a.date) - new Date(b.date));
+    return items;
+  }, [ourMatches, trainings, filter]);
+  const filtered = events;
 
   // Позиция Легируса в таблице
   const ourRow = standings?.table?.find((t) => t.isOurClub);
@@ -203,30 +224,64 @@ export default function PublicTeamSchedule() {
                 >{f.label}</button>
               ))}
               <span className="public-page__count">
-                {filtered.length} матчей
+                {filtered.length} {filtered.length === 1 ? 'событие' : 'событий'}
               </span>
             </div>
 
             {filtered.length === 0 && (
               <div className="public-page__empty">
-                {filter === 'upcoming' ? 'Будущих матчей нет' :
+                {filter === 'upcoming' ? 'Будущих событий нет' :
                  filter === 'past' ? 'Сыгранных матчей нет' :
-                                     'Матчей не найдено'}
+                                     'Событий не найдено'}
               </div>
             )}
 
             <div className="public-page__list">
-              {filtered.map((m, i) => {
+              {filtered.map((e, i) => {
+                if (e.kind === 'training') {
+                  const t = e.data;
+                  const TYPE_LABELS = {
+                    training: 'Тренировка', extra: 'Доп. занятие',
+                    warmup: 'Разминка', recovery: 'Восстановление', meet: 'Сбор',
+                  };
+                  return (
+                    <article
+                      key={`tr-${t.id || i}`}
+                      className="pub-card pub-card--clickable pub-card--training"
+                      onClick={() => setOpenTraining(t)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setOpenTraining(t); }}
+                    >
+                      <div className="pub-card__date">
+                        {formatDate(t.startsAt)}
+                        <span className="pub-card__badge pub-card__badge--training">
+                          🏃 {TYPE_LABELS[t.type] || 'Тренировка'}
+                        </span>
+                      </div>
+                      <div className="pub-card__training-row">
+                        <div className="pub-card__training-info">
+                          <div className="pub-card__training-title">
+                            {TYPE_LABELS[t.type] || 'Тренировка'}
+                          </div>
+                          <div className="pub-card__training-sub">{t.durationMin || 90} минут</div>
+                        </div>
+                      </div>
+                      {t.venueText && <div className="pub-card__venue">📍 {t.venueText}</div>}
+                    </article>
+                  );
+                }
+                const m = e.data;
                 const past = m.isPast;
                 const tournamentLabel = m.tournament === 'cup' ? 'Кубок' : 'Лига';
                 return (
                   <article
-                    key={`${m.matchId || i}`}
+                    key={`m-${m.matchId || i}`}
                     className={`pub-card pub-card--clickable ${past ? 'pub-card--past' : ''}`}
                     onClick={() => setOpenMatch(m)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpenMatch(m); }}
+                    onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') setOpenMatch(m); }}
                   >
                     <div className="pub-card__date">
                       {formatDate(m.date)}
@@ -274,6 +329,14 @@ export default function PublicTeamSchedule() {
           age={age}
           theme="legirus"
           onClose={() => setOpenMatch(null)}
+        />
+      )}
+
+      {openTraining && (
+        <TrainingDetailSheet
+          training={openTraining}
+          theme="legirus"
+          onClose={() => setOpenTraining(null)}
         />
       )}
 

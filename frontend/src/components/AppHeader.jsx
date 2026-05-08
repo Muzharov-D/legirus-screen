@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
 import PushOptInButton from './PushOptInButton';
+import ChangePasswordModal from './ChangePasswordModal';
 import './AppHeader.css';
 
 const ROLE_LABELS = {
@@ -17,6 +18,7 @@ export default function AppHeader() {
   const activeTeams = (teams || []).filter((t) => t.active && t.isOurTeam !== false);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const closeMenu = () => setMobileMenuOpen(false);
 
   return (
@@ -44,6 +46,13 @@ export default function AppHeader() {
               {ROLE_LABELS[user.role] || user.role || ''}
             </div>
           </div>
+        )}
+        {user && (
+          <button
+            className="app-header__btn"
+            onClick={() => { closeMenu(); setShowChangePassword(true); }}
+            title="Сменить пароль"
+          >🔒 Пароль</button>
         )}
         {user && (
           <button
@@ -81,6 +90,10 @@ export default function AppHeader() {
           title="Обновить данные"
         >↻</button>
       </div>
+
+      {showChangePassword && (
+        <ChangePasswordModal onClose={() => setShowChangePassword(false)} />
+      )}
     </header>
   );
 }

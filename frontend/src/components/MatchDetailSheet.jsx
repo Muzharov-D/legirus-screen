@@ -30,7 +30,7 @@ function buildYandexMapsUrl(venue, coords) {
   return null;
 }
 
-export default function MatchDetailSheet({ match, venue, age, onClose, theme = 'default' }) {
+export default function MatchDetailSheet({ match, venue, age, onClose, theme = 'default', extra = null }) {
   // Esc для закрытия
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -143,6 +143,9 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
             Адрес стадиона пока не указан. Уточните у тренера в чате команды.
           </div>
         )}
+
+        {/* Extra-блок: например кнопка «Состав на матч» для тренера */}
+        {extra}
 
         <div className="mds-footer">
           {past

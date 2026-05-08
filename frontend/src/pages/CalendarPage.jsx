@@ -11,6 +11,8 @@ import { fetchCalendar, fetchCalendarList, fetchTrainingsByTeam } from '../servi
 import { useTeam } from '../contexts/TeamContext';
 import { useAuth } from '../contexts/AuthContext';
 import CallupRoster from '../components/CallupRoster';
+import MatchDetailSheet from '../components/MatchDetailSheet';
+import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import './CalendarPage.css';
 
 const FILTERS = [
@@ -62,6 +64,8 @@ export default function CalendarPage() {
   const { selectedTeam } = useTeam();
   const { isCoach, user } = useAuth();
   const [openCallup, setOpenCallup] = useState(null);
+  const [openMatch, setOpenMatch] = useState(null);
+  const [openTraining, setOpenTraining] = useState(null);
 
   // Список доступных возрастных групп
   const listRes = useApi(fetchCalendarList, []);
@@ -74,7 +78,11 @@ export default function CalendarPage() {
   const [age, setAge] = useState(defaultAge);
   const [filter, setFilter] = useState('upcoming');
   const [scope, setScope] = useState('ours'); // 'ours' | 'all'
-  const [view, setView] = useState('list');     // 'list' | 'week'
+  const [view, setView] = useState('list');     // 'list' | 'week' (месячный календарь)
+  // Какой месяц показываем в календаре. Stack-state — Date в первый день месяца.
+  const [monthCursor, setMonthCursor] = useState(() => {
+    const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d;
+  });
 
   useEffect(() => {
     if (ages.length > 0 && !ages.includes(age)) setAge(defaultAge || ages[0]);
@@ -104,20 +112,49 @@ export default function CalendarPage() {
 
   const ourTotal = useMemo(() => matches.filter((m) => m.isOurMatch).length, [matches]);
 
-  // === WEEK view: группируем матчи + тренировки по дням (7 дней вперёд от сегодня) ===
-  const weekDays = useMemo(() => {
-    const today = startOfDay(new Date());
-    const buckets = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(today); d.setDate(d.getDate() + i);
-      buckets.push({ date: d, key: d.toISOString().slice(0, 10), events: [] });
+  // === MONTH view: матчи + тренировки в месячной сетке ===
+  // Helper — вернуть номер ISO-недели (используется чтобы группировать дни в строки и
+  // подсветить текущую неделю обводкой).
+  function isoWeekNumber(d) {
+    const t = new Date(d);
+    t.setHours(0, 0, 0, 0);
+    // Чтоб неделя начиналась с пн (ISO): четверг текущей недели определяет номер
+    t.setDate(t.getDate() + 4 - (t.getDay() || 7));
+    const yearStart = new Date(t.getFullYear(), 0, 1);
+    return Math.ceil(((t - yearStart) / 86400000 + 1) / 7);
+  }
+  function isoWeekKey(d) {
+    return d.getFullYear() + '-W' + String(isoWeekNumber(d)).padStart(2, '0');
+  }
+
+  const monthGrid = useMemo(() => {
+    // Старт сетки = понедельник первой недели месяца. Конец = воскресенье последней недели.
+    const first = new Date(monthCursor);
+    const dayOfWeek = (first.getDay() + 6) % 7; // 0=пн ... 6=вс
+    const gridStart = new Date(first); gridStart.setDate(first.getDate() - dayOfWeek);
+
+    const last = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0);
+    const lastDow = (last.getDay() + 6) % 7;
+    const gridEnd = new Date(last); gridEnd.setDate(last.getDate() + (6 - lastDow));
+
+    const days = [];
+    for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate() + 1)) {
+      const day = new Date(d);
+      day.setHours(0, 0, 0, 0);
+      days.push({
+        date: day,
+        iso: day.toISOString().slice(0, 10),
+        weekKey: isoWeekKey(day),
+        inMonth: day.getMonth() === monthCursor.getMonth(),
+        isToday: day.getTime() === startOfDay(new Date()).getTime(),
+        events: [],
+      });
     }
     function bucketFor(iso) {
       if (!iso) return null;
       const k = startOfDay(new Date(iso)).toISOString().slice(0, 10);
-      return buckets.find((b) => b.key === k);
+      return days.find((b) => b.iso === k);
     }
-    // Матчи нашей команды (upcoming)
     for (const m of matches) {
       if (!m.isOurMatch) continue;
       const b = bucketFor(m.date);
@@ -127,9 +164,25 @@ export default function CalendarPage() {
       const b = bucketFor(t.startsAt);
       if (b) b.events.push({ type: 'training', time: t.startsAt, data: t });
     }
-    for (const b of buckets) b.events.sort((a, b) => new Date(a.time) - new Date(b.time));
-    return buckets;
-  }, [matches, trainings]);
+    for (const b of days) b.events.sort((a, b) => new Date(a.time) - new Date(b.time));
+
+    // Группируем в строки по 7 (по неделям)
+    const rows = [];
+    for (let i = 0; i < days.length; i += 7) rows.push(days.slice(i, i + 7));
+    const todayWeekKey = isoWeekKey(new Date());
+    return { rows, todayWeekKey };
+  }, [matches, trainings, monthCursor]);
+
+  function shiftMonth(delta) {
+    const d = new Date(monthCursor);
+    d.setMonth(d.getMonth() + delta);
+    setMonthCursor(d);
+  }
+  function gotoToday() {
+    const d = new Date(); d.setDate(1); d.setHours(0,0,0,0);
+    setMonthCursor(d);
+  }
+  const monthLabel = monthCursor.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
 
   return (
     <div className="page calendar-page">
@@ -147,16 +200,16 @@ export default function CalendarPage() {
           )}
         </div>
         <div className="calendar-page__controls">
-          {/* View switch — Список / Неделя */}
+          {/* View switch — Расписание матчей / Календарь (месячный) */}
           <div className="calendar-page__filters calendar-page__view-toggle">
             <button
               className={`calendar-page__filter ${view === 'list' ? 'is-active' : ''}`}
               onClick={() => setView('list')}
-            >📋 Список</button>
+            >📋 Расписание матчей</button>
             <button
               className={`calendar-page__filter ${view === 'week' ? 'is-active' : ''}`}
               onClick={() => setView('week')}
-            >📆 Неделя</button>
+            >📆 Календарь</button>
           </div>
 
           {ages.length > 0 && (
@@ -224,7 +277,11 @@ export default function CalendarPage() {
                 return (
                   <div
                     key={`${m.date || ''}-${i}`}
-                    className={`cal-card ${m.isOurMatch ? 'cal-card--ours' : ''} ${past ? 'cal-card--past' : ''}`}
+                    className={`cal-card cal-card--clickable ${m.isOurMatch ? 'cal-card--ours' : ''} ${past ? 'cal-card--past' : ''}`}
+                    onClick={() => setOpenMatch(m)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpenMatch(m); }}
                   >
                     <div className="cal-card__date">
                       {formatDate(m.date)}
@@ -263,63 +320,105 @@ export default function CalendarPage() {
         </>
       )}
 
-      {/* === WEEK VIEW === */}
+      {/* === MONTH VIEW (календарь) === */}
       {view === 'week' && !calRes.loading && (
-        <div className="calendar-page__week-grid">
-          {weekDays.map((b) => (
-            <div key={b.key} className="cal-week-day">
-              <div className="cal-week-day__head">
-                <span className="cal-week-day__title">{fmtDayHeader(b.date)}</span>
-                {b.events.length > 0 && <span className="cal-week-day__count">{b.events.length}</span>}
-              </div>
-              {b.events.length === 0 ? (
-                <div className="cal-week-day__empty">—</div>
-              ) : (
-                <div className="cal-week-day__events">
-                  {b.events.map((e, i) => {
-                    if (e.type === 'match') {
-                      const m = e.data;
-                      const ourHome = (m.home || '').toLowerCase().includes('легирус');
-                      const opp = ourHome ? m.away : m.home;
-                      const oppShield = ourHome ? m.awayShield : m.homeShield;
-                      return (
-                        <button
-                          key={'m' + i}
-                          className={`cal-week-card cal-week-card--match ${m.tournament === 'cup' ? 'cal-week-card--cup' : ''}`}
-                          onClick={() => isCoach && !m.isPast ? setOpenCallup(m) : null}
-                          disabled={!isCoach || m.isPast}
-                          type="button"
-                        >
-                          <div className="cal-week-card__time">⚽ {fmtTime(m.date)}</div>
-                          <div className="cal-week-card__title">
-                            {ourHome ? '🏠 ' : '✈️ '}
-                            {oppShield && <img src={oppShield} alt="" className="cal-week-card__shield" />}
-                            {shortName(opp)}
-                          </div>
-                          {m.venue && <div className="cal-week-card__venue">📍 {m.venue}</div>}
-                          {m.tournament === 'cup' && <span className="cal-week-card__badge">Кубок</span>}
-                        </button>
-                      );
-                    }
-                    const t = e.data;
-                    const tt = TRAINING_TYPES[t.type] || TRAINING_TYPES.training;
-                    return (
-                      <div
-                        key={'t' + i}
-                        className="cal-week-card cal-week-card--training"
-                      >
-                        <div className="cal-week-card__time">{tt.icon} {fmtTime(t.startsAt)}</div>
-                        <div className="cal-week-card__title">{tt.label}</div>
-                        {t.venueText && <div className="cal-week-card__venue">📍 {t.venueText}</div>}
-                        <div className="cal-week-card__sub">{t.durationMin} мин</div>
-                      </div>
-                    );
-                  })}
+        <div className="cal-month">
+          <div className="cal-month__nav">
+            <button className="cal-month__nav-btn" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">◀</button>
+            <div className="cal-month__title">{monthLabel}</div>
+            <button className="cal-month__nav-btn" onClick={() => shiftMonth(1)} aria-label="Следующий месяц">▶</button>
+            <button className="cal-month__today" onClick={gotoToday}>Сегодня</button>
+          </div>
+          <div className="cal-month__weekday-row">
+            {['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map((d) => (
+              <div key={d} className="cal-month__weekday">{d}</div>
+            ))}
+          </div>
+          <div className="cal-month__grid">
+            {monthGrid.rows.map((row, ri) => {
+              const isCurrentWeek = row.length > 0 && row[0].weekKey === monthGrid.todayWeekKey;
+              return (
+                <div key={ri} className={`cal-month__row ${isCurrentWeek ? 'cal-month__row--current' : ''}`}>
+                  {row.map((d) => (
+                    <div
+                      key={d.iso}
+                      className={
+                        'cal-month__day' +
+                        (d.inMonth ? '' : ' cal-month__day--out') +
+                        (d.isToday ? ' cal-month__day--today' : '')
+                      }
+                    >
+                      <div className="cal-month__day-num">{d.date.getDate()}</div>
+                      {d.events.length > 0 && (
+                        <div className="cal-month__events">
+                          {d.events.map((e, i) => {
+                            if (e.type === 'match') {
+                              const m = e.data;
+                              const ourHome = (m.home || '').toLowerCase().includes('легирус');
+                              const opp = ourHome ? m.away : m.home;
+                              return (
+                                <button
+                                  key={'m' + i}
+                                  className={`cal-month__event cal-month__event--match ${m.tournament === 'cup' ? 'cal-month__event--cup' : ''} ${m.isPast ? 'cal-month__event--past' : ''}`}
+                                  type="button"
+                                  onClick={() => setOpenMatch(m)}
+                                  title={`${fmtTime(m.date)} · ${shortName(m.home)} vs ${shortName(m.away)}${m.venue ? ' · ' + m.venue : ''}`}
+                                >
+                                  <span className="cal-month__event-time">{fmtTime(m.date)}</span>
+                                  <span className="cal-month__event-icon">{m.tournament === 'cup' ? '🏆' : '⚽'}</span>
+                                  <span className="cal-month__event-text">{shortName(opp)}</span>
+                                </button>
+                              );
+                            }
+                            const t = e.data;
+                            const tt = TRAINING_TYPES[t.type] || TRAINING_TYPES.training;
+                            return (
+                              <button
+                                key={'t' + i}
+                                className="cal-month__event cal-month__event--training"
+                                type="button"
+                                onClick={() => setOpenTraining(t)}
+                                title={`${fmtTime(t.startsAt)} · ${tt.label}${t.venueText ? ' · ' + t.venueText : ''}`}
+                              >
+                                <span className="cal-month__event-time">{fmtTime(t.startsAt)}</span>
+                                <span className="cal-month__event-icon">{tt.icon}</span>
+                                <span className="cal-month__event-text">{tt.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
+      )}
+
+      {openMatch && (
+        <MatchDetailSheet
+          match={openMatch}
+          age={age}
+          onClose={() => setOpenMatch(null)}
+          extra={isCoach && openMatch.isOurMatch && !openMatch.isPast && (
+            <button
+              className="mds-cta-secondary"
+              onClick={() => { setOpenCallup(openMatch); setOpenMatch(null); }}
+            >
+              <span>👥</span>
+              <span>Состав на матч</span>
+            </button>
+          )}
+        />
+      )}
+
+      {openTraining && (
+        <TrainingDetailSheet
+          training={openTraining}
+          onClose={() => setOpenTraining(null)}
+        />
       )}
 
       {openCallup && (
