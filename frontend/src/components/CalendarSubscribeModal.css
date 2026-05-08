@@ -210,3 +210,32 @@
   text-align: center;
   line-height: 1.5;
 }
+
+@media (max-width: 640px) {
+  .csm-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .csm-sheet {
+    max-width: 100%;
+    border-radius: 18px 18px 0 0;
+    padding: 24px 18px 22px;
+    padding-bottom: max(22px, env(safe-area-inset-bottom));
+    max-height: 92vh;
+  }
+  .csm-sheet::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: -10px auto 14px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 2px;
+  }
+  .csm-close { width: 44px; height: 44px; top: 8px; right: 8px; }
+  .csm-icon { font-size: 40px; margin-bottom: 8px; }
+  .csm-title { font-size: 18px; }
+  .csm-btn { min-height: 48px; padding: 0 16px; }
+  .csm-copy { min-height: 44px; padding: 0 16px; }
+  .csm-url { min-height: 44px; }
+}

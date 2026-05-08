@@ -5,7 +5,10 @@
   display: flex; align-items: center; justify-content: center;
   z-index: 100;
   padding: 16px;
+  animation: sm-fade 180ms ease-out;
 }
+@keyframes sm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sm-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .sm-sheet {
   background: linear-gradient(180deg, #1a0606 0%, #0f0303 100%);
   border: 1px solid rgba(220, 38, 38, 0.35);
@@ -93,9 +96,54 @@
 .sm-row--ours .sm-team span { color: #fff; font-weight: 700; }
 
 @media (max-width: 640px) {
-  .sm-sheet { padding: 18px 12px; }
+  .sm-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .sm-sheet {
+    padding: 22px 14px 24px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    max-height: 92vh;
+    border-radius: 18px 18px 0 0;
+    margin-bottom: 0;
+    animation: sm-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .sm-sheet::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: -8px auto 14px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+  }
+  .sm-close {
+    width: 44px;
+    height: 44px;
+    top: 8px;
+    right: 8px;
+    background: rgba(220, 38, 38, 0.18);
+  }
+  .sm-table { font-size: 13px; }
+  .sm-table th, .sm-table td { padding: 8px 4px; }
+  .sm-team { min-width: 120px; }
+  .sm-team img { width: 18px; height: 18px; margin-right: 6px; }
+  /* Скрываем колонки И/Н/П — оставляем самые важные #/Команда/В/±/О */
+  .sm-table th:nth-child(3), .sm-table td:nth-child(3),
+  .sm-table th:nth-child(5), .sm-table td:nth-child(5),
+  .sm-table th:nth-child(6), .sm-table td:nth-child(6) {
+    display: none;
+  }
+}
+
+/* Очень узкие — оставляем только #/Команда/О/± */
+@media (max-width: 380px) {
+  .sm-sheet { padding: 18px 10px 22px; }
   .sm-table { font-size: 12px; }
-  .sm-table th, .sm-table td { padding: 6px 3px; }
-  .sm-team { min-width: 140px; }
-  .sm-team img { width: 18px; height: 18px; margin-right: 5px; }
+  .sm-table th, .sm-table td { padding: 7px 3px; }
+  .sm-team { min-width: 100px; }
+  .sm-team img { width: 16px; height: 16px; margin-right: 4px; }
+  .sm-table th:nth-child(4), .sm-table td:nth-child(4) {
+    display: none;
+  }
 }
