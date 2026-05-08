@@ -88,18 +88,56 @@ export default function CalendarPage() {
     if (ages.length > 0 && !ages.includes(age)) setAge(defaultAge || ages[0]);
   }, [listRes.data]);
 
-  const calRes = useApi(() => age ? fetchCalendar(age) : Promise.resolve(null), [age]);
+  // === ОДНА команда ===
+  const calRes = useApi(
+    () => (age && age !== 'all') ? fetchCalendar(age) : Promise.resolve(null),
+    [age]);
   const cal = calRes.data;
-  const matches = cal?.matches || [];
+  const singleMatches = cal?.matches || [];
 
-  // Тренировки команды — для аутентифицированных юзеров команды
-  const teamId = selectedTeam?.id || (age ? `legirus-${age}` : null);
-  const showTrainings = !!user && !!teamId; // тренировки видят только залогинены
+  // Тренировки команды
+  const teamId = selectedTeam?.id || (age && age !== 'all' ? `legirus-${age}` : null);
+  const showTrainings = !!user && !!teamId;
   const trRes = useApi(
     () => showTrainings ? fetchTrainingsByTeam(teamId, { scope: 'all', limit: 100 })
                         : Promise.resolve({ trainings: [] }),
     [teamId, showTrainings]);
-  const trainings = trRes.data?.trainings || [];
+  const singleTrainings = trRes.data?.trainings || [];
+
+  // === ВСЕ команды (только head_coach с age='all') ===
+  // Параллельно тянем calendar + trainings для каждого ages, подмешиваем ageGroup в каждое событие.
+  const [allMatches, setAllMatches] = useState([]);
+  const [allTrainings, setAllTrainings] = useState([]);
+  const [allLoading, setAllLoading] = useState(false);
+
+  useEffect(() => {
+    if (age !== 'all' || !ages.length) {
+      setAllMatches([]); setAllTrainings([]); setAllLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setAllLoading(true);
+    Promise.all(ages.map((a) =>
+      Promise.all([
+        fetchCalendar(a).catch(() => null),
+        fetchTrainingsByTeam(`legirus-${a}`, { scope: 'all', limit: 100 }).catch(() => ({ trainings: [] })),
+      ]).then(([cal, tr]) => ({ age: a, cal, tr: tr?.trainings || [] }))
+    )).then((arr) => {
+      if (cancelled) return;
+      const ms = []; const ts = [];
+      for (const { age: a, cal, tr } of arr) {
+        for (const m of (cal?.matches || [])) ms.push({ ...m, ageGroup: a });
+        for (const t of tr) ts.push({ ...t, ageGroup: a });
+      }
+      setAllMatches(ms);
+      setAllTrainings(ts);
+    }).finally(() => { if (!cancelled) setAllLoading(false); });
+    return () => { cancelled = true; };
+  }, [age, ages.join(',')]);
+
+  // Объединённые источники: либо одна команда, либо все
+  const matches = age === 'all' ? allMatches : singleMatches;
+  const trainings = age === 'all' ? allTrainings : singleTrainings;
 
   // === LIST view ===
   const listFiltered = useMemo(() => {
@@ -218,6 +256,9 @@ export default function CalendarPage() {
               value={age || ''}
               onChange={(e) => setAge(e.target.value)}
             >
+              {user?.role === 'head_coach' && (
+                <option value="all">🌐 Все команды</option>
+              )}
               {ages.map((a) => (
                 <option key={a} value={a}>{a} г.р.</option>
               ))}
@@ -286,6 +327,9 @@ export default function CalendarPage() {
                     <div className="cal-card__date">
                       {formatDate(m.date)}
                       {m.round && <span className="cal-card__round">· {m.round}</span>}
+                      {age === 'all' && m.ageGroup && (
+                        <span className="cal-card__age-badge">{m.ageGroup}</span>
+                      )}
                       {m.tournament === 'cup' && <span className="cal-card__badge cal-card__badge--cup">Кубок</span>}
                     </div>
                     <div className="cal-card__teams">
@@ -362,9 +406,12 @@ export default function CalendarPage() {
                                   className={`cal-month__event cal-month__event--match ${m.tournament === 'cup' ? 'cal-month__event--cup' : ''} ${m.isPast ? 'cal-month__event--past' : ''}`}
                                   type="button"
                                   onClick={() => setOpenMatch(m)}
-                                  title={`${fmtTime(m.date)} · ${shortName(m.home)} vs ${shortName(m.away)}${m.venue ? ' · ' + m.venue : ''}`}
+                                  title={`${fmtTime(m.date)}${m.ageGroup ? ' · ' + m.ageGroup : ''} · ${shortName(m.home)} vs ${shortName(m.away)}${m.venue ? ' · ' + m.venue : ''}`}
                                 >
                                   <span className="cal-month__event-time">{fmtTime(m.date)}</span>
+                                  {age === 'all' && m.ageGroup && (
+                                    <span className="cal-month__event-age">{m.ageGroup}</span>
+                                  )}
                                   <span className="cal-month__event-icon">{m.tournament === 'cup' ? '🏆' : '⚽'}</span>
                                   <span className="cal-month__event-text">{shortName(opp)}</span>
                                 </button>
@@ -378,9 +425,12 @@ export default function CalendarPage() {
                                 className="cal-month__event cal-month__event--training"
                                 type="button"
                                 onClick={() => setOpenTraining(t)}
-                                title={`${fmtTime(t.startsAt)} · ${tt.label}${t.venueText ? ' · ' + t.venueText : ''}`}
+                                title={`${fmtTime(t.startsAt)}${t.ageGroup ? ' · ' + t.ageGroup : ''} · ${tt.label}${t.venueText ? ' · ' + t.venueText : ''}`}
                               >
                                 <span className="cal-month__event-time">{fmtTime(t.startsAt)}</span>
+                                {age === 'all' && t.ageGroup && (
+                                  <span className="cal-month__event-age">{t.ageGroup}</span>
+                                )}
                                 <span className="cal-month__event-icon">{tt.icon}</span>
                                 <span className="cal-month__event-text">{tt.label}</span>
                               </button>

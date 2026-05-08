@@ -350,6 +350,24 @@
   overflow: hidden; text-overflow: ellipsis;
   font-weight: 500;
 }
+.cal-month__event-age {
+  background: rgba(168, 85, 247, 0.22);
+  color: #c4b5fd;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.cal-card__age-badge {
+  background: rgba(168, 85, 247, 0.22);
+  color: #c4b5fd;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+}
 .cal-month__event--match { border-left: 2px solid #22d3ee; }
 .cal-month__event--cup   { border-left-color: #f59e0b; }
 .cal-month__event--cup .cal-month__event-time { color: #f59e0b; }
