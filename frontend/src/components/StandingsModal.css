@@ -167,24 +167,16 @@
     right: 8px;
     background: rgba(220, 38, 38, 0.18);
   }
-  .sm-table { font-size: 13px; }
-  .sm-table th, .sm-table td { padding: 8px 4px; }
-  .sm-team { min-width: 120px; }
-  .sm-team img { width: 18px; height: 18px; margin-right: 6px; }
-  .sm-table th:nth-child(3), .sm-table td:nth-child(3),
-  .sm-table th:nth-child(5), .sm-table td:nth-child(5),
-  .sm-table th:nth-child(6), .sm-table td:nth-child(6) {
-    display: none;
-  }
 }
 
+/* Очень узкие — ещё компактнее, но все колонки видны */
 @media (max-width: 380px) {
-  .sm-sheet { padding: 18px 10px 22px; }
-  .sm-table { font-size: 12px; }
-  .sm-table th, .sm-table td { padding: 7px 3px; }
-  .sm-team { min-width: 100px; }
-  .sm-team img { width: 16px; height: 16px; margin-right: 4px; }
-  .sm-table th:nth-child(4), .sm-table td:nth-child(4) {
-    display: none;
-  }
+  .sm-sheet { padding: 18px 6px 22px; }
+  .sm-table { font-size: 11px; }
+  .sm-table th, .sm-table td { padding: 6px 1px; }
+  .sm-table th { font-size: 9px; }
+  .sm-team img { width: 16px !important; height: 16px !important; margin-right: 3px !important; }
+  .sm-pos { width: 24px; }
+  .sm-table th:not(.sm-team):not(.sm-pos),
+  .sm-table td:not(.sm-team):not(.sm-pos) { width: 22px; }
 }
