@@ -21,9 +21,37 @@ const PREFIX = `${API_BASE}/api/public`;
 
 const FILTERS = [
   { id: 'upcoming', label: 'Будущие' },
-  { id: 'past',     label: 'Сыгранные' },
+  { id: 'past',     label: 'Прошедшие' },
   { id: 'all',      label: 'Все' },
 ];
+
+// Локальный лого Легируса для подмены некачественного с федерации
+const LEGIRUS_LOCAL_SHIELD = '/icons/legirus.png';
+function isLegirusName(name) {
+  return String(name || '').toLowerCase().includes('легирус');
+}
+function shieldFor(teamName, fallbackUrl) {
+  return isLegirusName(teamName) ? LEGIRUS_LOCAL_SHIELD : fallbackUrl;
+}
+
+// ISO-неделя: ПН 00:00:00.001 — ВС 23:59:59.999. offset 0 — текущая, +1 — следующая.
+function getWeekRange(offset = 0) {
+  const now = new Date();
+  // Дата понедельника текущей недели (Sun=0, ПН=1, ВТ=2... — приводим к 0=ПН)
+  const dow = (now.getDay() + 6) % 7;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow + (offset * 7));
+  monday.setHours(0, 0, 0, 1);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { start: monday, end: sunday };
+}
+function formatWeekRange(offset) {
+  const { start, end } = getWeekRange(offset);
+  const fmt = (d) => d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' });
+  return `${fmt(start)} — ${fmt(end)}`;
+}
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -58,6 +86,7 @@ export default function PublicTeamSchedule() {
   const [trainings, setTrainings] = useState([]);
   const [openTraining, setOpenTraining] = useState(null);
   const [view, setView] = useState('list');
+  const [weekOffset, setWeekOffset] = useState(0); // 0 = текущая, 1 = следующая
   const [monthCursor, setMonthCursor] = useState(() => {
     const d = new Date(); d.setDate(1); d.setHours(0, 0, 0, 0); return d;
   });
@@ -160,26 +189,45 @@ export default function PublicTeamSchedule() {
   }
 
   const ourMatches = (cal?.matches || []).filter((m) => m.isOurMatch);
+
+  // Тренировки разрешены только в фильтре 'upcoming' (тренер в прошлом — приватная инфа)
+  const trainingsAvailable = filter === 'upcoming' && trainings.length > 0;
+  const showTrainings = trainingsAvailable && !hideTrainings;
+
   const events = useMemo(() => {
     const items = [];
+    // Для 'upcoming' — фильтруем по выбранной неделе (текущая или следующая)
+    let weekStart = null, weekEnd = null;
+    if (filter === 'upcoming') {
+      const r = getWeekRange(weekOffset);
+      weekStart = r.start; weekEnd = r.end;
+    }
+    function inWeek(iso) {
+      if (!weekStart) return true;
+      const t = new Date(iso).getTime();
+      return t >= weekStart.getTime() && t <= weekEnd.getTime();
+    }
     for (const m of ourMatches) {
       const inFilter =
         filter === 'all' ||
-        (filter === 'upcoming' && m.isUpcoming) ||
+        (filter === 'upcoming' && m.isUpcoming && inWeek(m.date)) ||
         (filter === 'past' && m.isPast);
       if (inFilter) items.push({ kind: 'match', date: m.date, data: m });
     }
-    if (filter !== 'past' && !hideTrainings) {
+    if (showTrainings) {
       for (const t of trainings) {
-        items.push({ kind: 'training', date: t.startsAt, data: t });
+        if (inWeek(t.startsAt)) {
+          items.push({ kind: 'training', date: t.startsAt, data: t });
+        }
       }
     }
     items.sort((a, b) => new Date(a.date) - new Date(b.date));
     return items;
-  }, [ourMatches, trainings, filter, hideTrainings]);
+  }, [ourMatches, trainings, filter, showTrainings, weekOffset]);
   const filtered = events;
 
-  const visibleTrainings = hideTrainings ? [] : trainings;
+  // В месячном виде показываем все тренировки (фильтр недели не применяется)
+  const visibleTrainings = (filter !== 'past' && !hideTrainings) ? trainings : [];
 
   const monthGrid = useMemo(() => {
     const first = new Date(monthCursor);
@@ -278,14 +326,23 @@ export default function PublicTeamSchedule() {
         {!loading && !error && (
           <>
             <div className="public-page__settings">
-              <label className="public-page__settings-toggle">
+              <label className={`public-page__settings-toggle ${!trainingsAvailable ? 'is-disabled' : ''}`}>
                 <input
                   type="checkbox"
-                  checked={!hideTrainings}
+                  checked={!hideTrainings && trainingsAvailable}
+                  disabled={!trainingsAvailable}
                   onChange={(e) => setHideTrainings(!e.target.checked)}
                 />
                 <span className="public-page__settings-track" aria-hidden="true"></span>
-                <span className="public-page__settings-label">🏃 Показывать тренировки</span>
+                <span className="public-page__settings-label">
+                  🏃 Показывать тренировки
+                  {!trainingsAvailable && filter !== 'upcoming' && (
+                    <small> · только в Будущих</small>
+                  )}
+                  {filter === 'upcoming' && trainings.length === 0 && (
+                    <small> · не запланировано</small>
+                  )}
+                </span>
               </label>
             </div>
 
@@ -307,13 +364,34 @@ export default function PublicTeamSchedule() {
                     <button
                       key={f.id}
                       className={`public-page__filter ${filter === f.id ? 'is-active' : ''}`}
-                      onClick={() => setFilter(f.id)}
+                      onClick={() => { setFilter(f.id); setWeekOffset(0); }}
                     >{f.label}</button>
                   ))}
                 </div>
-                <div className="public-page__count public-page__count--standalone">
-                  {filtered.length} {filtered.length === 1 ? 'событие' : 'событий'}
-                </div>
+                {filter === 'upcoming' ? (
+                  <div className="public-page__week-nav">
+                    <button
+                      type="button"
+                      className={`public-page__week-btn ${weekOffset === 0 ? 'is-active' : ''}`}
+                      onClick={() => setWeekOffset(0)}
+                    >
+                      <span>Текущая неделя</span>
+                      <small>{formatWeekRange(0)}</small>
+                    </button>
+                    <button
+                      type="button"
+                      className={`public-page__week-btn ${weekOffset === 1 ? 'is-active' : ''}`}
+                      onClick={() => setWeekOffset(1)}
+                    >
+                      <span>Следующая</span>
+                      <small>{formatWeekRange(1)}</small>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="public-page__count public-page__count--standalone">
+                    {filtered.length} {filtered.length === 1 ? 'событие' : 'событий'}
+                  </div>
+                )}
               </>
             )}
 
@@ -387,7 +465,7 @@ export default function PublicTeamSchedule() {
                       </div>
                       <div className="pub-card__teams">
                         <div className="pub-card__team pub-card__team--home">
-                          {m.homeShield && <img className="pub-card__shield" src={m.homeShield} alt="" loading="lazy" />}
+                          <img className="pub-card__shield" src={shieldFor(m.home, m.homeShield)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                           <span className="pub-card__team-name">{shortName(m.home)}</span>
                         </div>
                         <div className="pub-card__score">
@@ -397,7 +475,7 @@ export default function PublicTeamSchedule() {
                         </div>
                         <div className="pub-card__team pub-card__team--away">
                           <span className="pub-card__team-name">{shortName(m.away)}</span>
-                          {m.awayShield && <img className="pub-card__shield" src={m.awayShield} alt="" loading="lazy" />}
+                          <img className="pub-card__shield" src={shieldFor(m.away, m.awayShield)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                         </div>
                       </div>
                       {m.venue && <div className="pub-card__venue">📍 {m.venue}</div>}
@@ -562,7 +640,7 @@ export default function PublicTeamSchedule() {
                               </div>
                               <div className="pub-card__teams">
                                 <div className="pub-card__team pub-card__team--home">
-                                  {m.homeShield && <img className="pub-card__shield" src={m.homeShield} alt="" loading="lazy" />}
+                                  <img className="pub-card__shield" src={shieldFor(m.home, m.homeShield)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                                   <span className="pub-card__team-name">{shortName(m.home)}</span>
                                 </div>
                                 <div className="pub-card__score">
@@ -572,7 +650,7 @@ export default function PublicTeamSchedule() {
                                 </div>
                                 <div className="pub-card__team pub-card__team--away">
                                   <span className="pub-card__team-name">{shortName(m.away)}</span>
-                                  {m.awayShield && <img className="pub-card__shield" src={m.awayShield} alt="" loading="lazy" />}
+                                  <img className="pub-card__shield" src={shieldFor(m.away, m.awayShield)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                                 </div>
                               </div>
                               {m.venue && <div className="pub-card__venue">📍 {m.venue}</div>}
@@ -656,4 +734,3 @@ export default function PublicTeamSchedule() {
     </div>
   );
 }
-

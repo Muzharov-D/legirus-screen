@@ -238,6 +238,64 @@
   color: #f1f5fb;
   font-weight: 500;
 }
+.public-page__settings-label small {
+  font-weight: 400;
+  color: #94a3c8;
+  margin-left: 4px;
+  font-size: 11px;
+}
+.public-page__settings-toggle.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.public-page__settings-toggle.is-disabled .public-page__settings-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* === WEEK NAVIGATION — две кнопки 'Текущая неделя' / 'Следующая' === */
+.public-page__week-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.public-page__week-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 12px;
+  min-height: 50px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 10px;
+  color: #c5a3a3;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.public-page__week-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+  color: #fff;
+}
+.public-page__week-btn.is-active {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.4) 0%, rgba(120, 20, 20, 0.55) 100%);
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.public-page__week-btn span {
+  font-size: 13px;
+  font-weight: 600;
+}
+.public-page__week-btn small {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
 
 .public-page__footer-link {
   background: none;
@@ -625,45 +683,4 @@
   .cal-month--legirus.cal-month { padding: 12px 6px; }
   .cal-month--legirus .cal-month__title { font-size: 15px; }
   .cal-month--legirus .cal-month__weekday { font-size: 10px; padding: 4px 0; }
-  .cal-month--legirus .cal-month__row { gap: 3px; padding: 1px; }
-  .cal-month--legirus .cal-month__weekday-row { gap: 3px; }
-}
-
-@media (max-width: 380px) {
-  .public-page { padding: 12px 8px 60px; }
-  .public-page__title { font-size: 16px; }
-  .public-page__brand-eyebrow { font-size: 9px; }
-  .public-page__logo { width: 40px; height: 40px; }
-  .public-page__rank-pos { font-size: 24px; }
-  .public-page__rank-meta { font-size: 9px; }
-  .public-page__rank-meta small { font-size: 9px; }
-  .public-page__filter { font-size: 12px; padding: 0 8px; }
-  .pub-card__team { font-size: 14px; gap: 8px; }
-  .pub-card__shield { width: 28px; height: 28px; }
-  .pub-card__score { font-size: 16px; min-width: 56px; }
-  .public-page__action { font-size: 13px; padding: 10px 12px; min-height: 44px; }
-}
-
-@media (min-width: 641px) {
-  .public-page { padding: 24px 16px 80px; }
-  .public-page__head {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "brand ranks";
-    gap: 16px;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    align-items: center;
-  }
-  .public-page__logo { width: 64px; height: 64px; }
-  .public-page__brand-eyebrow { font-size: 11px; }
-  .public-page__title { font-size: 22px; }
-  .public-page__ranks {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .public-page__rank { padding: 10px 16px; min-height: auto; }
-  .public-page__rank-pos { font-size: 32px; }
-  .public-page__rank-meta { font-size: 11px; }
-  .public-page__rank-meta small { font-size: 11px; }
-}
+ 
