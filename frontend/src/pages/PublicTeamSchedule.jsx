@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
+import StandingsModal from '../components/StandingsModal';
 import './PublicTeamSchedule.css';
 
 const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -49,6 +50,7 @@ export default function PublicTeamSchedule() {
   const [openMatch, setOpenMatch] = useState(null);
   const [showSubscribe, setShowSubscribe] = useState(false);
   const [clubRank, setClubRank] = useState(null);
+  const [showStandings, setShowStandings] = useState(null); // 'league' | 'club' | null
 
   // Подменяем PWA-манифест на «команда-specific» когда юзер на публичной странице.
   // start_url=/public/team/:age, чтобы при «Добавить на главный экран» иконка
@@ -65,9 +67,20 @@ export default function PublicTeamSchedule() {
     const originalAppleTitle = appleTitle ? appleTitle.getAttribute('content') : null;
     if (appleTitle) appleTitle.setAttribute('content', 'Легирус ' + age);
 
+    // Tab-title в браузере
+    const originalTitle = document.title;
+    document.title = `ФК Легирус ${age} · Расписание`;
+
+    // theme-color (адресная строка iOS Safari / Android Chrome)
+    let themeColor = document.querySelector('meta[name="theme-color"]');
+    const originalTheme = themeColor ? themeColor.getAttribute('content') : null;
+    if (themeColor) themeColor.setAttribute('content', '#1a0606');
+
     return () => {
       if (original && originalHref) original.setAttribute('href', originalHref);
       if (appleTitle && originalAppleTitle) appleTitle.setAttribute('content', originalAppleTitle);
+      document.title = originalTitle;
+      if (themeColor && originalTheme) themeColor.setAttribute('content', originalTheme);
     };
   }, [age]);
 
@@ -128,28 +141,38 @@ export default function PublicTeamSchedule() {
           <div className="public-page__brand">
             <img src="/assets/logos/legirus.png" alt="" className="public-page__logo" />
             <div>
-              <div className="public-page__brand-eyebrow">АванDата</div>
-              <h1 className="public-page__title">ФК Легирус · {age} г.р.</h1>
+              <div className="public-page__brand-eyebrow">ФК Легирус</div>
+              <h1 className="public-page__title">{age} г.р.</h1>
             </div>
           </div>
           <div className="public-page__ranks">
             {ourRow && (
-              <div className="public-page__rank">
+              <button
+                type="button"
+                className="public-page__rank"
+                onClick={() => setShowStandings('league')}
+                title="Открыть таблицу лиги"
+              >
                 <div className="public-page__rank-pos">{ourRow.pos}</div>
                 <div className="public-page__rank-meta">
                   в лиге {age}<br />
                   <small>{ourRow.points} очк · {ourRow.wins}-{ourRow.draws}-{ourRow.losses}</small>
                 </div>
-              </div>
+              </button>
             )}
             {clubRank?.ourClubRank && (
-              <div className="public-page__rank public-page__rank--club">
+              <button
+                type="button"
+                className="public-page__rank public-page__rank--club"
+                onClick={() => setShowStandings('club')}
+                title="Открыть клубный зачёт"
+              >
                 <div className="public-page__rank-pos">{clubRank.ourClubRank}</div>
                 <div className="public-page__rank-meta">
                   клубный зачёт<br />
                   <small>{clubRank.ourClubStats.points} очк · из {clubRank.totalClubs} клубов</small>
                 </div>
-              </div>
+              </button>
             )}
           </div>
         </header>
@@ -236,12 +259,8 @@ export default function PublicTeamSchedule() {
 
             <footer className="public-page__footer">
               <p>
-                Расписание обновляется автоматически из источника stat.ffspb.org.<br />
+                Расписание обновляется автоматически.<br />
                 Последнее обновление: {cal?.lastUpdated ? new Date(cal.lastUpdated).toLocaleString('ru-RU') : '—'}
-              </p>
-              <p className="public-page__note">
-                Это публичное расписание — общедоступная информация. Личная статистика игроков остаётся приватной;
-                подробности матча и индивидуальные показатели доступны только тренерам и игрокам с авторизацией.
               </p>
             </footer>
           </>
@@ -254,6 +273,16 @@ export default function PublicTeamSchedule() {
           venue={findVenue(openMatch.venue)}
           age={age}
           onClose={() => setOpenMatch(null)}
+        />
+      )}
+
+      {showStandings && (
+        <StandingsModal
+          tab={showStandings}
+          age={age}
+          standings={standings}
+          clubRank={clubRank}
+          onClose={() => setShowStandings(null)}
         />
       )}
 

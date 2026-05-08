@@ -37,13 +37,13 @@ router.get('/standings/:age([0-9]+)', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/club-rank', (_req, res) => {
+router.get('/club-rank', async (_req, res) => {
   try {
     let matcher = 'Легирус';
     if (fs.existsSync(STANDINGS_CONFIG)) {
       try { matcher = JSON.parse(fs.readFileSync(STANDINGS_CONFIG, 'utf-8')).ourClubMatcher || matcher; } catch (_) {}
     }
-    const all = loadAllStandings();
+    const all = await loadAllStandings();
     res.json(buildClubRanking(all, matcher));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -60,11 +60,13 @@ router.get('/manifest/:age([0-9]+).json', (req, res) => {
     scope: '/public/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#07071c',
-    theme_color: '#22d3ee',
+    background_color: '#1a0606',
+    theme_color: '#ef4444',
     icons: [
-      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: '/icons/icon-192-maskable.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+      { src: '/icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       { src: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
     lang: 'ru-RU',

@@ -1,36 +1,51 @@
 // Агрегат всех возрастных standings клуба → общий клубный зачёт.
-// Нормализует имена клубов (Легирус (ЦФКСиЗ ВО) → Легирус) и суммирует метрики.
+// PG-aware: если есть DATABASE_URL — тянет последний snapshot из standings table,
+// иначе fallback на JSON-файлы.
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { isPgEnabled, query } from '../db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const STANDINGS_DIR = path.resolve(__dirname, '..', 'data', 'standings');
 
+// Циклически снимаем organizational-prefix'ы. «ГБУ ДО СШОР Кировского района»
+// → «СШОР Кировского района» → «Кировского района» (тот же ключ что у «СШОР Кировского района»).
+const PREFIX_RE = /^\s*(ГБУ\s+ДО|МОУ|ГБОУ|СШОР|СШ|ФК|ФШМ)\s+/i;
 function normalizeClubName(name) {
-  return String(name || '')
-    .replace(/\s*\([^)]*\)\s*/g, ' ')
-    .replace(/^\s*(ГБУ\s+ДО|СШОР|СШ|ФК|ФШМ|МОУ|ГБОУ)\s+/i, '')
-    .replace(/[№#]\d+/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
+  let s = String(name || '').replace(/\s*\([^)]*\)\s*/g, ' ');
+  for (let i = 0; i < 5; i++) {
+    const next = s.replace(PREFIX_RE, '');
+    if (next === s) break;
+    s = next;
+  }
+  return s.replace(/[№#]\d+/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
 function displayClubName(name) {
   return String(name || '').replace(/\s*\((ЦФКСиЗ\s+ВО|ГБУ\s+ДО)[^)]*\)\s*/i, '').trim();
 }
 
-export function loadAllStandings() {
+// PG-aware: загрузка standings (последняя строка на каждый age_group).
+export async function loadAllStandings() {
+  if (isPgEnabled()) {
+    const r = await query(`
+      SELECT DISTINCT ON (age_group)
+        age_group AS "ageGroup", season, league_name AS title, source_url AS source,
+        table_data AS "table", fetched_at AS "lastUpdated"
+      FROM standings WHERE club_id = 'legirus'
+      ORDER BY age_group, fetched_at DESC`);
+    return r.rows;
+  }
+  // JSON fallback
   if (!fs.existsSync(STANDINGS_DIR)) return [];
   const files = fs.readdirSync(STANDINGS_DIR).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
   const out = [];
   for (const f of files) {
     try {
-      const data = JSON.parse(fs.readFileSync(path.join(STANDINGS_DIR, f), 'utf-8'));
-      out.push(data);
+      out.push(JSON.parse(fs.readFileSync(path.join(STANDINGS_DIR, f), 'utf-8')));
     } catch (_) {}
   }
   return out;
@@ -53,8 +68,8 @@ export function buildClubRanking(allStandings, ourMatcher) {
       cur.wins += +row.wins || 0;
       cur.draws += +row.draws || 0;
       cur.losses += +row.losses || 0;
-      cur.goalsFor += +row.goalsFor || 0;
-      cur.goalsAgainst += +row.goalsAgainst || 0;
+      cur.goalsFor += +row.scored || +row.goalsFor || 0;
+      cur.goalsAgainst += +row.missed || +row.goalsAgainst || 0;
       cur.points += +row.points || 0;
       if (s.ageGroup) cur.ageGroups.push(s.ageGroup);
       if (!cur.shield && row.shield) cur.shield = row.shield;

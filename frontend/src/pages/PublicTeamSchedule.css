@@ -1,6 +1,11 @@
+/* Public-страница ФК Легирус: красно-чёрный градиент, без посторонних брендов. */
+
 .public-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #07071c 0%, #0d1424 100%);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.18) 0%, transparent 55%),
+    radial-gradient(circle at 80% 100%, rgba(220, 38, 38, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #1a0606 0%, #0a0202 100%);
   color: #f1f5fb;
   padding: 24px 16px 80px;
 }
@@ -18,7 +23,7 @@
   gap: 16px;
   margin-bottom: 28px;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.18);
 }
 
 .public-page__brand {
@@ -28,25 +33,30 @@
 }
 
 .public-page__logo {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(220, 38, 38, 0.35));
 }
 
 .public-page__brand-eyebrow {
   font-size: 11px;
-  letter-spacing: 0.12em;
-  color: #22d3ee;
+  letter-spacing: 0.16em;
+  color: #ef4444;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .public-page__title {
   font-size: 22px;
   font-weight: 700;
   margin: 0;
-  color: #f1f5fb;
+  color: #fff;
+  background: linear-gradient(90deg, #fff 0%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .public-page__ranks {
@@ -55,34 +65,45 @@
   flex-wrap: wrap;
 }
 
+/* Кликабельные ранг-блоки */
 .public-page__rank {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  background: rgba(34, 211, 238, 0.08);
-  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(0, 0, 0, 0.4) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.4);
   border-radius: 12px;
+  cursor: pointer;
+  transition: transform 120ms, border-color 120ms, box-shadow 120ms;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
 }
+.public-page__rank:hover {
+  transform: translateY(-1px);
+  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+}
+.public-page__rank:active { transform: translateY(0); }
 
 .public-page__rank--club {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.16) 0%, rgba(0, 0, 0, 0.4) 100%);
+  border-color: rgba(251, 191, 36, 0.4);
 }
-.public-page__rank--club .public-page__rank-pos {
-  color: #f59e0b;
-}
+.public-page__rank--club:hover { border-color: #fbbf24; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.35); }
+.public-page__rank--club .public-page__rank-pos { color: #fbbf24; }
 
 .public-page__rank-pos {
   font-size: 32px;
   font-weight: 800;
-  color: #22d3ee;
+  color: #ef4444;
   line-height: 1;
 }
 
 .public-page__rank-meta {
   font-size: 11px;
-  color: #94a3c8;
+  color: #f1f5fb;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 1.4;
@@ -91,7 +112,7 @@
 .public-page__rank-meta small {
   display: block;
   font-size: 11px;
-  color: #6b7896;
+  color: #c5a3a3;
   margin-top: 2px;
   text-transform: none;
   letter-spacing: 0;
@@ -105,18 +126,19 @@
   width: 100%;
   padding: 14px 16px;
   margin-bottom: 18px;
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
-  border: 1px solid rgba(34, 211, 238, 0.35);
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  border: none;
   border-radius: 10px;
-  color: #22d3ee;
+  color: #fff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 120ms, border-color 120ms;
+  transition: transform 120ms, box-shadow 120ms;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
 }
 .public-page__subscribe:hover {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.18) 0%, rgba(59, 130, 246, 0.18) 100%);
-  border-color: rgba(34, 211, 238, 0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.5);
 }
 .public-page__subscribe span:first-child { font-size: 18px; }
 
@@ -131,8 +153,8 @@
 .public-page__filter {
   padding: 8px 14px;
   background: transparent;
-  color: #94a3c8;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #c5a3a3;
+  border: 1px solid rgba(220, 38, 38, 0.25);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
@@ -141,17 +163,17 @@
 .public-page__filter:first-child { border-radius: 8px 0 0 8px; }
 .public-page__filter:last-of-type { border-radius: 0 8px 8px 0; }
 .public-page__filter + .public-page__filter { border-left: none; }
-.public-page__filter:hover { background: rgba(255, 255, 255, 0.04); color: #f1f5fb; }
+.public-page__filter:hover { background: rgba(220, 38, 38, 0.08); color: #fff; }
 .public-page__filter.is-active {
-  background: rgba(34, 211, 238, 0.18);
-  color: #22d3ee;
-  border-color: rgba(34, 211, 238, 0.5);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.4) 0%, rgba(0, 0, 0, 0.5) 100%);
+  color: #fff;
+  border-color: #ef4444;
 }
 
 .public-page__count {
   margin-left: auto;
   font-size: 13px;
-  color: #94a3c8;
+  color: #c5a3a3;
 }
 
 .public-page__list {
@@ -161,24 +183,24 @@
 }
 
 .pub-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(26, 6, 6, 0.7) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.18);
   border-radius: 12px;
   padding: 14px 16px;
-  transition: background 120ms, border-color 120ms;
+  transition: background 120ms, border-color 120ms, transform 120ms;
 }
 .pub-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(34, 211, 238, 0.25);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(26, 6, 6, 0.85) 100%);
+  border-color: rgba(220, 38, 38, 0.5);
 }
-.pub-card--past { opacity: 0.7; }
+.pub-card--past { opacity: 0.78; }
 
 .pub-card--clickable {
   cursor: pointer;
   user-select: none;
 }
 .pub-card--clickable:hover {
-  border-color: rgba(34, 211, 238, 0.5);
+  border-color: #ef4444;
   transform: translateY(-1px);
 }
 .pub-card--clickable:active { transform: translateY(0); }
@@ -188,7 +210,7 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #94a3c8;
+  color: #c5a3a3;
   margin-bottom: 10px;
   letter-spacing: 0.02em;
 }
@@ -201,12 +223,12 @@
   letter-spacing: 0.05em;
 }
 .pub-card__badge--league {
-  background: rgba(34, 211, 238, 0.15);
-  color: #22d3ee;
+  background: rgba(220, 38, 38, 0.2);
+  color: #ef4444;
 }
 .pub-card__badge--cup {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
 }
 
 .pub-card__teams {
@@ -221,7 +243,7 @@
   align-items: center;
   gap: 10px;
   font-size: 15px;
-  color: #f1f5fb;
+  color: #fff;
   font-weight: 600;
   min-width: 0;
 }
@@ -245,7 +267,7 @@
   height: 32px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 .pub-card__score {
@@ -253,28 +275,28 @@
   min-width: 70px;
   font-size: 18px;
   font-weight: 800;
-  color: #22d3ee;
+  color: #fbbf24;
 }
 
 .pub-card__vs {
   font-size: 13px;
-  color: #6b7896;
+  color: #c5a3a3;
   font-weight: 500;
   letter-spacing: 0.05em;
 }
 
 .pub-card__venue {
   font-size: 12px;
-  color: #6b7896;
+  color: #c5a3a3;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(220, 38, 38, 0.12);
 }
 
 .public-page__empty {
   text-align: center;
   padding: 48px 24px;
-  color: #6b7896;
+  color: #c5a3a3;
   font-size: 14px;
 }
 .public-page__empty--error {
@@ -284,16 +306,11 @@
 .public-page__footer {
   margin-top: 32px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(220, 38, 38, 0.12);
   font-size: 12px;
   color: #6b7896;
   line-height: 1.6;
-}
-.public-page__note {
-  margin-top: 8px;
-  font-size: 11px;
-  font-style: italic;
-  opacity: 0.85;
+  text-align: center;
 }
 
 @media (max-width: 640px) {
