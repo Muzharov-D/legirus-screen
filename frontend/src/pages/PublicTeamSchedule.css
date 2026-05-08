@@ -130,16 +130,21 @@
   text-overflow: ellipsis;
 }
 
-/* === SUBSCRIBE BUTTON — короче текст, ≥48px высота === */
+/* === SUBSCRIBE ROW — кнопка + крестик «скрыть» === */
+.public-page__subscribe-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  align-items: stretch;
+}
 .public-page__subscribe {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  width: 100%;
   min-height: 52px;
   padding: 14px 16px;
-  margin-bottom: 14px;
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
   border: none;
   border-radius: 12px;
@@ -154,6 +159,100 @@
 .public-page__subscribe:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(220, 38, 38, 0.5); }
 .public-page__subscribe:active { transform: scale(0.99); }
 .public-page__subscribe span:first-child { font-size: 18px; }
+
+.public-page__subscribe-dismiss {
+  flex-shrink: 0;
+  width: 44px;
+  min-height: 52px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #c5a3a3;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+.public-page__subscribe-dismiss:hover {
+  background: rgba(220, 38, 38, 0.12);
+  color: #fff;
+  border-color: #ef4444;
+}
+
+/* === SETTINGS row — тогл «Показывать тренировки» === */
+.public-page__settings {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.public-page__settings-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 36px;
+}
+.public-page__settings-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.public-page__settings-track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  transition: background 160ms, border-color 160ms;
+  flex-shrink: 0;
+}
+.public-page__settings-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #c5a3a3;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), background 160ms;
+}
+.public-page__settings-toggle input:checked + .public-page__settings-track {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.55) 0%, rgba(120, 20, 20, 0.5) 100%);
+  border-color: #ef4444;
+}
+.public-page__settings-toggle input:checked + .public-page__settings-track::after {
+  transform: translateX(18px);
+  background: #fff;
+}
+.public-page__settings-toggle input:focus-visible + .public-page__settings-track {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25);
+}
+.public-page__settings-label {
+  font-size: 13px;
+  color: #f1f5fb;
+  font-weight: 500;
+}
+
+.public-page__footer-link {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 8px;
+  margin-top: 4px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  -webkit-tap-highlight-color: transparent;
+}
+.public-page__footer-link:hover { color: #fff; }
 
 /* === FILTERS — segmented control 100% width, 44px height === */
 .public-page__filters {

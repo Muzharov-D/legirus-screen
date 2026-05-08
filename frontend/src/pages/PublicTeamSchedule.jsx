@@ -74,6 +74,24 @@ export default function PublicTeamSchedule() {
   // Сброс выбранного дня при смене месяца или вида
   useEffect(() => { setSelectedDayIso(null); }, [monthCursor, view]);
 
+  // Persisted user preferences — родитель может скрыть кнопку подписки
+  // (если уже подписался) и тренировки (если интересуют только матчи).
+  // Ключи привязаны к команде: чтобы для разных команд настройки помнились отдельно.
+  const PREF_KEY_HIDE_SUBSCRIBE = `legirus.public.hideSubscribe.${age}`;
+  const PREF_KEY_HIDE_TRAININGS = `legirus.public.hideTrainings.${age}`;
+  const [hideSubscribe, setHideSubscribe] = useState(() => {
+    try { return localStorage.getItem(PREF_KEY_HIDE_SUBSCRIBE) === '1'; } catch { return false; }
+  });
+  const [hideTrainings, setHideTrainings] = useState(() => {
+    try { return localStorage.getItem(PREF_KEY_HIDE_TRAININGS) === '1'; } catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(PREF_KEY_HIDE_SUBSCRIBE, hideSubscribe ? '1' : '0'); } catch {}
+  }, [hideSubscribe, PREF_KEY_HIDE_SUBSCRIBE]);
+  useEffect(() => {
+    try { localStorage.setItem(PREF_KEY_HIDE_TRAININGS, hideTrainings ? '1' : '0'); } catch {}
+  }, [hideTrainings, PREF_KEY_HIDE_TRAININGS]);
+
   // Подменяем PWA-манифест на «команда-specific» когда юзер на публичной странице.
   // start_url=/public/team/:age, чтобы при «Добавить на главный экран» иконка
   // открывала расписание команды, а не /club (требующий логин).
@@ -171,17 +189,20 @@ export default function PublicTeamSchedule() {
         (filter === 'past' && m.isPast);
       if (inFilter) items.push({ kind: 'match', date: m.date, data: m });
     }
-    // Тренировки: показываем только в фильтре 'upcoming' и 'all' (past храниться, но не показываем родителям —
-    // приватная посещаемость, родителю они не интересны)
-    if (filter !== 'past') {
+    // Тренировки: показываем только в фильтре 'upcoming' и 'all', и только
+    // если родитель не скрыл их в настройках (hideTrainings).
+    if (filter !== 'past' && !hideTrainings) {
       for (const t of trainings) {
         items.push({ kind: 'training', date: t.startsAt, data: t });
       }
     }
     items.sort((a, b) => new Date(a.date) - new Date(b.date));
     return items;
-  }, [ourMatches, trainings, filter]);
+  }, [ourMatches, trainings, filter, hideTrainings]);
   const filtered = events;
+
+  // Список тренировок для месячного вида с учётом тогла «скрыть тренировки»
+  const visibleTrainings = hideTrainings ? [] : trainings;
 
   // Месячная сетка для view='month'
   const monthGrid = useMemo(() => {
@@ -210,14 +231,14 @@ export default function PublicTeamSchedule() {
     for (const m of ourMatches) {
       const b = bucketFor(m.date); if (b) b.events.push({ kind: 'match', time: m.date, data: m });
     }
-    for (const t of trainings) {
+    for (const t of visibleTrainings) {
       const b = bucketFor(t.startsAt); if (b) b.events.push({ kind: 'training', time: t.startsAt, data: t });
     }
     for (const b of days) b.events.sort((a, b) => new Date(a.time) - new Date(b.time));
     const rows = [];
     for (let i = 0; i < days.length; i += 7) rows.push(days.slice(i, i + 7));
     return { rows, todayWeekKey: isoWeekKey(new Date()) };
-  }, [ourMatches, trainings, monthCursor]);
+  }, [ourMatches, visibleTrainings, monthCursor]);
 
   function shiftMonth(delta) {
     const d = new Date(monthCursor); d.setMonth(d.getMonth() + delta); setMonthCursor(d);
@@ -273,13 +294,23 @@ export default function PublicTeamSchedule() {
           </div>
         </header>
 
-        <button
-          className="public-page__subscribe"
-          onClick={() => setShowSubscribe(true)}
-        >
-          <span>📅</span>
-          <span>{isMobile ? 'Добавить в календарь телефона' : 'Подписаться на расписание в календаре телефона'}</span>
-        </button>
+        {!hideSubscribe && (
+          <div className="public-page__subscribe-row">
+            <button
+              className="public-page__subscribe"
+              onClick={() => setShowSubscribe(true)}
+            >
+              <span>📅</span>
+              <span>{isMobile ? 'Добавить в календарь телефона' : 'Подписаться на расписание в календаре телефона'}</span>
+            </button>
+            <button
+              className="public-page__subscribe-dismiss"
+              onClick={() => setHideSubscribe(true)}
+              title="Скрыть кнопку (всегда можно вернуть из футера)"
+              aria-label="Скрыть кнопку подписки"
+            >✕</button>
+          </div>
+        )}
 
         {loading && <div className="public-page__empty">Загрузка...</div>}
         {error && (
@@ -290,6 +321,19 @@ export default function PublicTeamSchedule() {
 
         {!loading && !error && (
           <>
+            {/* Тогл показа тренировок — родитель может скрыть, если интересуют только матчи. */}
+            <div className="public-page__settings">
+              <label className="public-page__settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={!hideTrainings}
+                  onChange={(e) => setHideTrainings(!e.target.checked)}
+                />
+                <span className="public-page__settings-track" aria-hidden></span>
+                <span className="public-page__settings-label">🏃 Показывать тренировки</span>
+              </label>
+            </div>
+
             {/* Переключатель режима просмотра */}
             <div className="public-page__filters public-page__view-toggle">
               <button
@@ -603,6 +647,15 @@ export default function PublicTeamSchedule() {
                 Расписание обновляется автоматически.<br />
                 Последнее обновление: {cal?.lastUpdated ? new Date(cal.lastUpdated).toLocaleString('ru-RU') : '—'}
               </p>
+              {hideSubscribe && (
+                <p>
+                  <button
+                    type="button"
+                    className="public-page__footer-link"
+                    onClick={() => setHideSubscribe(false)}
+                  >📅 Вернуть кнопку подписки на календарь</button>
+                </p>
+              )}
             </footer>
           </>
         )}

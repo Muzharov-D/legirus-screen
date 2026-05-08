@@ -15,3 +15,7 @@ backend/parsers/tests/__pycache__/
 backend/parsers/intermediate/
 backend/parsers/page_renders/
 *.pyc
+
+# vite hot-config artifacts
+frontend/vite.config.js.timestamp-*.mjs
+ersdmuzharovDocumentsClaudeProjectsİêğàí Ëåãèğóñ
