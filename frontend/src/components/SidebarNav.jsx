@@ -12,7 +12,6 @@ export default function SidebarNav() {
     { id: 'analytics', label: 'Аналитика', path: '/analytics', icon: '◉' },
     { id: 'matches',   label: 'Матч',      path: '/matches',   icon: '⚽' },
     { id: 'calendar',  label: 'Календарь', path: '/calendar',  icon: '📅' },
-    { id: 'week',      label: 'Неделя',    path: '/week',      icon: '📆' },
     isCoach
       ? { id: 'trainings', label: 'Тренировки', path: '/trainings', icon: '🎯' }
       : null,
@@ -26,7 +25,6 @@ export default function SidebarNav() {
     if (item.id === 'analytics') return pathname.startsWith('/analytics');
     if (item.id === 'matches')   return pathname.startsWith('/matches');
     if (item.id === 'calendar')  return pathname.startsWith('/calendar');
-    if (item.id === 'week')      return pathname.startsWith('/week');
     if (item.id === 'trainings') return pathname.startsWith('/trainings');
     if (item.id === 'me')        return pathname === item.path;
     if (item.id === 'players')   return pathname.startsWith('/players');

@@ -38,10 +38,7 @@
   margin: 0 0 4px;
   font-size: 18px; font-weight: 700;
   color: #fff;
-  background: linear-gradient(90deg, #ef4444 0%, #fbbf24 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: 0.01em;
 }
 .sm-sub {
   font-size: 13px; color: #c5a3a3;
@@ -87,7 +84,7 @@
   font-weight: 700;
 }
 .sm-pts b {
-  color: #fbbf24;
+  color: #fff;
 }
 .sm-row--ours {
   background: linear-gradient(90deg, rgba(220, 38, 38, 0.18) 0%, rgba(220, 38, 38, 0) 100%);

@@ -251,6 +251,80 @@
   .mds-cta { padding: 13px 14px; font-size: 14px; }
 }
 
+/* === Theme: Legirus (для public-страницы — красно-чёрный брендбук) === */
+.mds-theme--legirus .mds-sheet {
+  background: linear-gradient(180deg, #1a0606 0%, #0a0202 100%);
+  border-color: rgba(220, 38, 38, 0.4) !important;
+}
+.mds-theme--legirus .mds-close {
+  background: rgba(220, 38, 38, 0.15);
+  color: #fff;
+}
+.mds-theme--legirus .mds-close:hover { background: rgba(220, 38, 38, 0.3); }
+.mds-theme--legirus .mds-badge {
+  background: rgba(220, 38, 38, 0.22);
+  color: #ef4444;
+  border: 1px solid rgba(220, 38, 38, 0.4);
+}
+.mds-theme--legirus .mds-badge--cup {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.mds-theme--legirus .mds-date,
+.mds-theme--legirus .mds-venue-name,
+.mds-theme--legirus .mds-venue-sub,
+.mds-theme--legirus .mds-no-venue,
+.mds-theme--legirus .mds-footer { color: #c5a3a3; }
+.mds-theme--legirus .mds-team { color: #fff; }
+.mds-theme--legirus .mds-vs b { color: #ef4444; }
+.mds-theme--legirus .mds-vs-text { color: #c5a3a3; }
+.mds-theme--legirus .mds-venue {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(220, 38, 38, 0.18);
+}
+.mds-theme--legirus .mds-cta {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+.mds-theme--legirus .mds-cta:hover {
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.5);
+}
+.mds-theme--legirus .mds-cta-icon { filter: brightness(1.2); }
+.mds-theme--legirus .mds-cta-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: #fff;
+}
+.mds-theme--legirus .mds-cta-secondary:hover {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: #ef4444;
+}
+.mds-theme--legirus .mds-events {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(220, 38, 38, 0.18);
+}
+.mds-theme--legirus .mds-events__title { color: #c5a3a3; }
+.mds-theme--legirus .mds-event { border-bottom-color: rgba(220, 38, 38, 0.10); color: #fff; }
+.mds-theme--legirus .mds-event__minute { color: #ef4444; }
+.mds-theme--legirus .mds-event--guest .mds-event__minute { color: #fff; }
+.mds-theme--legirus .mds-event--yellow {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.04) 100%);
+}
+.mds-theme--legirus .mds-event__assist,
+.mds-theme--legirus .mds-event__comment { color: #c5a3a3; }
+
+@media (min-width: 481px) {
+  .mds-theme--legirus .mds-sheet {
+    border-top: 1px solid rgba(220, 38, 38, 0.5);
+    border-left: 1px solid rgba(220, 38, 38, 0.25);
+    border-right: 1px solid rgba(220, 38, 38, 0.25);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.25);
+  }
+}
+
 /* События матча (Sprint 5.5+ FFSPB events) */
 .mds-events {
   margin-top: 16px;

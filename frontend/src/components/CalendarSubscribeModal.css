@@ -1,8 +1,10 @@
+/* Subscribe-модалка для public-страницы — брендбук Легируса (красно-чёрный) */
+
 .csm-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(7, 7, 28, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -17,8 +19,8 @@
 }
 
 .csm-sheet {
-  background: linear-gradient(180deg, #14143c 0%, #0d1424 100%);
-  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: linear-gradient(180deg, #1a0606 0%, #0a0202 100%);
+  border: 1px solid rgba(220, 38, 38, 0.4);
   border-radius: 16px;
   padding: 28px 24px;
   width: 100%;
@@ -26,7 +28,7 @@
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(220, 38, 38, 0.25);
 }
 
 .csm-close {
@@ -36,16 +38,16 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(220, 38, 38, 0.15);
   border: none;
-  color: #d6e2ff;
+  color: #fff;
   font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.csm-close:hover { background: rgba(255, 255, 255, 0.12); }
+.csm-close:hover { background: rgba(220, 38, 38, 0.3); }
 
 .csm-icon {
   font-size: 48px;
@@ -56,14 +58,14 @@
 .csm-title {
   font-size: 20px;
   font-weight: 700;
-  color: #f1f5fb;
+  color: #fff;
   text-align: center;
   margin: 0 0 8px;
 }
 
 .csm-subtitle {
   font-size: 13px;
-  color: #94a3c8;
+  color: #c5a3a3;
   text-align: center;
   line-height: 1.5;
   margin: 0 0 20px;
@@ -78,14 +80,14 @@
 
 .csm-warn {
   padding: 12px 14px;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(220, 38, 38, 0.10);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   border-radius: 8px;
-  color: #d6e2ff;
+  color: #fff;
   font-size: 13px;
   line-height: 1.5;
 }
-.csm-warn b { color: #fbbf24; }
+.csm-warn b { color: #ef4444; }
 
 .csm-btn {
   display: flex;
@@ -104,24 +106,24 @@
 }
 
 .csm-btn--primary {
-  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
-  color: #07071c;
-  box-shadow: 0 4px 12px rgba(34, 211, 238, 0.25);
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
 }
-.csm-btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(34, 211, 238, 0.35); }
+.csm-btn--primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(220, 38, 38, 0.5); }
 
 .csm-btn--secondary {
   background: rgba(255, 255, 255, 0.06);
-  color: #d6e2ff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(220, 38, 38, 0.25);
 }
-.csm-btn--secondary:hover { background: rgba(255, 255, 255, 0.1); }
+.csm-btn--secondary:hover { background: rgba(220, 38, 38, 0.10); border-color: rgba(220, 38, 38, 0.5); }
 
 .csm-divider {
   text-align: center;
   margin: 12px 0;
   position: relative;
-  color: #6b7896;
+  color: #c5a3a3;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -132,7 +134,7 @@
   top: 50%;
   width: calc(50% - 50px);
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(220, 38, 38, 0.18);
 }
 .csm-divider::before { left: 0; }
 .csm-divider::after { right: 0; }
@@ -147,62 +149,62 @@
   flex: 1;
   min-width: 0;
   padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(220, 38, 38, 0.18);
   border-radius: 8px;
-  color: #d6e2ff;
+  color: #fff;
   font-size: 12px;
   font-family: ui-monospace, SFMono-Regular, monospace;
 }
-.csm-url:focus { outline: none; border-color: rgba(34, 211, 238, 0.4); }
+.csm-url:focus { outline: none; border-color: rgba(220, 38, 38, 0.5); }
 
 .csm-copy {
   padding: 10px 14px;
-  background: rgba(34, 211, 238, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.4);
+  background: rgba(220, 38, 38, 0.18);
+  border: 1px solid rgba(220, 38, 38, 0.45);
   border-radius: 8px;
-  color: #22d3ee;
+  color: #fff;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
 }
-.csm-copy:hover { background: rgba(34, 211, 238, 0.22); }
+.csm-copy:hover { background: rgba(220, 38, 38, 0.3); }
 
 .csm-help {
   margin-top: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.12);
 }
 .csm-help summary {
   padding: 12px 14px;
   cursor: pointer;
   font-size: 13px;
-  color: #94a3c8;
+  color: #c5a3a3;
   font-weight: 600;
   user-select: none;
 }
-.csm-help summary:hover { color: #d6e2ff; }
-.csm-help[open] summary { color: #22d3ee; }
+.csm-help summary:hover { color: #fff; }
+.csm-help[open] summary { color: #ef4444; }
 .csm-help-content {
   padding: 0 14px 14px;
   font-size: 12px;
-  color: #94a3c8;
+  color: #c5a3a3;
   line-height: 1.5;
 }
 .csm-help-content h4 {
   margin: 12px 0 4px;
   font-size: 13px;
-  color: #d6e2ff;
+  color: #fff;
 }
 .csm-help-content p { margin: 0; }
-.csm-help-content b { color: #f1f5fb; }
+.csm-help-content b { color: #fff; }
 
 .csm-footer {
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(220, 38, 38, 0.12);
   font-size: 11px;
   color: #6b7896;
   text-align: center;

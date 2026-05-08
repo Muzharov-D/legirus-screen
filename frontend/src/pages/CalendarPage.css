@@ -217,3 +217,92 @@
 .cal-card__roster-btn:hover {
   background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(59, 130, 246, 0.16));
 }
+
+/* === Week view === */
+.calendar-page__view-toggle { margin-right: 8px; }
+
+.calendar-page__week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+@media (max-width: 1100px) { .calendar-page__week-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .calendar-page__week-grid { grid-template-columns: 1fr; } }
+
+.cal-week-day {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 140px;
+}
+.cal-week-day__head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.cal-week-day__title {
+  font-size: 12px; font-weight: 600;
+  color: #94a3c8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cal-week-day__count {
+  background: rgba(34, 211, 238, 0.18);
+  color: #22d3ee;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.cal-week-day__empty {
+  color: #6b7896; font-size: 12px; text-align: center;
+  padding: 20px 0; opacity: 0.5;
+}
+.cal-week-day__events { display: flex; flex-direction: column; gap: 6px; }
+
+.cal-week-card {
+  display: block;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: border-color 120ms;
+  position: relative;
+  text-align: left;
+  color: inherit;
+  font-family: inherit;
+}
+.cal-week-card:hover:not(:disabled) { border-color: rgba(34, 211, 238, 0.4); }
+.cal-week-card:disabled { cursor: default; }
+
+.cal-week-card__time {
+  font-size: 11px; font-weight: 700;
+  color: #22d3ee;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.cal-week-card__title {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: #f1f5fb;
+  margin-top: 4px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cal-week-card__shield { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
+.cal-week-card__venue {
+  font-size: 11px; color: #94a3c8; margin-top: 4px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cal-week-card__sub { font-size: 11px; color: #6b7896; margin-top: 2px; }
+.cal-week-card__badge {
+  position: absolute; top: 6px; right: 6px;
+  background: rgba(245, 158, 11, 0.2); color: #f59e0b;
+  font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 4px; text-transform: uppercase;
+}
+
+.cal-week-card--match    { border-left: 3px solid #22d3ee; }
+.cal-week-card--cup      { border-left-color: #f59e0b; }
+.cal-week-card--training { border-left: 3px solid #22c55e; }
+.cal-week-card--training .cal-week-card__time { color: #22c55e; }

@@ -272,6 +272,7 @@ export default function PublicTeamSchedule() {
           match={openMatch}
           venue={findVenue(openMatch.venue)}
           age={age}
+          theme="legirus"
           onClose={() => setOpenMatch(null)}
         />
       )}

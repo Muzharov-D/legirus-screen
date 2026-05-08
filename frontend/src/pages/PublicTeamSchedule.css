@@ -53,10 +53,7 @@
   font-weight: 700;
   margin: 0;
   color: #fff;
-  background: linear-gradient(90deg, #fff 0%, #fbbf24 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: 0.01em;
 }
 
 .public-page__ranks {
@@ -87,12 +84,16 @@
 }
 .public-page__rank:active { transform: translateY(0); }
 
+/* Клубный зачёт — нейтральный белый/серебро акцент (не путать с лиговым красным) */
 .public-page__rank--club {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.16) 0%, rgba(0, 0, 0, 0.4) 100%);
-  border-color: rgba(251, 191, 36, 0.4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.55) 100%);
+  border-color: rgba(255, 255, 255, 0.25);
 }
-.public-page__rank--club:hover { border-color: #fbbf24; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.35); }
-.public-page__rank--club .public-page__rank-pos { color: #fbbf24; }
+.public-page__rank--club:hover {
+  border-color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.18);
+}
+.public-page__rank--club .public-page__rank-pos { color: #fff; }
 
 .public-page__rank-pos {
   font-size: 32px;
@@ -223,12 +224,14 @@
   letter-spacing: 0.05em;
 }
 .pub-card__badge--league {
-  background: rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.22);
   color: #ef4444;
+  border: 1px solid rgba(220, 38, 38, 0.4);
 }
 .pub-card__badge--cup {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .pub-card__teams {
@@ -275,8 +278,9 @@
   min-width: 70px;
   font-size: 18px;
   font-weight: 800;
-  color: #fbbf24;
+  color: #fff;
 }
+.pub-card__score b { color: #ef4444; }
 
 .pub-card__vs {
   font-size: 13px;

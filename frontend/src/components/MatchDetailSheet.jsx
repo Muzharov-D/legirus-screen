@@ -30,7 +30,7 @@ function buildYandexMapsUrl(venue, coords) {
   return null;
 }
 
-export default function MatchDetailSheet({ match, venue, age, onClose }) {
+export default function MatchDetailSheet({ match, venue, age, onClose, theme = 'default' }) {
   // Esc для закрытия
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -55,7 +55,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose }) {
     : null;
 
   return (
-    <div className="mds-backdrop" onClick={onClose}>
+    <div className={`mds-backdrop mds-theme--${theme}`} onClick={onClose}>
       <div className="mds-sheet" onClick={(e) => e.stopPropagation()}>
         <button className="mds-close" onClick={onClose} aria-label="Закрыть">✕</button>
 

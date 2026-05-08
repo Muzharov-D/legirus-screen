@@ -15,7 +15,6 @@ import PlayersRating from './pages/PlayersRating';
 import PlayerDetail from './pages/PlayerDetail';
 import CalendarPage from './pages/CalendarPage';
 import TrainingsPage from './pages/TrainingsPage';
-import WeekPage from './pages/WeekPage';
 import PublicTeamSchedule from './pages/PublicTeamSchedule';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
@@ -42,7 +41,6 @@ export default function App() {
                 <Route path="/matches/:matchId" element={<MatchDetail />} />
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/trainings" element={<TrainingsPage />} />
-                <Route path="/week" element={<WeekPage />} />
                 <Route path="/players" element={<PlayersLeaders />} />
                 <Route path="/players/rating" element={<PlayersRating />} />
                 <Route path="/players/:playerId" element={<PlayerDetail />} />
