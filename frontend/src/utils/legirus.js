@@ -8,9 +8,11 @@ export const LEGIRUS_TEAM_IDS = new Set([
   'legirus-2010', 'legirus-2011', 'legirus-2012', 'legirus-2013',
 ]);
 
-// Распознавание по имени — fallback когда нет teamId
+// Распознавание по имени — простой case-insensitive substring.
+// (Не используем \b word-boundary — в JS regex он работает только с ASCII,
+// для кириллицы \bлегирус\b НИКОГДА не матчит. Подстрока надёжнее.)
 export function isLegirus(name) {
-  return /\bлегирус\b/i.test(String(name || ''));
+  return String(name || '').toLowerCase().includes('легирус');
 }
 
 // Подмена щита команды на наш локальный лого, если это Легирус
