@@ -83,17 +83,10 @@ router.post('/change-password', changeLimiter, authenticate, async (req, res) =>
     if (!ok) return res.status(401).json({ error: 'Неверный текущий пароль' });
 
     const newHash = bcrypt.hashSync(String(newPassword), 10);
-    if (isPgEnabled()) {
-      await query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [newHash, user.id]);
-    } else {
-      // JSON-fallback path (на проде не используется, но безопасности ради)
-      const { listUsers, persist } = await import('../services/userStore.js');
-      const users = (await listUsers()) || [];
-      const idx = users.findIndex((u) => u.id === user.id);
-      if (idx === -1) return res.status(500).json({ error: 'PG недоступен и пользователь не найден в JSON' });
-      users[idx].passwordHash = newHash;
-      await persist(users);
-    }
+    // updatePassword обновляет ТОЛЬКО hash одного юзера, без побочки для остальных
+    // (старый путь через listUsers+persist стирал password_hash у всех остальных в JSON-режиме)
+    const { updatePassword } = await import('../services/userStore.js');
+    await updatePassword(user.id, newHash);
     res.json({ ok: true });
   } catch (e) {
     console.error('[auth/change-password] crash:', e.message);

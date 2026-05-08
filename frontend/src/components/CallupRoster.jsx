@@ -8,6 +8,7 @@ import {
   fetchCallupsByMatch, callPlayers, removeFromCallup, respondCallup,
   fetchPlayers,
 } from '../services/api';
+import { getToken } from '../services/api';
 import './CallupRoster.css';
 
 const STATUS_LABELS = {
@@ -22,7 +23,7 @@ const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 const PREFIX = `${apiBase.replace(/\/+$/, '')}/api`;
 
 async function notifyAll(age, extMatchId) {
-  const token = localStorage.getItem('legirus.auth.token');
+  const token = getToken();
   const res = await fetch(`${PREFIX}/callups/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}/notify`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },

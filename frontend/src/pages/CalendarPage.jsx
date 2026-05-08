@@ -13,6 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import CallupRoster from '../components/CallupRoster';
 import MatchDetailSheet from '../components/MatchDetailSheet';
 import TrainingDetailSheet from '../components/TrainingDetailSheet';
+import { shieldFor, isLegirus } from '../utils/legirus';
 import './CalendarPage.css';
 
 const FILTERS = [
@@ -334,7 +335,7 @@ export default function CalendarPage() {
                     </div>
                     <div className="cal-card__teams">
                       <div className="cal-card__team cal-card__team--home">
-                        {m.homeShield && <img className="cal-card__shield" src={m.homeShield} alt="" loading="lazy" />}
+                        <img className="cal-card__shield" src={shieldFor(m.home, m.homeShield)} alt="" loading="lazy" onError={(e)=>{e.currentTarget.style.visibility='hidden';}} />
                         <span className="cal-card__team-name">{shortName(m.home)}</span>
                       </div>
                       <div className="cal-card__score">
@@ -344,7 +345,7 @@ export default function CalendarPage() {
                       </div>
                       <div className="cal-card__team cal-card__team--away">
                         <span className="cal-card__team-name">{shortName(m.away)}</span>
-                        {m.awayShield && <img className="cal-card__shield" src={m.awayShield} alt="" loading="lazy" />}
+                        <img className="cal-card__shield" src={shieldFor(m.away, m.awayShield)} alt="" loading="lazy" onError={(e)=>{e.currentTarget.style.visibility='hidden';}} />
                       </div>
                     </div>
                     {m.venue && <div className="cal-card__venue">📍 {m.venue}</div>}
@@ -398,7 +399,7 @@ export default function CalendarPage() {
                           {d.events.map((e, i) => {
                             if (e.type === 'match') {
                               const m = e.data;
-                              const ourHome = (m.home || '').toLowerCase().includes('легирус');
+                              const ourHome = isLegirus(m.home);
                               const opp = ourHome ? m.away : m.home;
                               return (
                                 <button
@@ -474,8 +475,6 @@ export default function CalendarPage() {
       {openCallup && (
         <CallupRoster
           match={openCallup}
-          age={age}
-          teamId={selectedTeam?.id || `legirus-${age}`}
           onClose={() => setOpenCallup(null)}
         />
       )}

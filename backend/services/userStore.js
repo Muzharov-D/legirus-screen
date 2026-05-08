@@ -74,6 +74,24 @@ export async function verifyPassword(user, password) {
 
 export function getUsersFilePath() { return USERS_PATH; }
 
+// Безопасное обновление пароля одного пользователя — НЕ через listUsers()/persist(),
+// которые в JSON-режиме теряют password_hash у остальных юзеров (P0 из code review).
+export async function updatePassword(userId, newPasswordHash) {
+  if (!userId || !newPasswordHash) throw new Error('userId и newPasswordHash обязательны');
+  if (isPgEnabled()) {
+    await query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [newPasswordHash, userId]);
+    invalidateUsersCache();
+    return true;
+  }
+  const data = load();
+  const idx = (data.users || []).findIndex((u) => u.id === userId);
+  if (idx === -1) throw new Error('User not found');
+  data.users[idx].passwordHash = newPasswordHash;
+  fs.writeFileSync(USERS_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  invalidateUsersCache();
+  return true;
+}
+
 export async function listUsers() {
   if (isPgEnabled()) {
     const r = await query(
@@ -89,7 +107,7 @@ export async function listUsers() {
 }
 
 export async function persist(users) {
-  // PG: применяем по одному UPSERT (full sync — сначала truncate? нет, безопаснее merge)
+  // PG: UPSERT по каждому, без truncate
   if (isPgEnabled()) {
     for (const u of users) {
       await query(
@@ -97,19 +115,23 @@ export async function persist(users) {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($9::timestamptz, NOW()))
          ON CONFLICT (id) DO UPDATE SET
            username = EXCLUDED.username,
-           password_hash = EXCLUDED.password_hash,
+           password_hash = COALESCE(EXCLUDED.password_hash, users.password_hash),
            full_name = EXCLUDED.full_name,
            role = EXCLUDED.role,
            team_id = EXCLUDED.team_id,
-           player_id = EXCLUDED.player_id`,
+           player_id = EXCLUDED.player_id,
+           club_id = EXCLUDED.club_id`,
         [u.id, u.username, u.passwordHash, u.fullName, u.role,
-         u.teamId || null, u.playerId || null, u.clubId || 'legirus', u.createdAt || null]);
+         u.teamId, u.playerId, u.clubId, u.createdAt]
+      );
     }
-    return;
+    invalidateUsersCache();
+    return true;
   }
-  // JSON fallback
-  const dir = path.dirname(USERS_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(USERS_PATH, JSON.stringify({ users }, null, 2), 'utf-8');
+  // JSON
+  const tmp = USERS_PATH + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify({ users }, null, 2), 'utf-8');
+  fs.renameSync(tmp, USERS_PATH);
   invalidateUsersCache();
+  return true;
 }

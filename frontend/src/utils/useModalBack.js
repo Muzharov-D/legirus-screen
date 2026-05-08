@@ -2,29 +2,30 @@
 // Открытие модалки → pushState; popstate (back/swipe) → onClose;
 // Закрытие через крестик → cleanup делает history.back() для синхронизации.
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function useModalBack(onClose, isOpen = true) {
+  // Ref на актуальный onClose — чтобы избежать stale-closure
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
     let closedByBack = false;
-    // Маркер чтобы отличить нашу history-entry от существующих
     window.history.pushState({ legirusModal: true, ts: Date.now() }, '');
 
     const onPop = () => {
       closedByBack = true;
-      // Защита от двойного onClose: cleanup проверит флаг
-      if (typeof onClose === 'function') onClose();
+      const cb = onCloseRef.current;
+      if (typeof cb === 'function') cb();
     };
     window.addEventListener('popstate', onPop);
 
     return () => {
       window.removeEventListener('popstate', onPop);
-      // Если модалка закрылась через крестик/Escape/клик-по-фону — синхронизируем history,
-      // чтобы back из основной страницы ещё работал нормально
       if (!closedByBack && window.history.state?.legirusModal) {
         try { window.history.back(); } catch {}
       }
     };
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 }

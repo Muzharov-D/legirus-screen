@@ -34,13 +34,27 @@ const WEEKS_AHEAD = 4;
 const NOW = new Date();
 let SYSTEM_USER = null;
 
+// СПб = МСК = UTC+3 круглый год (с 2014-го без перехода на летнее).
+// Render работает в UTC, поэтому простой setHours(19,30) пишет 19:30 UTC = 22:30 Москва.
+// Делаем дату в UTC так, чтобы при показе в Москве она была hour:minute.
+const MSK_OFFSET_HOURS = 3;
 function nextOccurrence(weekOffset, dow, hour, minute) {
-  const d = new Date(NOW);
-  d.setHours(hour, minute, 0, 0);
-  const currentDow = ((d.getDay() + 6) % 7) + 1;
-  let delta = dow - currentDow;
-  if (delta < 0 || (delta === 0 && d <= NOW)) delta += 7;
-  d.setDate(d.getDate() + delta + (weekOffset * 7));
+  const nowUtc = new Date();
+  // Текущий день недели в МСК (а не в UTC процесса)
+  const nowMsk = new Date(nowUtc.getTime() + MSK_OFFSET_HOURS * 3600 * 1000);
+  const currentDowMsk = ((nowMsk.getUTCDay() + 6) % 7) + 1; // 1=ПН ... 7=ВС
+
+  // Целевая дата = "сегодня в МСК" с временем hour:minute, потом сдвиг до нужного dow
+  const d = new Date(Date.UTC(
+    nowMsk.getUTCFullYear(),
+    nowMsk.getUTCMonth(),
+    nowMsk.getUTCDate(),
+    hour - MSK_OFFSET_HOURS, // компенсируем оффсет: 19 МСК = 16 UTC
+    minute, 0, 0
+  ));
+  let delta = dow - currentDowMsk;
+  if (delta < 0 || (delta === 0 && d.getTime() <= nowUtc.getTime())) delta += 7;
+  d.setUTCDate(d.getUTCDate() + delta + (weekOffset * 7));
   return d;
 }
 
@@ -92,7 +106,7 @@ async function seedTeam(teamId) {
       console.log(`  [CREATE]         ${iso}`);
       created++;
     }
-  }
+   }
   console.log(`  → создано: ${created}, дубли: ${skipped}, конфликты с матчами: ${conflicts}`);
 }
 

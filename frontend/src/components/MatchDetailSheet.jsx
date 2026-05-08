@@ -3,6 +3,7 @@
 
 import { useEffect } from 'react';
 import useModalBack from '../utils/useModalBack';
+import { shieldFor } from '../utils/legirus';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
@@ -17,13 +18,7 @@ function shortName(name) {
   return cleaned.split(' ').slice(0, 3).join(' ');
 }
 
-// Подмена некачественного логотипа Легируса с FFSPB на наш локальный
-function isLegirus(name) {
-  return String(name || '').toLowerCase().includes('легирус');
-}
-function shieldFor(name, fallback) {
-  return isLegirus(name) ? '/icons/legirus.png' : fallback;
-}
+// shieldFor() и isLegirus() — из utils/legirus (single source of truth)
 
 function fmtDate(iso) {
   if (!iso) return '—';

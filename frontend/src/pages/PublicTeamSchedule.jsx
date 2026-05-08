@@ -12,6 +12,7 @@ import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import StandingsModal from '../components/StandingsModal';
 import PublicTeamHeader from '../components/PublicTeamHeader';
 import { tierForAge } from '../utils/ageRating';
+import { shieldFor, isLegirus } from '../utils/legirus';
 import './PublicTeamSchedule.css';
 import './CalendarPage.css';
 
@@ -25,14 +26,7 @@ const FILTERS = [
   { id: 'all',      label: 'Все' },
 ];
 
-// Локальный лого Легируса для подмены некачественного с федерации
-const LEGIRUS_LOCAL_SHIELD = '/icons/legirus.png';
-function isLegirusName(name) {
-  return String(name || '').toLowerCase().includes('легирус');
-}
-function shieldFor(teamName, fallbackUrl) {
-  return isLegirusName(teamName) ? LEGIRUS_LOCAL_SHIELD : fallbackUrl;
-}
+// shieldFor импортируется из utils/legirus — единая точка для всего проекта
 
 // ISO-неделя: ПН 00:00:00.001 — ВС 23:59:59.999. offset 0 — текущая, +1 — следующая.
 function getWeekRange(offset = 0) {
@@ -571,7 +565,7 @@ export default function PublicTeamSchedule() {
                                   {d.events.map((e, i) => {
                                     if (e.kind === 'match') {
                                       const m = e.data;
-                                      const ourHome = (m.home || '').toLowerCase().includes('легирус');
+                                      const ourHome = isLegirus(m.home);
                                       const opp = ourHome ? m.away : m.home;
                                       return (
                                         <button

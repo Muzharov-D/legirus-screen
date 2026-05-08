@@ -20,6 +20,7 @@ export default function AttendanceBlock({ teamId, playerId }) {
 
   useEffect(() => {
     if (!teamId || !playerId) return;
+    let cancelled = false;
     setLoading(true);
     setErr(null);
     const cur = PERIODS.find((p) => p.id === period);
@@ -29,9 +30,10 @@ export default function AttendanceBlock({ teamId, playerId }) {
       params.from = from.toISOString();
     }
     fetchPlayerAttendanceStats(teamId, playerId, params)
-      .then((r) => setStats(r.stats || null))
-      .catch((e) => setErr(e.message))
-      .finally(() => setLoading(false));
+      .then((r) => { if (!cancelled) setStats(r.stats || null); })
+      .catch((e) => { if (!cancelled) setErr(e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [teamId, playerId, period]);
 
   if (!teamId || !playerId) return null;
