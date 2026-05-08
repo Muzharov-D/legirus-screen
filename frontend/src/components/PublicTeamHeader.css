@@ -8,11 +8,31 @@
 }
 
 .public-header__row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 6px 0 14px;
+  padding: 12px 0 18px;
+}
+/* Волна-подложка под логотипами и центральным U17 */
+.public-header__row::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 110%;
+  background: url('/icons/wave.png') center / 100% 100% no-repeat;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Контент row выше волны-подложки */
+.public-header__row > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* === Платформа АванDата (слева) — длинный лого === */
@@ -229,13 +249,13 @@
 @media (max-width: 380px) {
   .public-header__platform-logo { height: 26px; }
   .public-header__club-name { font-size: 11px; }
-  .public-header__club-tier { font-size: 14px; }
   .public-header__club-logo { width: 36px; height: 36px; }
   .public-header__age-tier { font-size: 11px; }
   .public-header__age-year { font-size: 9px; }
   .public-header__rank-pos { font-size: 22px; }
   .public-header__age-btn { padding: 4px 0; min-height: 40px; }
   .public-header__age-switcher { gap: 4px; padding: 3px; }
+  .public-header__row::before { height: 130%; }
 }
 
 @media (min-width: 641px) {

@@ -62,9 +62,6 @@ export default function PublicTeamHeader({
         </button>
       </div>
 
-      {/* Декоративная волна — прямо под лого, перед свитчером команд */}
-      <div className="public-page__wave" aria-hidden="true"></div>
-
       <nav className="public-header__age-switcher" aria-label="Выбор команды">
         {AGE_GROUPS_REV.map((a) => (
           <button
