@@ -254,68 +254,6 @@
 }
 .public-page__footer-link:hover { color: #fff; }
 
-/* === ACTION BAR — две кнопки внизу: календарь + поделиться === */
-.public-page__actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 18px;
-  margin-bottom: 8px;
-}
-.public-page__action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 120ms, box-shadow 120ms, background 120ms;
-}
-.public-page__action:active { transform: scale(0.98); }
-
-.public-page__action--secondary {
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(220, 38, 38, 0.35);
-  color: #fff;
-}
-.public-page__action--secondary:hover {
-  background: rgba(220, 38, 38, 0.12);
-  border-color: #ef4444;
-}
-
-.public-page__action--primary {
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-  border: none;
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
-}
-.public-page__action--primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.5);
-}
-
-.public-page__action span:first-child { font-size: 16px; }
-
-/* === АДАПТИВНАЯ ВЫСОТА КАРТОЧЕК === */
-/* Маленький телефон (<=640w * <=720h) — 2 события без скролла */
-.pub-card { min-height: 76px; }
-
-/* Средние телефоны (>=720h) — 3 события без скролла */
-@media (min-height: 720px) {
-  .pub-card { min-height: 90px; }
-}
-
-/* Высокие экраны (>=900h) — 4 события без скролла */
-@media (min-height: 900px) {
-  .pub-card { min-height: 102px; }
-}
-
 /* === FILTERS — segmented control 100% width, 44px height === */
 .public-page__filters {
   display: flex;
@@ -578,12 +516,15 @@
 }
 .cal-month--legirus .cal-month__event--cup .cal-month__event-time { color: #fff; }
 
+/* Подсветка выбранного дня (для mobile dot-grid) */
 .cal-month--legirus .cal-month__day--selected {
   border-color: #ef4444;
   box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.45), inset 0 0 0 1px rgba(220, 38, 38, 0.4);
 }
 
+/* === MOBILE: dot-grid вид календаря на узких экранах === */
 @media (max-width: 640px) {
+  /* Сам день кликабелен целиком — большой touch target */
   .cal-month--legirus .cal-month__day {
     min-height: 56px;
     padding: 6px 4px 8px;
@@ -591,6 +532,8 @@
     -webkit-tap-highlight-color: transparent;
   }
   .cal-month--legirus .cal-month__day:active { transform: scale(0.95); }
+
+  /* Скрываем расширенный контент карточки события — оставляем точку */
   .cal-month--legirus .cal-month__events {
     flex-direction: row;
     gap: 4px;
@@ -622,13 +565,14 @@
     text-align: center;
     margin-bottom: 0;
   }
-  .cal-month--legirus.cal-month { padding: 12px 6px; }
+  .cal-month--legirus .cal-month { padding: 12px 6px; }
   .cal-month--legirus .cal-month__title { font-size: 15px; }
   .cal-month--legirus .cal-month__weekday { font-size: 10px; padding: 4px 0; }
   .cal-month--legirus .cal-month__row { gap: 3px; padding: 1px; }
   .cal-month--legirus .cal-month__weekday-row { gap: 3px; }
 }
 
+/* Очень узкие экраны iPhone SE 1st gen / Galaxy Fold closed */
 @media (max-width: 380px) {
   .public-page { padding: 12px 8px 60px; }
   .public-page__title { font-size: 16px; }
@@ -641,9 +585,10 @@
   .pub-card__team { font-size: 14px; gap: 8px; }
   .pub-card__shield { width: 28px; height: 28px; }
   .pub-card__score { font-size: 16px; min-width: 56px; }
-  .public-page__action { font-size: 13px; padding: 10px 12px; min-height: 44px; }
+  .public-page__subscribe { font-size: 14px; padding: 12px 14px; min-height: 48px; }
 }
 
+/* Tablet/Desktop — возвращаем горизонтальный layout заголовка */
 @media (min-width: 641px) {
   .public-page { padding: 24px 16px 80px; }
   .public-page__head {

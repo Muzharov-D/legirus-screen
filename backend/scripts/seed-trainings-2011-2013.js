@@ -1,46 +1,42 @@
 // Создаёт регулярные тренировки на 4 недели вперёд для 2011 / 2012 / 2013.
-// Запуск: NODE_ENV=production node backend/scripts/seed-trainings-2011-2013.js
+// Запуск: NODE_ENV=production node scripts/seed-trainings-2011-2013.js (из ~/project/src/backend)
 //
-// Расписание (предоставлено head_coach):
+// Расписание:
 //   2013 (U14): ПН 18:00-19:30, СР 17:45-19:15, ПТ 19:30-21:00
 //   2012 (U15): ПН 19:30-21:00, СР 17:45-19:15, ПТ 19:30-21:00
 //   2011 (U16): ВТ 18:00-19:30, ЧТ 19:30-21:00, ПТ 19:30-21:00
 //
-// Площадка по умолчанию — "Нова Арена" (как у 2010). При наличии match-collision
-// в тот же день — слот пропускается.
+// Автор записей берётся первый head_coach из таблицы users (FK constraint).
 
 import { createTraining, listTrainings } from '../services/trainingsRepo.js';
 import { isPgEnabled, query } from '../db/pool.js';
 
 const SCHEDULES = {
   'legirus-2013': [
-    { dow: 1, hour: 18, minute: 0, durationMin: 90 }, // ПН 18:00-19:30
-    { dow: 3, hour: 17, minute: 45, durationMin: 90 }, // СР 17:45-19:15
-    { dow: 5, hour: 19, minute: 30, durationMin: 90 }, // ПТ 19:30-21:00
+    { dow: 1, hour: 18, minute: 0, durationMin: 90 },
+    { dow: 3, hour: 17, minute: 45, durationMin: 90 },
+    { dow: 5, hour: 19, minute: 30, durationMin: 90 },
   ],
   'legirus-2012': [
-    { dow: 1, hour: 19, minute: 30, durationMin: 90 }, // ПН 19:30-21:00
-    { dow: 3, hour: 17, minute: 45, durationMin: 90 }, // СР 17:45-19:15
-    { dow: 5, hour: 19, minute: 30, durationMin: 90 }, // ПТ 19:30-21:00
+    { dow: 1, hour: 19, minute: 30, durationMin: 90 },
+    { dow: 3, hour: 17, minute: 45, durationMin: 90 },
+    { dow: 5, hour: 19, minute: 30, durationMin: 90 },
   ],
   'legirus-2011': [
-    { dow: 2, hour: 18, minute: 0, durationMin: 90 },  // ВТ 18:00-19:30
-    { dow: 4, hour: 19, minute: 30, durationMin: 90 }, // ЧТ 19:30-21:00
-    { dow: 5, hour: 19, minute: 30, durationMin: 90 }, // ПТ 19:30-21:00
+    { dow: 2, hour: 18, minute: 0, durationMin: 90 },
+    { dow: 4, hour: 19, minute: 30, durationMin: 90 },
+    { dow: 5, hour: 19, minute: 30, durationMin: 90 },
   ],
 };
 
 const VENUE = 'Нова Арена';
 const WEEKS_AHEAD = 4;
 const NOW = new Date();
-const SYSTEM_USER = { id: 'seed-script', fullName: 'seed-script', role: 'head_coach' };
+let SYSTEM_USER = null;
 
-// Возвращает ближайший в будущем дату с указанными dow/hour/minute (СПб таймзона +03)
 function nextOccurrence(weekOffset, dow, hour, minute) {
-  // dow: 1=ПН ... 7=ВС
   const d = new Date(NOW);
   d.setHours(hour, minute, 0, 0);
-  // currentDow: 1..7 (ПН=1)
   const currentDow = ((d.getDay() + 6) % 7) + 1;
   let delta = dow - currentDow;
   if (delta < 0 || (delta === 0 && d <= NOW)) delta += 7;
@@ -103,6 +99,15 @@ async function seedTeam(teamId) {
 (async () => {
   console.log('Seeding regular trainings for 2011/2012/2013...');
   console.log('PG enabled:', isPgEnabled());
+
+  const heads = await query(`SELECT id, full_name FROM users WHERE role = 'head_coach' LIMIT 1`);
+  if (!heads || heads.length === 0) {
+    console.error('Нет ни одного head_coach в users — сначала создайте аккаунт.');
+    process.exit(1);
+  }
+  SYSTEM_USER = { id: heads[0].id, fullName: heads[0].full_name, role: 'head_coach' };
+  console.log(`Author: ${SYSTEM_USER.fullName} (${SYSTEM_USER.id})`);
+
   for (const teamId of Object.keys(SCHEDULES)) {
     await seedTeam(teamId);
   }
