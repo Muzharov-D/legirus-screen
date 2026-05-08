@@ -4,9 +4,7 @@
 .public-page {
   position: relative;
   min-height: 100vh;
-  /* Волна — слой 1 (сразу над базовым градиентом). Repeat-y чтобы шла через весь скролл */
   background:
-    url('/icons/wave.png') top center / 100% auto repeat-y,
     radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.18) 0%, transparent 55%),
     radial-gradient(circle at 80% 100%, rgba(220, 38, 38, 0.12) 0%, transparent 50%),
     linear-gradient(180deg, #1a0606 0%, #0a0202 100%);
@@ -20,6 +18,20 @@
 .public-page__container {
   max-width: 800px;
   margin: 0 auto;
+}
+
+/* Декоративная волна — два разделителя: под шапкой и в самом низу страницы */
+.public-page__wave {
+  height: 60px;
+  background: url('/icons/wave.png') center / contain no-repeat;
+  margin: 4px 0 12px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.public-page__wave--bottom {
+  margin: 16px 0 4px;
+  opacity: 0.5;
+  transform: scaleX(-1); /* зеркалим, чтобы низ не был копией верха */
 }
 
 .public-page__container {
@@ -740,10 +752,10 @@
 
 @media (max-width: 380px) {
   .public-page { padding: 12px 8px 60px; }
-  .public-page__title { font-size: 16px; }
   .public-page__filter { font-size: 12px; padding: 0 8px; }
   .pub-card__team { font-size: 14px; gap: 8px; }
   .pub-card__shield { width: 28px; height: 28px; }
   .pub-card__score { font-size: 16px; min-width: 56px; }
   .public-page__action { font-size: 13px; padding: 10px 12px; min-height: 44px; }
+  .public-page__wave { height: 40px; }
 }
