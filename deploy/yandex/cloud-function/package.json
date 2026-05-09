@@ -1,0 +1,10 @@
+{
+  "name": "legirus-api-proxy",
+  "version": "1.0.0",
+  "description": "Yandex Cloud Function: proxy /api/* requests to Render",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  }
+}

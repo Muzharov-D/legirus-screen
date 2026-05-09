@@ -1,0 +1,101 @@
+name: Deploy to Yandex Cloud
+
+# Деплой фронта в Yandex Object Storage с правильными Cache-Control.
+# Триггеры: push в main с изменениями фронта, или ручной запуск.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-yandex.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Configure AWS CLI for Yandex S3
+        run: |
+          aws configure set aws_access_key_id "${{ secrets.YC_S3_ACCESS_KEY }}"
+          aws configure set aws_secret_access_key "${{ secrets.YC_S3_SECRET_KEY }}"
+          aws configure set region ru-central1
+          aws configure set default.s3.signature_version s3v4
+
+      # ───────── 1. Vite ассеты с хешем — immutable forever ─────────
+      - name: Sync /assets/* (immutable)
+        run: |
+          aws s3 sync frontend/dist/assets/ s3://${{ secrets.YC_BUCKET }}/assets/ \
+            --cache-control "public, max-age=31536000, immutable" \
+            --endpoint-url https://storage.yandexcloud.net \
+            --delete
+
+      # ───────── 2. Иконки и manifest — длинный кеш ─────────
+      - name: Sync /icons/* (week)
+        run: |
+          aws s3 sync frontend/dist/icons/ s3://${{ secrets.YC_BUCKET }}/icons/ \
+            --cache-control "public, max-age=604800" \
+            --endpoint-url https://storage.yandexcloud.net \
+            --delete
+
+      # ───────── 3. Service Worker — НИКОГДА не кешируем (важно для авто-обновления PWA!) ─────────
+      - name: Upload sw.js (no-store)
+        run: |
+          aws s3 cp frontend/dist/sw.js s3://${{ secrets.YC_BUCKET }}/sw.js \
+            --cache-control "no-store, no-cache, must-revalidate" \
+            --content-type "application/javascript; charset=utf-8" \
+            --endpoint-url https://storage.yandexcloud.net
+
+      # ───────── 4. index.html — no-cache (всегда свежий, чтобы JS-хеши обновились) ─────────
+      - name: Upload index.html (no-cache)
+        run: |
+          aws s3 cp frontend/dist/index.html s3://${{ secrets.YC_BUCKET }}/index.html \
+            --cache-control "no-cache, must-revalidate" \
+            --content-type "text/html; charset=utf-8" \
+            --endpoint-url https://storage.yandexcloud.net
+
+      # ───────── 5. Остальное (favicon и т.п.) ─────────
+      - name: Sync остальные файлы
+        run: |
+          aws s3 sync frontend/dist/ s3://${{ secrets.YC_BUCKET }}/ \
+            --exclude "assets/*" \
+            --exclude "icons/*" \
+            --exclude "sw.js" \
+            --exclude "index.html" \
+            --cache-control "public, max-age=3600" \
+            --endpoint-url https://storage.yandexcloud.net \
+            --delete
+
+      # ───────── 6. Сброс кеша Yandex CDN (если используется) ─────────
+      - name: Purge Yandex CDN
+        if: ${{ secrets.YC_CDN_RESOURCE_ID != '' }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.YC_IAM_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "https://cdn.api.cloud.yandex.net/cdn/v1/cache/${{ secrets.YC_CDN_RESOURCE_ID }}:purge" \
+            -d '{"paths":["/*"]}'
+
+      - name: Verify deploy
+        run: |
+          echo "=== HEAD https://${{ secrets.YC_TEST_DOMAIN }} ==="
+          curl -sI "https://${{ secrets.YC_TEST_DOMAIN }}/" | head -n 8 || true
