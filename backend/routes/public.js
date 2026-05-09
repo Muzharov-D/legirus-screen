@@ -16,8 +16,10 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://legirus.sportdata.tech
 const router = express.Router();
 
 // Cache helper — Vercel edge кеширует ответ, браузеру всегда отдаём свежее.
-// s-maxage = TTL на CDN, stale-while-revalidate = пока пересобираем, отдаём старое.
-function cdnCache(res, ttlSec = 300, swrSec = 60) {
+// s-maxage = TTL свежего кеша; stale-while-revalidate = окно, в которое edge
+// мгновенно отдаёт устаревший ответ и в фоне просит у Render новый.
+// При больших SWR пользователь практически НИКОГДА не ждёт MISS.
+function cdnCache(res, ttlSec = 1800, swrSec = 86400) {
   res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${ttlSec}, stale-while-revalidate=${swrSec}`);
 }
 
@@ -52,7 +54,8 @@ router.get('/calendar/:age([0-9]+)', async (req, res) => {
   try {
     const data = await loadCalendar(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
-    cdnCache(res, 300, 600); // 5 мин edge-кеш + 10 мин stale-while-revalidate
+    // calendar обновляется на бэкенде раз в 6ч → 30 мин fresh + 24ч stale-while-revalidate
+    cdnCache(res, 1800, 86400);
     res.json(data);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -61,7 +64,8 @@ router.get('/standings/:age([0-9]+)', async (req, res) => {
   try {
     const data = await loadStandings(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
-    cdnCache(res, 300, 600);
+    // standings раз в 24ч → 30 мин fresh + 24ч stale
+    cdnCache(res, 1800, 86400);
     res.json(data);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -73,7 +77,7 @@ router.get('/club-rank', async (_req, res) => {
       try { matcher = JSON.parse(fs.readFileSync(STANDINGS_CONFIG, 'utf-8')).ourClubMatcher || matcher; } catch (_) {}
     }
     const all = await loadAllStandings();
-    cdnCache(res, 300, 600);
+    cdnCache(res, 1800, 86400);
     res.json(buildClubRanking(all, matcher));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
