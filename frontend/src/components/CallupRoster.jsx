@@ -267,7 +267,7 @@ export default function CallupRoster({ match, age, teamId, onClose }) {
                       className="cr-younger-toggle"
                       onClick={() => setYoungerExpanded(!youngerExpanded)}
                     >
-                      <span>{youngerExpanded ? '▼' : '▶'} 👶 Игроки {youngerAge} г.р.</span>
+                      <span>{youngerExpanded ? '▼' : '▶'} 👶 Игроки {youngerAge}</span>
                       <span className="cr-younger-count">{ynotIn.length}</span>
                     </button>
                     {youngerExpanded && ynotIn.map((p) => (

@@ -58,7 +58,7 @@ export default function PublicLanding() {
               onClick={() => pick(a)}
             >
               <div className="landing__card-year">{a}</div>
-              <div className="landing__card-tier">{tierForAge(a)}&nbsp;·&nbsp;г.р.</div>
+              <div className="landing__card-tier">{tierForAge(a)}</div>
             </button>
           ))}
         </div>

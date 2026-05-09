@@ -230,7 +230,7 @@ export default function ClubPage() {
       {tournament === 'cup' && (
         <div className="card">
           <div className="page-section-title">
-            Кубок · {ageGroup} г.р.
+            Кубок · {ageGroup}
             {cupData?.parseHint && (
               <span className="club-standings__hint"> · {cupData.parseHint}</span>
             )}
@@ -254,7 +254,7 @@ export default function ClubPage() {
               <button
                 className={'standings-tabs__btn' + (view === 'age' ? ' standings-tabs__btn--active' : '')}
                 onClick={() => setView('age')}
-              >Вторая лига · {ageGroup} г.р.</button>
+              >Вторая лига · {ageGroup}</button>
             )}
           </div>
           <div className="club-standings__hint">

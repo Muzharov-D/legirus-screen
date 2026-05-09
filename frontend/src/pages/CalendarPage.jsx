@@ -229,7 +229,7 @@ export default function CalendarPage() {
         <div>
           <h1 className="calendar-page__title">Календарь</h1>
           <div className="calendar-page__subtitle">
-            {cal?.title || 'Расписание'} · {selectedTeam?.name || age + ' г.р.'}
+            {cal?.title || 'Расписание'} · {selectedTeam?.name || String(age || '')}
             {scope === 'ours' && ourTotal > 0 ? ` · ${ourTotal} наших матчей` : ''}
           </div>
           {cal?.lastUpdated && (
@@ -261,7 +261,7 @@ export default function CalendarPage() {
                 <option value="all">🌐 Все команды</option>
               )}
               {ages.map((a) => (
-                <option key={a} value={a}>{a} г.р.</option>
+                <option key={a} value={a}>{a}</option>
               ))}
             </select>
           )}

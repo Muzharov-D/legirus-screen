@@ -335,7 +335,7 @@ export default function PublicTeamSchedule() {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
     const shareData = {
       title: `ФК Легирус ${tierForAge(age)} · Расписание`,
-      text: `Расписание ФК Легирус ${tierForAge(age)} (${age} г.р.)`,
+      text: `Расписание ФК Легирус ${tierForAge(age)} (${age})`,
       url: shareUrl,
     };
     try {
