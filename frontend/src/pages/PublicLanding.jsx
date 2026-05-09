@@ -21,6 +21,7 @@ export default function PublicLanding() {
       const saved = localStorage.getItem(LAST_AGE_KEY);
       if (saved && AGE_GROUPS.includes(saved)) {
         navigate(`/public/team/${saved}`, { replace: true });
+        return; // редирект — prefetch не нужен
       }
     } catch {}
     // Подменяем title и theme-color на public-вариант
@@ -29,7 +30,34 @@ export default function PublicLanding() {
     let themeColor = document.querySelector('meta[name="theme-color"]');
     const originalTheme = themeColor?.getAttribute('content') || null;
     if (themeColor) themeColor.setAttribute('content', '#1a0606');
+
+    // Prefetch публичного расписания всех 4 возрастов в фоне.
+    // Пока родитель смотрит на карточки — браузер уже тянет данные с edge-кеша.
+    // К моменту тапа всё в HTTP-cache → мгновенный рендер.
+    // Brotli-сжатые ответы по 11-15 КБ, суммарно ~50 КБ — терпимо даже на 4G.
+    const ac = new AbortController();
+    const prefetch = () => {
+      AGE_GROUPS.forEach((a) => {
+        ['calendar', 'standings', 'trainings'].forEach((kind) => {
+          fetch(`/api/public/${kind}/${a}`, {
+            signal: ac.signal,
+            // low-priority: не мешает основной отрисовке
+            priority: 'low',
+            credentials: 'omit',
+          }).catch(() => {});
+        });
+      });
+    };
+    // requestIdleCallback — ждём, пока браузер закончит рендер карточек
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      window.requestIdleCallback(prefetch, { timeout: 1500 });
+    } else {
+      setTimeout(prefetch, 300);
+    }
+
+
     return () => {
+      ac.abort();
       document.title = orig;
       if (themeColor && originalTheme) themeColor.setAttribute('content', originalTheme);
     };
