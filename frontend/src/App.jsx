@@ -16,6 +16,7 @@ import PlayerDetail from './pages/PlayerDetail';
 import CalendarPage from './pages/CalendarPage';
 import TrainingsPage from './pages/TrainingsPage';
 import PublicTeamSchedule from './pages/PublicTeamSchedule';
+import PublicLanding from './pages/PublicLanding';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -31,9 +32,10 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               {/* Публичные маршруты — без авторизации */}
+              <Route path="/" element={<PublicLanding />} />
+              <Route path="/public" element={<PublicLanding />} />
               <Route path="/public/team/:age" element={<PublicTeamSchedule />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/" element={<Navigate to="/club" replace />} />
                 <Route path="/club" element={<ClubPage />} />
                 <Route path="/analytics" element={<ClubOverview />} />
                 <Route path="/analytics/team" element={<ComparisonView />} />
@@ -47,8 +49,7 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/club" replace />} />
               </Route>
             </Routes>
-            </TournamentProvider>
-          </TeamProvider>
+            </TournamentProvider>          </TeamProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

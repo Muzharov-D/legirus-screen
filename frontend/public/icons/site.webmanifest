@@ -36,6 +36,6 @@
   "theme_color": "#1a0606",
   "background_color": "#1a0606",
   "display": "standalone",
-  "start_url": "/public/team/2010",
+  "start_url": "/",
   "scope": "/"
 }

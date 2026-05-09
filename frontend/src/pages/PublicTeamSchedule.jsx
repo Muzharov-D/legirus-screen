@@ -157,6 +157,12 @@ export default function PublicTeamSchedule() {
     };
   }, [age]);
 
+  // Запоминаем последний выбранный возраст — чтобы при заходе на / landing сразу редиректил
+  useEffect(() => {
+    if (!age) return;
+    try { localStorage.setItem('legirus.public.lastAge', String(age)); } catch {}
+  }, [age]);
+
   useEffect(() => {
     if (!age) return;
     setLoading(true);
