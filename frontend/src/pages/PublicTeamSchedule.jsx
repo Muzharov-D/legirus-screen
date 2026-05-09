@@ -107,8 +107,15 @@ export default function PublicTeamSchedule() {
   useEffect(() => { setSelectedDayIso(null); }, [monthCursor, view]);
 
   const PREF_KEY_HIDE_TRAININGS = `legirus.public.hideTrainings.${age}`;
+  // Default: скрыто (дефолт — true), чтобы при первом заходе родитель сам нажал
+  // на тогл и испытал «вау» от появления тренировок. Если в localStorage есть
+  // явное значение — используем его (юзер уже выбрал).
   const [hideTrainings, setHideTrainings] = useState(() => {
-    try { return localStorage.getItem(PREF_KEY_HIDE_TRAININGS) === '1'; } catch { return false; }
+    try {
+      const v = localStorage.getItem(PREF_KEY_HIDE_TRAININGS);
+      if (v === null) return true;
+      return v === '1';
+    } catch { return true; }
   });
   useEffect(() => {
     try { localStorage.setItem(PREF_KEY_HIDE_TRAININGS, hideTrainings ? '1' : '0'); } catch {}
