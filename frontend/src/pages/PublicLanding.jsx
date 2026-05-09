@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AGE_GROUPS, tierForAge } from '../utils/ageRating';
+import OfflineBanner from '../components/OfflineBanner';
 import './PublicLanding.css';
 
 const LAST_AGE_KEY = 'legirus.public.lastAge';
@@ -70,6 +71,7 @@ export default function PublicLanding() {
 
   return (
     <div className="landing">
+      <OfflineBanner />
       <div className="landing__container">
         <div className="landing__hero">
           <img src="/icons/legirus.png" alt="ФК Легирус" className="landing__logo" />
@@ -90,7 +92,6 @@ export default function PublicLanding() {
             </button>
           ))}
         </div>
-
         <div className="landing__hint">Расписание матчей и тренировок в одном месте</div>
       </div>
     </div>

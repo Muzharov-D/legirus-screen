@@ -11,6 +11,7 @@ import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
 import StandingsModal from '../components/StandingsModal';
 import PublicTeamHeader from '../components/PublicTeamHeader';
+import OfflineBanner from '../components/OfflineBanner';
 import UiIcon from '../components/UiIcon';
 import { tierForAge } from '../utils/ageRating';
 import { shieldFor, isLegirus } from '../utils/legirus';
@@ -363,6 +364,7 @@ export default function PublicTeamSchedule() {
 
   return (
     <div className="public-page">
+      <OfflineBanner lastUpdated={cal?.lastUpdated} />
       <div className="public-page__container">
         <PublicTeamHeader
           age={age}
