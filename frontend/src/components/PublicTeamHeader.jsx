@@ -13,7 +13,6 @@ import AddTeamSheet from './AddTeamSheet';
 import './PublicTeamHeader.css';
 
 const TG_AVANDATA = 'https://t.me/AvanData';
-const LONG_PRESS_MS = 600;
 
 export default function PublicTeamHeader({
   age,
@@ -26,23 +25,6 @@ export default function PublicTeamHeader({
   const tier = tierForAge(age);
   const { teams: myTeams } = useMyTeams();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [confirmRemove, setConfirmRemove] = useState(null);
-
-  // ───────── Long-press detection для удаления команды из табов ─────────
-  function startLongPress(targetAge, e) {
-    // Не запускать long-press на активной команде (нет смысла её удалять)
-    if (targetAge === String(age)) return;
-    const t = setTimeout(() => setConfirmRemove(targetAge), LONG_PRESS_MS);
-    const cancel = () => { clearTimeout(t); cleanup(); };
-    function cleanup() {
-      e.target.removeEventListener('pointerup', cancel);
-      e.target.removeEventListener('pointerleave', cancel);
-      e.target.removeEventListener('pointercancel', cancel);
-    }
-    e.target.addEventListener('pointerup', cancel);
-    e.target.addEventListener('pointerleave', cancel);
-    e.target.addEventListener('pointercancel', cancel);
-  }
 
   function tabClick(targetAge) {
     if (String(targetAge) === String(age)) return;
@@ -50,12 +32,11 @@ export default function PublicTeamHeader({
     navigate(`/public/team/${targetAge}`);
   }
 
-  function doRemove() {
-    if (!confirmRemove) return;
-    removeTeam(confirmRemove);
-    setConfirmRemove(null);
-    // Если удалили активную — switchActive выбрал новую, но навигация ещё на старой.
-    // Перейдём на первую оставшуюся, либо на /
+  // Удалить активную команду без подтверждения и сразу перейти на следующую.
+  // Если активная была единственной — навигация на лендинг (/).
+  function removeActive() {
+    removeTeam(String(age));
+    // removeTeam внутри уже сделает switchActive на первую оставшуюся (или null)
     setTimeout(() => {
       const first = JSON.parse(localStorage.getItem('legirus.public.myTeams') || '[]')[0];
       if (first) navigate(`/public/team/${first}`, { replace: true });
@@ -110,7 +91,6 @@ export default function PublicTeamHeader({
             type="button"
             className={'public-header__myteam' + (String(t) === String(age) ? ' is-active' : '')}
             onClick={() => tabClick(t)}
-            onPointerDown={(e) => startLongPress(t, e)}
             title={t === String(age) ? 'Активная команда' : `Переключиться на ${displayAge(t)}`}
           >
             <span className="public-header__myteam-tier">{tierForAge(t)}</span>
@@ -132,7 +112,7 @@ export default function PublicTeamHeader({
           <button
             type="button"
             className="public-header__rmbtn"
-            onClick={() => setConfirmRemove(String(age))}
+            onClick={removeActive}
             aria-label="Убрать активную команду из избранного"
             title={`Убрать ${displayAge(age)} из избранного`}
           >
@@ -195,29 +175,6 @@ export default function PublicTeamHeader({
 
       {/* Bottom sheet выбора команды */}
       <AddTeamSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
-
-      {/* Подтверждение удаления (long-press) */}
-      {confirmRemove && (
-        <div className="public-header__confirm" onClick={() => setConfirmRemove(null)}>
-          <div className="public-header__confirm-card" onClick={(e) => e.stopPropagation()}>
-            <div className="public-header__confirm-text">
-              Убрать команду {displayAge(confirmRemove)} ({tierForAge(confirmRemove)})<br />из избранного?
-            </div>
-            <div className="public-header__confirm-actions">
-              <button
-                type="button"
-                className="public-header__confirm-btn"
-                onClick={() => setConfirmRemove(null)}
-              >Отмена</button>
-              <button
-                type="button"
-                className="public-header__confirm-btn public-header__confirm-btn--danger"
-                onClick={doRemove}
-              >Убрать</button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
