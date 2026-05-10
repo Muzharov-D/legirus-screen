@@ -1,3 +1,8 @@
+// ⚠️ ВАЖНО: instrument.js должен быть импортирован САМЫМ ПЕРВЫМ — до любых
+// других import. Иначе Sentry не успеет проинструментировать http/express/pg.
+import './instrument.js';
+import * as Sentry from '@sentry/node';
+
 // Загружаем .env (если есть) до всех остальных импортов, чтобы services увидели VAPID и т.п.
 // На Render/проде ENV приходят из dashboard, .env отсутствует — dotenv молча пропускает.
 import 'dotenv/config';
@@ -75,6 +80,19 @@ if (process.env.DATABASE_URL) {
 } else {
   console.log('[pg] DATABASE_URL не задан — fallback на JSON');
 }
+
+// Sentry error handler — должен быть ПОСЛЕ всех роутов, но ПЕРЕД нашими error middleware.
+// Перехватывает ошибки в Express-handler'ах и шлёт в Sentry.
+Sentry.setupExpressErrorHandler(app);
+
+// Fallback error handler — отдаёт пользователю чистый JSON вместо HTML-стектрейса.
+app.use((err, _req, res, _next) => {
+  console.error('[express] unhandled error:', err);
+  res.status(err.status || 500).json({
+    error: 'internal',
+    message: process.env.NODE_ENV === 'production' ? 'Server error' : err.message,
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Backend listening on :${PORT}`);

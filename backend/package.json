@@ -13,6 +13,7 @@
     "db:import:dry": "node scripts/migrate-json-to-pg.js --dry-run"
   },
   "dependencies": {
+    "@sentry/node": "^8.45.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

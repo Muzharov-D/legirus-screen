@@ -1,3 +1,7 @@
+// ВАЖНО: Sentry init должен быть ПЕРЕД импортом App, чтобы успеть
+// проинструментировать React-fiber и поймать ошибки на старте.
+import './sentry.js';
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
@@ -90,7 +94,7 @@ function showUpdateToast() {
     'font-size:14px', 'cursor:pointer', 'display:flex',
     'align-items:center', 'gap:10px'
   ].join(';');
-  card.textContent = '🔄 Доступна новая версия. Обновить';
+  card.innerHTML = '<span>🔄 Доступна новая версия. <b style="color:#fca5a5">Обновить</b></span>';
   card.onclick = () => window.location.reload();
   document.body.appendChild(card);
 }

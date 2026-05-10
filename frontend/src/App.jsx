@@ -19,6 +19,8 @@ import PublicTeamSchedule from './pages/PublicTeamSchedule';
 import PublicLanding from './pages/PublicLanding';
 import ClubLanding from './pages/ClubLanding';
 import ErrorBoundary from './components/ErrorBoundary';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import './App.css';
 
 // Определяем тип хоста по window.location:
@@ -46,6 +48,10 @@ function RootRoute() {
 export default function App() {
   return (
     <ErrorBoundary>
+      {/* Vercel Analytics — pageviews и custom events. Без cookies, без PII. */}
+      <Analytics />
+      {/* Vercel Speed Insights — Core Web Vitals (LCP, CLS, INP) с реальных пользователей. */}
+      <SpeedInsights />
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
