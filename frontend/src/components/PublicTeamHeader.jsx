@@ -32,16 +32,24 @@ export default function PublicTeamHeader({
     navigate(`/public/team/${targetAge}`);
   }
 
-  // Удалить активную команду без подтверждения и сразу перейти на следующую.
-  // Если активная была единственной — навигация на лендинг (/).
-  function removeActive() {
-    removeTeam(String(age));
-    // removeTeam внутри уже сделает switchActive на первую оставшуюся (или null)
-    setTimeout(() => {
-      const first = JSON.parse(localStorage.getItem('legirus.public.myTeams') || '[]')[0];
-      if (first) navigate(`/public/team/${first}`, { replace: true });
-      else navigate('/', { replace: true });
-    }, 0);
+  // Первая в myTeams — это «своя» команда, та что родитель выбрал в самом начале.
+  // Её нельзя удалить никогда (защита и в UI, и в handleRemove).
+  const primaryTeam = myTeams[0];
+
+  // Удалить конкретную команду по клику на крестик в её табе.
+  // Если удаляем текущую активную — навигация на первую из оставшихся.
+  function handleRemove(targetAge, e) {
+    e.stopPropagation(); // не триггерим tabClick на родительском <button>
+    if (String(targetAge) === String(primaryTeam)) return; // primary защищена
+    removeTeam(String(targetAge));
+    if (String(targetAge) === String(age)) {
+      // Активную убрали — переключаемся на первую оставшуюся (она всегда есть, т.к. primary не трогали).
+      setTimeout(() => {
+        const first = JSON.parse(localStorage.getItem('legirus.public.myTeams') || '[]')[0];
+        if (first) navigate(`/public/team/${first}`, { replace: true });
+        else navigate('/', { replace: true });
+      }, 0);
+    }
   }
 
   return (
@@ -89,12 +97,31 @@ export default function PublicTeamHeader({
           <button
             key={t}
             type="button"
-            className={'public-header__myteam' + (String(t) === String(age) ? ' is-active' : '')}
+            className={
+              'public-header__myteam'
+              + (String(t) === String(age) ? ' is-active' : '')
+              + (String(t) === String(primaryTeam) ? ' is-primary' : '')
+            }
             onClick={() => tabClick(t)}
-            title={t === String(age) ? 'Активная команда' : `Переключиться на ${displayAge(t)}`}
+            title={
+              String(t) === String(primaryTeam)
+                ? `Своя команда — ${displayAge(t)}`
+                : (t === String(age) ? 'Активная команда' : `Переключиться на ${displayAge(t)}`)
+            }
           >
             <span className="public-header__myteam-tier">{tierForAge(t)}</span>
             <span className="public-header__myteam-year">{displayAge(t)}</span>
+            {/* Крестик показываем только для НЕ-primary (первой выбранной команды нельзя удалить — это «своя» команда родителя). */}
+            {String(t) !== String(primaryTeam) && (
+              <span
+                role="button"
+                tabIndex={-1}
+                className="public-header__myteam-x"
+                onClick={(e) => handleRemove(t, e)}
+                aria-label={`Убрать ${displayAge(t)}`}
+                title={`Убрать ${displayAge(t)} из избранного`}
+              >×</span>
+            )}
           </button>
         ))}
 
@@ -107,18 +134,6 @@ export default function PublicTeamHeader({
         >
           +
         </button>
-
-        {myTeams.length > 1 && (
-          <button
-            type="button"
-            className="public-header__rmbtn"
-            onClick={removeActive}
-            aria-label="Убрать активную команду из избранного"
-            title={`Убрать ${displayAge(age)} из избранного`}
-          >
-            −
-          </button>
-        )}
       </nav>
 
       <div className="public-header__ranks">
