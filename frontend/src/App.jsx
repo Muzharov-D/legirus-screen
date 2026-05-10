@@ -19,6 +19,7 @@ import PublicTeamSchedule from './pages/PublicTeamSchedule';
 import PublicLanding from './pages/PublicLanding';
 import ClubLanding from './pages/ClubLanding';
 import ErrorBoundary from './components/ErrorBoundary';
+import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 
 // Определяем тип хоста по window.location:
@@ -74,6 +75,7 @@ export default function App() {
             </TournamentProvider>
           </TeamProvider>
         </AuthProvider>
+        <Analytics />
       </BrowserRouter>
     </ErrorBoundary>
   );
