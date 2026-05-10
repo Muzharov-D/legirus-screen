@@ -148,6 +148,8 @@ export function buildClubRanking(allStandings, ourMatcher) {
     totalClubs: ranked.length,
     // Возвращаем формулу для UI чтобы фронт мог показать пояснение
     formula: 'place-sum',
-    countedAgeGroups: allAges.sort(),
+    // Порядок: от младших к старшим (как табы в шапке: U14 → U17).
+    // 2013 → 2012 → 2011 → 2010 (год рождения убывает = возраст растёт).
+    countedAgeGroups: allAges.sort().reverse(),
   };
 }

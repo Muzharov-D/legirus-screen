@@ -177,12 +177,7 @@ export default function PublicTeamHeader({
             </div>
             <div className="public-header__rank-meta">
               клубный зачёт
-              <small>
-                сумма мест: {clubRank.ourClubStats?.posSum ?? '—'}
-                {typeof clubRank.ourClubStats?.avgPos === 'number' && (
-                  <> · среднее {clubRank.ourClubStats.avgPos}</>
-                )}
-              </small>
+              <small>сумма мест: {clubRank.ourClubStats?.posSum ?? '—'}</small>
             </div>
           </button>
         )}
