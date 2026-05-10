@@ -2,19 +2,26 @@
   "season": "2025-2026",
   "league": "Вторая лига",
   "ourClubMatcher": "Легирус",
+  "_clubRankCountedNote": "Только эти возрасты идут в клубный зачёт на /club. Новые младшие/старшие команды — НЕ суммируются (строго).",
+  "clubRankCounted": ["2010", "2011", "2012", "2013"],
   "sources": {
-    "2013": "https://stat.ffspb.org/tournament44336",
-    "2012": "https://stat.ffspb.org/tournament44335",
-    "2011": "https://stat.ffspb.org/tournament44334",
-    "2010": "https://stat.ffspb.org/tournament44333"
+    "2008-09": "https://stat.ffspb.org/tournament44321",
+    "2010":    "https://stat.ffspb.org/tournament44333",
+    "2011":    "https://stat.ffspb.org/tournament44334",
+    "2012":    "https://stat.ffspb.org/tournament44335",
+    "2013":    "https://stat.ffspb.org/tournament44336",
+    "2014":    "https://stat.ffspb.org/tournament44337",
+    "2015":    "https://stat.ffspb.org/tournament44338",
+    "2016":    "https://stat.ffspb.org/tournament44339"
   },
   "cup": {
     "name": "Кубок ФФСПб · Вторая лига",
+    "_note": "Кубковые турниры пока есть только для возрастов 2010-2013. Если появятся для новых — добавь сюда.",
     "sources": {
-      "2013": "https://stat.ffspb.org/tournament44348",
-      "2012": "https://stat.ffspb.org/tournament44347",
+      "2010": "https://stat.ffspb.org/tournament44345",
       "2011": "https://stat.ffspb.org/tournament44346",
-      "2010": "https://stat.ffspb.org/tournament44345"
+      "2012": "https://stat.ffspb.org/tournament44347",
+      "2013": "https://stat.ffspb.org/tournament44348"
     }
   },
   "_calendarSourcesNote": "Если ffspb отдаёт календарь по другому URL — пропиши здесь. Иначе сервис добавит /calendar к sources[*] и попробует отпарсить.",

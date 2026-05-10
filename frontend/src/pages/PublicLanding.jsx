@@ -1,30 +1,31 @@
 // Корневая landing-страница для родителей: рассылка short-link → выбор команды.
-// Если в localStorage есть сохранённый возраст → автоматический редирект на свою команду.
-// Иначе — 4 большие карточки U14/U15/U16/U17 для выбора.
+// Если в localStorage есть activeTeam (или myTeams[]) → автоматический редирект.
+// Иначе — две секции карточек: «Младшие» (3 шт) и «Старшие» (5 шт).
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AGE_GROUPS, tierForAge } from '../utils/ageRating';
+import {
+  AGE_GROUPS,
+  AGE_GROUPS_YOUNGER,
+  AGE_GROUPS_OLDER,
+  tierForAge,
+  displayAge,
+} from '../utils/ageRating';
+import { readActiveTeam, addAndActivate } from '../utils/myTeams';
 import OfflineBanner from '../components/OfflineBanner';
 import './PublicLanding.css';
-
-const LAST_AGE_KEY = 'legirus.public.lastAge';
-
-// Список карточек: от младшего к старшему (как в основной шапке)
-const AGES_REV = [...AGE_GROUPS].reverse();
 
 export default function PublicLanding() {
   const navigate = useNavigate();
 
-  // При заходе на / — если есть сохранённый возраст, редиректим
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LAST_AGE_KEY);
-      if (saved && AGE_GROUPS.includes(saved)) {
-        navigate(`/public/team/${saved}`, { replace: true });
-        return; // редирект — prefetch не нужен
-      }
-    } catch {}
+    // Если родитель уже выбирал команду — редирект на активную (с миграцией с lastAge внутри readActiveTeam).
+    const active = readActiveTeam();
+    if (active) {
+      navigate(`/public/team/${active}`, { replace: true });
+      return; // редирект — prefetch не нужен
+    }
+
     // Подменяем title и theme-color на public-вариант
     const orig = document.title;
     document.title = 'ФК Легирус · Расписание';
@@ -32,30 +33,26 @@ export default function PublicLanding() {
     const originalTheme = themeColor?.getAttribute('content') || null;
     if (themeColor) themeColor.setAttribute('content', '#1a0606');
 
-    // Prefetch публичного расписания всех 4 возрастов в фоне.
-    // Пока родитель смотрит на карточки — браузер уже тянет данные с edge-кеша.
-    // К моменту тапа всё в HTTP-cache → мгновенный рендер.
-    // Brotli-сжатые ответы по 11-15 КБ, суммарно ~50 КБ — терпимо даже на 4G.
+    // Prefetch публичных эндпойнтов всех 8 команд в фоне.
+    // Brotli-сжатые ответы по 11-15 КБ суммарно ~100 КБ — терпимо даже на 4G.
+    // К моменту тапа на карточку всё в HTTP-cache → мгновенный рендер.
     const ac = new AbortController();
     const prefetch = () => {
       AGE_GROUPS.forEach((a) => {
         ['calendar', 'standings', 'trainings'].forEach((kind) => {
           fetch(`/api/public/${kind}/${a}`, {
             signal: ac.signal,
-            // low-priority: не мешает основной отрисовке
             priority: 'low',
             credentials: 'omit',
           }).catch(() => {});
         });
       });
     };
-    // requestIdleCallback — ждём, пока браузер закончит рендер карточек
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       window.requestIdleCallback(prefetch, { timeout: 1500 });
     } else {
       setTimeout(prefetch, 300);
     }
-
 
     return () => {
       ac.abort();
@@ -65,7 +62,7 @@ export default function PublicLanding() {
   }, [navigate]);
 
   function pick(age) {
-    try { localStorage.setItem(LAST_AGE_KEY, age); } catch {}
+    addAndActivate(age);
     navigate(`/public/team/${age}`);
   }
 
@@ -79,19 +76,40 @@ export default function PublicLanding() {
           <div className="landing__subtitle">Выберите год рождения ребёнка</div>
         </div>
 
-        <div className="landing__grid">
-          {AGES_REV.map((a) => (
-            <button
-              key={a}
-              type="button"
-              className="landing__card"
-              onClick={() => pick(a)}
-            >
-              <div className="landing__card-year">{a}</div>
-              <div className="landing__card-tier">{tierForAge(a)}</div>
-            </button>
-          ))}
+        <div className="landing__section">
+          <div className="landing__section-title">Младшие</div>
+          <div className="landing__grid landing__grid--younger">
+            {AGE_GROUPS_YOUNGER.map((a) => (
+              <button
+                key={a}
+                type="button"
+                className="landing__card"
+                onClick={() => pick(a)}
+              >
+                <div className="landing__card-year">{displayAge(a)}</div>
+                <div className="landing__card-tier">{tierForAge(a)}</div>
+              </button>
+            ))}
+          </div>
         </div>
+
+        <div className="landing__section">
+          <div className="landing__section-title">Старшие</div>
+          <div className="landing__grid landing__grid--older">
+            {AGE_GROUPS_OLDER.map((a) => (
+              <button
+                key={a}
+                type="button"
+                className="landing__card"
+                onClick={() => pick(a)}
+              >
+                <div className="landing__card-year">{displayAge(a)}</div>
+                <div className="landing__card-tier">{tierForAge(a)}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="landing__hint">Расписание матчей и тренировок в одном месте</div>
       </div>
     </div>

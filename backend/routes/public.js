@@ -75,13 +75,26 @@ router.get('/standings/:age([0-9]+)', async (req, res) => {
 
 router.get('/club-rank', async (_req, res) => {
   try {
+    // Читаем конфиг клуба: matcher имени + список возрастов, идущих в клубный зачёт.
+    // По требованию заказчика — новые младшие/старшие команды (2014-2016, 2008-09)
+    // НЕ суммируются в общий клубный зачёт (строго).
     let matcher = 'Легирус';
+    let counted = null; // null = считать ВСЕ возрасты (legacy default)
     if (fs.existsSync(STANDINGS_CONFIG)) {
-      try { matcher = JSON.parse(fs.readFileSync(STANDINGS_CONFIG, 'utf-8')).ourClubMatcher || matcher; } catch (_) {}
+      try {
+        const cfg = JSON.parse(fs.readFileSync(STANDINGS_CONFIG, 'utf-8'));
+        matcher = cfg.ourClubMatcher || matcher;
+        if (Array.isArray(cfg.clubRankCounted) && cfg.clubRankCounted.length > 0) {
+          counted = new Set(cfg.clubRankCounted.map(String));
+        }
+      } catch (_) {}
     }
     const all = await loadAllStandings();
+    const filtered = counted
+      ? all.filter((s) => counted.has(String(s.ageGroup)))
+      : all;
     cdnCache(res, 60, 300);
-    res.json(buildClubRanking(all, matcher));
+    res.json(buildClubRanking(filtered, matcher));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

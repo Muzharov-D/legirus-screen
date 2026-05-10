@@ -1,17 +1,19 @@
 // Шапка public-страницы:
-//   [длинный лого АванDата] ←------ воздух ------→ [ФК Легирус U17 + щит]
+//   [длинный лого АванDата]  ——  [ФК Легирус U17 + щит + «+»]
 // Левый блок — clickable → TG-канал АванDата.
-// Правый блок — название клуба, тир (U17/U16/U15/U14) и щит Легируса.
-// Под шапкой — возрастной свитчер и ранг-блоки.
+// Правый блок — название клуба, тир (U11..U19) и щит Легируса.
+// Под шапкой — горизонтальные табы команд из myTeams (если >1) + ранг-блоки.
+// Кнопка «+» открывает AddTeamSheet с двумя страницами (Младшие / Старшие).
 
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AGE_GROUPS, tierForAge, leaguePosClass, clubPosClass } from '../utils/ageRating';
+import { tierForAge, leaguePosClass, clubPosClass, displayAge } from '../utils/ageRating';
+import { useMyTeams, switchActive, removeTeam } from '../utils/myTeams';
+import AddTeamSheet from './AddTeamSheet';
 import './PublicTeamHeader.css';
 
 const TG_AVANDATA = 'https://t.me/AvanData';
-
-// Реверс возрастов: младший → старший (U14 первый)
-const AGE_GROUPS_REV = [...AGE_GROUPS].reverse();
+const LONG_PRESS_MS = 600;
 
 export default function PublicTeamHeader({
   age,
@@ -22,11 +24,49 @@ export default function PublicTeamHeader({
 }) {
   const navigate = useNavigate();
   const tier = tierForAge(age);
+  const { teams: myTeams } = useMyTeams();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(null);
+
+  // ───────── Long-press detection для удаления команды из табов ─────────
+  function startLongPress(targetAge, e) {
+    // Не запускать long-press на активной команде (нет смысла её удалять)
+    if (targetAge === String(age)) return;
+    const t = setTimeout(() => setConfirmRemove(targetAge), LONG_PRESS_MS);
+    const cancel = () => { clearTimeout(t); cleanup(); };
+    function cleanup() {
+      e.target.removeEventListener('pointerup', cancel);
+      e.target.removeEventListener('pointerleave', cancel);
+      e.target.removeEventListener('pointercancel', cancel);
+    }
+    e.target.addEventListener('pointerup', cancel);
+    e.target.addEventListener('pointerleave', cancel);
+    e.target.addEventListener('pointercancel', cancel);
+  }
+
+  function tabClick(targetAge) {
+    if (String(targetAge) === String(age)) return;
+    switchActive(targetAge);
+    navigate(`/public/team/${targetAge}`);
+  }
+
+  function doRemove() {
+    if (!confirmRemove) return;
+    removeTeam(confirmRemove);
+    setConfirmRemove(null);
+    // Если удалили активную — switchActive выбрал новую, но навигация ещё на старой.
+    // Перейдём на первую оставшуюся, либо на /
+    setTimeout(() => {
+      const first = JSON.parse(localStorage.getItem('legirus.public.myTeams') || '[]')[0];
+      if (first) navigate(`/public/team/${first}`, { replace: true });
+      else navigate('/', { replace: true });
+    }, 0);
+  }
 
   return (
     <header className="public-header">
       <div className="public-header__row">
-        {/* Слева — длинный лого АванDата (clickable → TG канал) */}
+        {/* Слева — лого АванData (clickable → TG канал) */}
         <a
           className="public-header__platform"
           href={TG_AVANDATA}
@@ -62,18 +102,31 @@ export default function PublicTeamHeader({
         </button>
       </div>
 
-      <nav className="public-header__age-switcher" aria-label="Выбор команды">
-        {AGE_GROUPS_REV.map((a) => (
+      {/* ───── Табы личного набора команд ───── */}
+      <nav className="public-header__myteams" aria-label="Мои команды">
+        {myTeams.map((t) => (
           <button
-            key={a}
+            key={t}
             type="button"
-            className={`public-header__age-btn ${a === String(age) ? 'is-active' : ''}`}
-            onClick={() => navigate(`/public/team/${a}`)}
+            className={'public-header__myteam' + (String(t) === String(age) ? ' is-active' : '')}
+            onClick={() => tabClick(t)}
+            onPointerDown={(e) => startLongPress(t, e)}
+            title={t === String(age) ? 'Активная команда' : `Переключиться на ${displayAge(t)}`}
           >
-            <span className="public-header__age-tier">{tierForAge(a)}</span>
-            <span className="public-header__age-year">{a}</span>
+            <span className="public-header__myteam-tier">{tierForAge(t)}</span>
+            <span className="public-header__myteam-year">{displayAge(t)}</span>
           </button>
         ))}
+
+        <button
+          type="button"
+          className="public-header__addbtn"
+          onClick={() => setSheetOpen(true)}
+          aria-label="Добавить или переключить команду"
+          title="Добавить ещё одну команду"
+        >
+          +
+        </button>
       </nav>
 
       <div className="public-header__ranks">
@@ -127,6 +180,32 @@ export default function PublicTeamHeader({
           </button>
         )}
       </div>
+
+      {/* Bottom sheet выбора команды */}
+      <AddTeamSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+
+      {/* Подтверждение удаления (long-press) */}
+      {confirmRemove && (
+        <div className="public-header__confirm" onClick={() => setConfirmRemove(null)}>
+          <div className="public-header__confirm-card" onClick={(e) => e.stopPropagation()}>
+            <div className="public-header__confirm-text">
+              Убрать команду {displayAge(confirmRemove)} ({tierForAge(confirmRemove)})<br />из избранного?
+            </div>
+            <div className="public-header__confirm-actions">
+              <button
+                type="button"
+                className="public-header__confirm-btn"
+                onClick={() => setConfirmRemove(null)}
+              >Отмена</button>
+              <button
+                type="button"
+                className="public-header__confirm-btn public-header__confirm-btn--danger"
+                onClick={doRemove}
+              >Убрать</button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
