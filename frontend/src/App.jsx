@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { TeamProvider } from './contexts/TeamContext';
 import { TournamentProvider } from './contexts/TournamentContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,8 +17,31 @@ import CalendarPage from './pages/CalendarPage';
 import TrainingsPage from './pages/TrainingsPage';
 import PublicTeamSchedule from './pages/PublicTeamSchedule';
 import PublicLanding from './pages/PublicLanding';
+import ClubLanding from './pages/ClubLanding';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
+
+// Определяем тип хоста по window.location:
+//   * mobile.legirus.sportdata.tech → public-приложение для родителей (PublicLanding)
+//   * legirus.sportdata.tech         → клубная платформа (ClubLanding → /login → /club)
+//   * preview/local                   → public по умолчанию (для удобства разработки)
+function isClubHost() {
+  if (typeof window === 'undefined') return false;
+  const h = window.location.hostname;
+  return h === 'legirus.sportdata.tech' || h === 'www.legirus.sportdata.tech';
+}
+
+// Корневой роут (/) — выбираем что показывать в зависимости от домена и авторизации.
+function RootRoute() {
+  const { user } = useAuth();
+  if (isClubHost()) {
+    // На клубном домене: залогинен → /club, нет → ClubLanding (выбор роли)
+    if (user) return <Navigate to="/club" replace />;
+    return <ClubLanding />;
+  }
+  // На mobile.* (или dev/preview) — родительский лендинг с выбором команды
+  return <PublicLanding />;
+}
 
 export default function App() {
   return (
@@ -31,8 +54,7 @@ export default function App() {
             <TournamentProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
-              {/* Публичные маршруты — без авторизации */}
-              <Route path="/" element={<PublicLanding />} />
+              <Route path="/" element={<RootRoute />} />
               <Route path="/public" element={<PublicLanding />} />
               <Route path="/public/team/:age" element={<PublicTeamSchedule />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
@@ -49,7 +71,8 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/club" replace />} />
               </Route>
             </Routes>
-            </TournamentProvider>          </TeamProvider>
+            </TournamentProvider>
+          </TeamProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

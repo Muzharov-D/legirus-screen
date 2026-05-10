@@ -3,9 +3,20 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "vite",
+  "redirects": [
+    { "source": "/login/:path*",       "has": [{"type":"host","value":"mobile.legirus.sportdata.tech"}], "destination": "https://legirus.sportdata.tech/login/:path*",       "permanent": false },
+    { "source": "/club/:path*",        "has": [{"type":"host","value":"mobile.legirus.sportdata.tech"}], "destination": "https://legirus.sportdata.tech/club/:path*",        "permanent": false },
+    { "source": "/calendar/:path*",    "has": [{"type":"host","value":"mobile.legirus.sportdata.tech"}], "destination": "https://legirus.sportdata.tech/calendar/:path*",    "permanent": false },
+    { "source": "/matches/:path*",     "has": [{"type":"host","value":"mobile.legirus.sportdata.tech"}], "destination": "https://legirus.sportdata.tech/matches/:path*",     "permanent": false },
+    { "source": "/players/:path*",     "has": [{"type":"host","value":"mobile.legirus.sportdata.tech"}], "destination": "https://legirus.sportdata.tech/players/:path*",     "permanent": false },
+    { "source": "/trainings/:path*",   "has": [{"type":"host","value":"mobile.legirus.sportdata.tech"}], "destination": "https://legirus.sportdata.tech/trainings/:path*",   "permanent": false },
+    { "source": "/analytics/:path*",   "has": [{"type":"host","value":"mobile.legirus.sportdata.tech"}], "destination": "https://legirus.sportdata.tech/analytics/:path*",   "permanent": false },
+
+    { "source": "/public/:path*",      "has": [{"type":"host","value":"legirus.sportdata.tech"}],        "destination": "https://mobile.legirus.sportdata.tech/public/:path*", "permanent": false }
+  ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://legirus-api.onrender.com/api/$1" },
-    { "source": "/assets/maps/(.*)", "destination": "https://legirus-api.onrender.com/assets/maps/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/(.*)",            "destination": "https://legirus-api.onrender.com/api/$1" },
+    { "source": "/assets/maps/(.*)",    "destination": "https://legirus-api.onrender.com/assets/maps/$1" },
+    { "source": "/(.*)",                "destination": "/index.html" }
   ]
 }
