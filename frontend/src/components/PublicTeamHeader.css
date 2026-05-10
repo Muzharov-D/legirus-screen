@@ -187,6 +187,33 @@
 }
 .public-header__addbtn:active { transform: scale(0.94); }
 
+/* Кнопка «−» — симметричная с «+», но приглушённо-красная: убирает активную команду */
+.public-header__rmbtn {
+  flex: 0 0 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(0, 0, 0, 0.5) 100%);
+  border: 1px dashed rgba(239, 68, 68, 0.55);
+  border-radius: 7px;
+  color: #fca5a5;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 140ms, transform 140ms, border-color 140ms, color 140ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 4px;
+}
+.public-header__rmbtn:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.32) 0%, rgba(0, 0, 0, 0.55) 100%);
+  border-color: #ef4444;
+  color: #fff;
+}
+.public-header__rmbtn:active { transform: scale(0.94); }
+
 /* Confirm-modal для удаления команды long-press'ом */
 .public-header__confirm {
   position: fixed;
@@ -328,26 +355,5 @@
   .public-header__rank { padding: 8px 10px; }
   .public-header__rank-pos { font-size: 26px; }
   .public-header__rank-medal { font-size: 16px; }
-  .public-header__rank-meta { font-size: 9px; }
-  .public-header__rank-meta small { font-size: 9px; }
-}
-
-@media (max-width: 380px) {
-  .public-header__platform-logo { height: 26px; }
-  .public-header__club-name { font-size: 11px; }
-  .public-header__club-logo { width: 36px; height: 36px; }
-  .public-header__myteam-tier { font-size: 11px; }
-  .public-header__myteam-year { font-size: 9px; }
-  .public-header__rank-pos { font-size: 22px; }
-  .public-header__myteam { padding: 4px 6px; min-height: 40px; }
-  .public-header__myteams { gap: 4px; padding: 3px; }
-  .public-header__addbtn { flex-basis: 40px; min-width: 40px; min-height: 40px; font-size: 22px; }
-  .public-header__row::before { height: 130%; }
-}
-
-@media (min-width: 641px) {
-  .public-header__platform-logo { height: 40px; }
-  .public-header__club-name { font-size: 15px; }
-  .public-header__club-tier { font-size: 24px; }
-  .public-header__club-logo { width: 56px; height: 56px; }
+  .public-header__rank-meta { font-size: 11px; }
 }

@@ -127,6 +127,18 @@ export default function PublicTeamHeader({
         >
           +
         </button>
+
+        {myTeams.length > 1 && (
+          <button
+            type="button"
+            className="public-header__rmbtn"
+            onClick={() => setConfirmRemove(String(age))}
+            aria-label="Убрать активную команду из избранного"
+            title={`Убрать ${displayAge(age)} из избранного`}
+          >
+            −
+          </button>
+        )}
       </nav>
 
       <div className="public-header__ranks">
