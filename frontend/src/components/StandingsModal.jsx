@@ -102,7 +102,10 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
           <>
             <div className="sm-head">
               <h3>Клубный зачёт</h3>
-              <div className="sm-sub">Сумма очков по всем возрастам · {clubRank.totalClubs} клубов</div>
+              <div className="sm-sub">
+                Сумма мест по {(clubRank.countedAgeGroups || []).join(', ') || 'возрастам'}
+                {' · '}кто меньше — тот выше · {clubRank.totalClubs} клубов
+              </div>
             </div>
             <div className="sm-table-wrap">
               <table className="sm-table">
@@ -110,12 +113,10 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
                   <tr>
                     <th>#</th>
                     <th className="sm-team">Клуб</th>
-                    <th>И</th>
-                    <th>В</th>
-                    <th>Н</th>
-                    <th>П</th>
-                    <th>±</th>
-                    <th>О</th>
+                    {(clubRank.countedAgeGroups || []).map((a) => (
+                      <th key={a} title={`Место в лиге ${a}`}>{a}</th>
+                    ))}
+                    <th title="Сумма мест по возрастам — главный показатель">Σ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -132,12 +133,14 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
                           {c.shield && <img src={c.shield} alt="" />}
                           <span>{c.name}</span>
                         </td>
-                        <td>{c.games}</td>
-                        <td>{c.wins}</td>
-                        <td>{c.draws}</td>
-                        <td>{c.losses}</td>
-                        <td>{c.goalsFor - c.goalsAgainst}</td>
-                        <td className="sm-pts"><b>{c.points}</b></td>
+                        {(clubRank.countedAgeGroups || []).map((a) => {
+                          const item = c.breakdown?.[a];
+                          if (!item || !item.pos) {
+                            return <td key={a} className="sm-pts" style={{ opacity: 0.4 }}>—</td>;
+                          }
+                          return <td key={a} className="sm-pts">{item.pos}</td>;
+                        })}
+                        <td className="sm-pts"><b>{c.posSum}</b></td>
                       </tr>
                     );
                   })}

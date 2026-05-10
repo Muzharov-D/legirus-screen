@@ -178,9 +178,9 @@ export default function PublicTeamHeader({
             <div className="public-header__rank-meta">
               клубный зачёт
               <small>
-                {clubRank.ourClubStats?.points} очк
-                {typeof clubRank.ourClubStats?.wins === 'number' && (
-                  <> · {clubRank.ourClubStats.wins}-{clubRank.ourClubStats.draws ?? 0}-{clubRank.ourClubStats.losses ?? 0}</>
+                сумма мест: {clubRank.ourClubStats?.posSum ?? '—'}
+                {typeof clubRank.ourClubStats?.avgPos === 'number' && (
+                  <> · среднее {clubRank.ourClubStats.avgPos}</>
                 )}
               </small>
             </div>

@@ -51,7 +51,31 @@ export async function loadAllStandings() {
   return out;
 }
 
+// Клубный зачёт по системе «сумма мест» (place-sum, многоборная):
+// для каждого возраста берём место клуба в лиге, суммируем по всем возрастам.
+// У кого сумма меньше — тот выше. Если клуб не участвует в каком-то возрасте,
+// получает штрафное место = размер лиги + 1 (как будто финишировал последним +1).
+//
+// Пример Легируса:
+//   2010 → 2 место, 2011 → 3, 2012 → 5, 2013 → 5  →  posSum = 15
+// Если у соперника 2010=1, 2011=2, 2012=4, 2013=6 → posSum = 13 → он выше.
+//
+// Для отображения дополнительно даём:
+//   - breakdown: { '2010': { pos: 2, total: 14 }, ... }
+//   - participated: количество возрастов где клуб реально играл
+//   - avgPos: среднее место по участвовавшим возрастам (для UI)
+//   - games/wins/draws/losses/goalsFor/goalsAgainst: суммарная статистика (info)
+//   - points поле сохранено для обратной совместимости с UI (= сумма очков по командам)
 export function buildClubRanking(allStandings, ourMatcher) {
+  // Список возрастов, который реально участвует в зачёте (с этими ageGroup пришли standings)
+  const allAges = [...new Set(allStandings.map((s) => s.ageGroup).filter(Boolean))];
+
+  // Для каждого возраста — размер лиги (для расчёта штрафа за отсутствие)
+  const leagueSize = new Map();
+  for (const s of allStandings) {
+    if (s.ageGroup) leagueSize.set(s.ageGroup, (s.table || []).length);
+  }
+
   const agg = new Map();
   for (const s of allStandings) {
     for (const row of (s.table || [])) {
@@ -63,6 +87,7 @@ export function buildClubRanking(allStandings, ourMatcher) {
         games: 0, wins: 0, draws: 0, losses: 0,
         goalsFor: 0, goalsAgainst: 0, points: 0,
         ageGroups: [],
+        breakdown: {}, // { '2010': { pos, total }, ... }
       };
       cur.games += +row.games || 0;
       cur.wins += +row.wins || 0;
@@ -71,14 +96,46 @@ export function buildClubRanking(allStandings, ourMatcher) {
       cur.goalsFor += +row.scored || +row.goalsFor || 0;
       cur.goalsAgainst += +row.missed || +row.goalsAgainst || 0;
       cur.points += +row.points || 0;
-      if (s.ageGroup) cur.ageGroups.push(s.ageGroup);
+      if (s.ageGroup) {
+        cur.ageGroups.push(s.ageGroup);
+        const pos = +row.pos || 0;
+        cur.breakdown[s.ageGroup] = {
+          pos: pos > 0 ? pos : null,
+          total: leagueSize.get(s.ageGroup) || 0,
+        };
+      }
       if (!cur.shield && row.shield) cur.shield = row.shield;
       agg.set(key, cur);
     }
   }
 
-  const ranked = [...agg.values()]
-    .sort((a, b) => b.points - a.points || (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst))
+  // Считаем posSum для каждого клуба со штрафом за отсутствие в возрастной группе.
+  const clubs = [...agg.values()].map((c) => {
+    let posSum = 0;
+    let participated = 0;
+    for (const age of allAges) {
+      const item = c.breakdown[age];
+      if (item && item.pos) {
+        posSum += item.pos;
+        participated++;
+      } else {
+        // Штраф: размер той лиги + 1 (как будто финишировал последним и ещё ниже)
+        const penalty = (leagueSize.get(age) || 10) + 1;
+        posSum += penalty;
+      }
+    }
+    const avgPos = participated > 0 ? +(posSum / allAges.length).toFixed(1) : null;
+    return { ...c, posSum, participated, avgPos };
+  });
+
+  // Сортировка: меньше posSum = выше; при равенстве — больше реально участвовавших возрастов;
+  // дальше — лучше goal difference (как tie-breaker, как в обычной таблице).
+  const ranked = clubs
+    .sort((a, b) => {
+      if (a.posSum !== b.posSum) return a.posSum - b.posSum;
+      if (a.participated !== b.participated) return b.participated - a.participated;
+      return (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst);
+    })
     .map((c, i) => ({ rank: i + 1, ...c }));
 
   const matcher = String(ourMatcher || '').toLowerCase();
@@ -89,5 +146,8 @@ export function buildClubRanking(allStandings, ourMatcher) {
     ourClubRank: ours ? ours.rank : null,
     ourClubStats: ours || null,
     totalClubs: ranked.length,
+    // Возвращаем формулу для UI чтобы фронт мог показать пояснение
+    formula: 'place-sum',
+    countedAgeGroups: allAges.sort(),
   };
 }

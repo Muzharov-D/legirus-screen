@@ -42,19 +42,26 @@ if (dsn) {
       // Известный безвредный шум от ResizeObserver
       'ResizeObserver loop limit exceeded',
       'ResizeObserver loop completed with undelivered notifications',
+      // Telegram in-app browser injectit свой WebApp SDK и пытается вызвать
+      // postEvent (для своих внутренних целей — кнопки, скролл). У нас не
+      // Mini App, обработчика нет — Telegram-bridge возвращает Method not found.
+      // Безвредно, родитель ничего не видит, но забивает Sentry-квоту.
+      'Method not found',
+      'Error invoking postEvent',
+      // VK / OK / WhatsApp in-app browsers тоже бывают со своими bridge-шумами
+      /WebViewJavascriptBridge/i,
+      // iOS WKWebView типичные шумы
+      'Non-Error promise rejection captured',
       // Расширения браузера лезут в наш код
       /chrome-extension:\/\//,
       /moz-extension:\/\//,
     ],
 
-    // Релиз — берём из env (Vercel задаёт VITE_VERCEL_GIT_COMMIT_SHA через
-    // системные переменные, см. https://vercel.com/docs/projects/environment-variables/system-environment-variables).
+    // Релиз — берём из env (Vercel задаёт VITE_VERCEL_GIT_COMMIT_SHA автоматом).
     release: import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA
       || import.meta.env.VITE_RELEASE,
 
     beforeSend(event, hint) {
-      // На лендинге prefetch'ит API всех 8 возрастов — если SW отдаст 503
-      // оффлайн-fallback, это не наш баг, не пишем в Sentry.
       const err = hint?.originalException;
       const msg = err?.message || event?.message || '';
       if (/offline|cached: false/i.test(msg)) return null;
