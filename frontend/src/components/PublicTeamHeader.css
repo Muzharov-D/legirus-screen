@@ -122,6 +122,8 @@
   border: 1px solid rgba(220, 38, 38, 0.18);
   border-radius: 10px;
 }
+/* Базовый таб (не-primary, дополнительная команда) — премиум-чёрный.
+   Спокойный нейтральный вид, чтобы не конкурировал с primary. */
 .public-header__myteam {
   position: relative;
   flex: 1 1 60px;
@@ -131,39 +133,44 @@
   justify-content: center;
   gap: 2px;
   padding: 6px 14px 6px 8px; /* справа больше места под крестик */
-  background: rgba(234, 6, 6, 0.10);
-  border: none;
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 7px;
-  color: #c5a3a3;
+  color: rgba(255, 255, 255, 0.78);
   font-family: inherit;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background 120ms, color 120ms;
+  transition: background 120ms, color 120ms, border-color 120ms;
   min-height: 44px;
   line-height: 1.1;
 }
-.public-header__myteam:hover { background: rgba(234, 6, 6, 0.18); color: #fff; }
+.public-header__myteam:hover { background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%); color: #fff; border-color: rgba(255, 255, 255, 0.3); }
 .public-header__myteam.is-active {
-  background: rgba(234, 6, 6, 0.40);
+  background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%);
+  border-color: rgba(255, 255, 255, 0.45);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* Primary — изначально выбранная команда родителя. Премиум-чёрная подсветка:
-   глубокий чёрный фон, тонкая светлая рамка, белый текст. Чтобы родитель
-   сразу видел «вот моя команда». Может быть и активной, и неактивной. */
+/* Primary — изначально выбранная (фаворитная) команда. Красная — фирменный цвет
+   Легируса. Виден сразу как «вот моя команда». Может быть активной/неактивной. */
 .public-header__myteam.is-primary {
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, rgba(234, 6, 6, 0.28) 0%, rgba(120, 6, 6, 0.45) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.55);
   color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 8px rgba(220, 38, 38, 0.25);
 }
-.public-header__myteam.is-primary .public-header__myteam-tier { color: #fff; letter-spacing: 0.06em; }
-.public-header__myteam.is-primary .public-header__myteam-year { color: rgba(255, 255, 255, 0.7); }
+.public-header__myteam.is-primary .public-header__myteam-tier { color: #fff; letter-spacing: 0.04em; }
+.public-header__myteam.is-primary .public-header__myteam-year { color: rgba(255, 220, 220, 0.85); }
+.public-header__myteam.is-primary:hover {
+  background: linear-gradient(135deg, rgba(234, 6, 6, 0.42) 0%, rgba(120, 6, 6, 0.55) 100%);
+  border-color: #ef4444;
+}
 .public-header__myteam.is-primary.is-active {
-  background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%);
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.55) 0%, rgba(120, 6, 6, 0.7) 100%);
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 16px rgba(220, 38, 38, 0.5);
 }
 .public-header__myteam-tier {
   font-size: 13px;
@@ -355,6 +362,49 @@
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.55) 100%);
   border-color: rgba(255, 255, 255, 0.25);
 }
+/* Базовые стили внутренностей rank-блока. Раньше их не было — текст
+   съезжал и накладывался. */
+.public-header__rank-pos {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 28px;
+  color: #fff;
+}
+.public-header__rank-medal {
+  font-size: 18px;
+  line-height: 1;
+}
+.public-header__rank-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.2;
+  overflow: hidden;
+}
+.public-header__rank-meta small {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .public-header__rank.rank-medal--gold {
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.28) 0%, rgba(120, 80, 0, 0.5) 100%);
   border-color: #ffd700;
@@ -379,10 +429,11 @@
   .public-header__club-name { font-size: 12px; }
   .public-header__club-tier { font-size: 16px; }
   .public-header__club-logo { width: 40px; height: 40px; }
-  .public-header__rank { padding: 8px 10px; }
-  .public-header__rank-pos { font-size: 26px; }
+  .public-header__rank { padding: 8px 10px; gap: 8px; }
+  .public-header__rank-pos { font-size: 26px; min-width: 24px; }
   .public-header__rank-medal { font-size: 16px; }
   .public-header__rank-meta { font-size: 11px; }
+  .public-header__rank-meta small { font-size: 10px; }
   .public-header__myteam-tier { font-size: 11px; }
   .public-header__myteam-year { font-size: 9px; }
   .public-header__myteam { padding: 4px 12px 4px 6px; min-height: 40px; }
