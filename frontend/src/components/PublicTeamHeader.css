@@ -149,21 +149,22 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-/* Primary — изначально выбранная команда родителя. Золотая подсветка чтобы
-   родитель сразу видел «вот моя команда». Не пересекается с is-active:
-   primary может быть и активной, и неактивной — в обоих случаях золотой бордер. */
+/* Primary — изначально выбранная команда родителя. Премиум-чёрная подсветка:
+   глубокий чёрный фон, тонкая светлая рамка, белый текст. Чтобы родитель
+   сразу видел «вот моя команда». Может быть и активной, и неактивной. */
 .public-header__myteam.is-primary {
-  border: 1px solid rgba(255, 215, 0, 0.65);
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(120, 80, 0, 0.25) 100%);
-  color: #ffe066;
-}
-.public-header__myteam.is-primary .public-header__myteam-tier { color: #ffd700; text-shadow: 0 1px 4px rgba(255, 215, 0, 0.4); }
-.public-header__myteam.is-primary.is-active {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.32) 0%, rgba(180, 110, 0, 0.45) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.45);
 }
-.public-header__myteam.is-primary.is-active .public-header__myteam-tier { color: #fff; }
+.public-header__myteam.is-primary .public-header__myteam-tier { color: #fff; letter-spacing: 0.06em; }
+.public-header__myteam.is-primary .public-header__myteam-year { color: rgba(255, 255, 255, 0.7); }
+.public-header__myteam.is-primary.is-active {
+  background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.6);
+}
 .public-header__myteam-tier {
   font-size: 13px;
   font-weight: 800;
@@ -386,6 +387,5 @@
   .public-header__myteam-year { font-size: 9px; }
   .public-header__myteam { padding: 4px 12px 4px 6px; min-height: 40px; }
   .public-header__myteams { gap: 4px; padding: 3px; }
-  .public-header__addbtn { flex-basis: 40px; min-width: 40px; min-height: 40px; font-size: 22px; }
   .public-header__myteam-x { width: 14px; height: 14px; font-size: 12px; top: 1px; right: 2px; }
 }
