@@ -138,7 +138,12 @@ export default function StandingsModal({ tab = 'league', onClose, standings, clu
                           if (!item || !item.pos) {
                             return <td key={a} className="sm-pts" style={{ opacity: 0.4 }}>—</td>;
                           }
-                          return <td key={a} className="sm-pts">{item.pos}</td>;
+                          // Подсветка ячейки в зависимости от места клуба в той лиге
+                          let cellMedal = '';
+                          if (item.pos === 1) cellMedal = 'sm-cell--gold';
+                          else if (item.pos === 2) cellMedal = 'sm-cell--silver';
+                          else if (item.pos === 3) cellMedal = 'sm-cell--bronze';
+                          return <td key={a} className={`sm-pts ${cellMedal}`.trim()}>{item.pos}</td>;
                         })}
                         <td className="sm-pts"><b>{c.posSum}</b></td>
                       </tr>

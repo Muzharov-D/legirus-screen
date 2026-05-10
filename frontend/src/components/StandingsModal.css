@@ -175,3 +175,24 @@
   .sm-table th:not(.sm-team):not(.sm-pos),
   .sm-table td:not(.sm-team):not(.sm-pos) { width: 22px; }
 }
+
+/* Подсветка ячеек места в клубном зачёте — золото/серебро/бронза.
+   Применяется к <td> с местом 1/2/3 в каждой возрастной лиге (breakdown). */
+.sm-table .sm-cell--gold {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.32) 0%, rgba(180, 130, 0, 0.18) 100%);
+  color: #ffd700;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.sm-table .sm-cell--silver {
+  background: linear-gradient(135deg, rgba(220, 220, 220, 0.28) 0%, rgba(120, 120, 120, 0.18) 100%);
+  color: #e8e8e8;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.sm-table .sm-cell--bronze {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.32) 0%, rgba(120, 70, 30, 0.18) 100%);
+  color: #f0c090;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
