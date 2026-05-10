@@ -37,7 +37,7 @@ router.get('/venues', (_req, res) => {
 
 // Публичные тренировки команды (родителям) — без личной посещаемости.
 // Только future, sanitized: id, startsAt, durationMin, type, venueText, notes.
-router.get('/trainings/:age([0-9]+)', async (req, res) => {
+router.get('/trainings/:age([0-9-]+)', async (req, res) => {
   try {
     const teamId = `legirus-${req.params.age}`;
     const list = await listTrainings(teamId, { scope: 'upcoming', limit: 100 });
@@ -54,7 +54,7 @@ router.get('/trainings/:age([0-9]+)', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/calendar/:age([0-9]+)', async (req, res) => {
+router.get('/calendar/:age([0-9-]+)', async (req, res) => {
   try {
     const data = await loadCalendar(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
@@ -64,7 +64,7 @@ router.get('/calendar/:age([0-9]+)', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/standings/:age([0-9]+)', async (req, res) => {
+router.get('/standings/:age([0-9-]+)', async (req, res) => {
   try {
     const data = await loadStandings(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
@@ -100,7 +100,7 @@ router.get('/club-rank', async (_req, res) => {
 
 // PWA-манифест для публичной страницы команды.
 // Открывается как standalone-app с start_url прямо на расписание.
-router.get('/manifest/:age([0-9]+).json', (req, res) => {
+router.get('/manifest/:age([0-9-]+).json', (req, res) => {
   const age = req.params.age;
   const manifest = {
     name: 'ФК Легирус ' + age + ' · Расписание',
