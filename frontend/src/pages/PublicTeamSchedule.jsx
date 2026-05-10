@@ -4,7 +4,8 @@
 //
 // Источник: GET /api/public/calendar/:age — sanitized данные без личной статистики.
 
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useAutoRefresh, bustCache } from '../hooks/useAutoRefresh';
 import { useParams } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
 import TrainingDetailSheet from '../components/TrainingDetailSheet';
@@ -164,16 +165,22 @@ export default function PublicTeamSchedule() {
     try { localStorage.setItem('legirus.public.lastAge', String(age)); } catch {}
   }, [age]);
 
-  useEffect(() => {
+  // Загрузка данных. Вынесена в callback чтобы её можно было дёргать
+  // и при первом рендере, и при auto-refresh (каждые 30 мин или при
+  // возвращении на вкладку). bustCache добавляет параметр _t,
+  // который меняется каждые 30 минут — это обходит Service Worker stale-кеш.
+  const loadData = useCallback((isInitial) => {
     if (!age) return;
-    setLoading(true);
-    setError(null);
+    if (isInitial) {
+      setLoading(true);
+      setError(null);
+    }
     Promise.all([
-      fetch(`${PREFIX}/calendar/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : Promise.reject(new Error(`Календарь не найден (${r.status})`))),
-      fetch(`${PREFIX}/standings/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : null),
-      fetch(`${PREFIX}/venues`).then((r) => r.ok ? r.json() : { venues: [] }),
-      fetch(`${PREFIX}/club-rank`).then((r) => r.ok ? r.json() : null),
-      fetch(`${PREFIX}/trainings/${encodeURIComponent(age)}`).then((r) => r.ok ? r.json() : { trainings: [] }),
+      fetch(bustCache(`${PREFIX}/calendar/${encodeURIComponent(age)}`)).then((r) => r.ok ? r.json() : Promise.reject(new Error(`Календарь не найден (${r.status})`))),
+      fetch(bustCache(`${PREFIX}/standings/${encodeURIComponent(age)}`)).then((r) => r.ok ? r.json() : null),
+      fetch(bustCache(`${PREFIX}/venues`)).then((r) => r.ok ? r.json() : { venues: [] }),
+      fetch(bustCache(`${PREFIX}/club-rank`)).then((r) => r.ok ? r.json() : null),
+      fetch(bustCache(`${PREFIX}/trainings/${encodeURIComponent(age)}`, 60_000)).then((r) => r.ok ? r.json() : { trainings: [] }), // тренировки — 1 мин (тренер может менять оперативно)
     ]).then(([calData, standData, venueData, clubRankData, trData]) => {
       setCal(calData);
       setStandings(standData);
@@ -181,9 +188,19 @@ export default function PublicTeamSchedule() {
       setClubRank(clubRankData);
       setTrainings(trData?.trainings || []);
     }).catch((e) => {
-      setError(e.message);
-    }).finally(() => setLoading(false));
+      // На auto-refresh — не показываем ошибку, оставляем последние данные.
+      if (isInitial) setError(e.message);
+    }).finally(() => {
+      if (isInitial) setLoading(false);
+    });
   }, [age]);
+
+  // Первоначальная загрузка при смене age
+  useEffect(() => { loadData(true); }, [loadData]);
+
+  // Авто-рефетч каждые 30 минут + при возвращении на вкладку + при возврате online.
+  // Молчит на ошибках (показывает старые данные), не дёргает спиннер.
+  useAutoRefresh(() => loadData(false));
 
   const venueByName = useMemo(() => {
     const map = new Map();
@@ -754,8 +771,6 @@ export default function PublicTeamSchedule() {
                 Обновлено: {cal?.lastUpdated ? new Date(cal.lastUpdated).toLocaleString('ru-RU') : '—'}
               </p>
             </footer>
-
-            <div className="public-page__wave public-page__wave--bottom" aria-hidden="true"></div>
           </>
         )}
       </div>
