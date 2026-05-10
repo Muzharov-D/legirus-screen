@@ -343,11 +343,13 @@ export async function refreshCalendarAll() {
 }
 
 let timer = null;
-const CALENDAR_CRON_HOURS = 6; // ffspb обновляется не чаще раза в день после игр; 6h хватает с запасом
+// Flashscore-режим: 30 минут. FFSPB сам обновляется по факту заполнения протокола судьёй
+// (не моментально), но мы хотим чтобы счёт/таблица долетали до родителей в течение часа.
+const CALENDAR_CRON_MINUTES = 30;
 export function startCalendarCron() {
   if (timer) return;
   setTimeout(() => refreshCalendarAll().catch(() => {}), 8000);
-  timer = setInterval(() => refreshCalendarAll().catch(() => {}), CALENDAR_CRON_HOURS * 60 * 60 * 1000);
-  console.log('[calendar] cron started, refresh every ' + CALENDAR_CRON_HOURS + 'h');
+  timer = setInterval(() => refreshCalendarAll().catch(() => {}), CALENDAR_CRON_MINUTES * 60 * 1000);
+  console.log('[calendar] cron started, refresh every ' + CALENDAR_CRON_MINUTES + ' min');
 }
 export function stopCalendarCron() { if (timer) clearInterval(timer); timer = null; }

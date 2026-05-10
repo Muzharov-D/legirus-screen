@@ -249,15 +249,17 @@ export async function refreshAll() {
 }
 
 let timer = null;
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+// Flashscore-режим: таблицы обновляются за родителями каждые 30 минут.
+// FFSPB пересчитывает после внесения протокола, нам важно подхватывать оперативно.
+const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
 
 export function startStandingsCron() {
   if (timer) return;
   // Первый прогон с задержкой 5 секунд после старта (чтобы сервер успел подняться)
   setTimeout(() => { refreshAll().catch(() => {}); }, 5000);
-  // Далее раз в 24 часа
-  timer = setInterval(() => { refreshAll().catch(() => {}); }, ONE_DAY_MS);
-  console.log('[standings] cron запущен: первый прогон через 5 сек, далее каждые 24 ч');
+  // Далее каждые 30 минут
+  timer = setInterval(() => { refreshAll().catch(() => {}); }, REFRESH_INTERVAL_MS);
+  console.log('[standings] cron запущен: первый прогон через 5 сек, далее каждые 30 мин');
 }
 
 export function stopStandingsCron() {

@@ -16,10 +16,14 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://legirus.sportdata.tech
 const router = express.Router();
 
 // Cache helper — Vercel edge кеширует ответ, браузеру всегда отдаём свежее.
-// s-maxage = TTL свежего кеша; stale-while-revalidate = окно, в которое edge
-// мгновенно отдаёт устаревший ответ и в фоне просит у Render новый.
-// При больших SWR пользователь практически НИКОГДА не ждёт MISS.
-function cdnCache(res, ttlSec = 1800, swrSec = 86400) {
+// s-maxage = TTL свежего кеша; stale-while-revalidate = окно мгновенной отдачи stale
+// с фоновой ревалидацией (пользователь не ждёт MISS).
+//
+// Flashscore-режим:
+//   * cron на бэке обновляет данные раз в 30 минут
+//   * edge-кеш живёт 60 секунд → данные долетают до родителя максимум через 31 минуту
+//   * SWR=300 → даже если Render лагнул, отдаём последнее закешированное мгновенно
+function cdnCache(res, ttlSec = 60, swrSec = 300) {
   res.setHeader('Cache-Control', `public, max-age=0, s-maxage=${ttlSec}, stale-while-revalidate=${swrSec}`);
 }
 
@@ -54,8 +58,8 @@ router.get('/calendar/:age([0-9]+)', async (req, res) => {
   try {
     const data = await loadCalendar(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
-    // calendar обновляется на бэкенде раз в 6ч → 30 мин fresh + 24ч stale-while-revalidate
-    cdnCache(res, 1800, 86400);
+    // calendar обновляется на бэкенде раз в 30 мин → edge fresh 60 сек + SWR 5 мин
+    cdnCache(res, 60, 300);
     res.json(data);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -64,8 +68,7 @@ router.get('/standings/:age([0-9]+)', async (req, res) => {
   try {
     const data = await loadStandings(req.params.age);
     if (!data) return res.status(404).json({ error: 'not found' });
-    // standings раз в 24ч → 30 мин fresh + 24ч stale
-    cdnCache(res, 1800, 86400);
+    cdnCache(res, 60, 300);
     res.json(data);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -77,7 +80,7 @@ router.get('/club-rank', async (_req, res) => {
       try { matcher = JSON.parse(fs.readFileSync(STANDINGS_CONFIG, 'utf-8')).ourClubMatcher || matcher; } catch (_) {}
     }
     const all = await loadAllStandings();
-    cdnCache(res, 1800, 86400);
+    cdnCache(res, 60, 300);
     res.json(buildClubRanking(all, matcher));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

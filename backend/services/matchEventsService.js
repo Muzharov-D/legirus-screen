@@ -94,13 +94,15 @@ export async function syncRecentEvents() {
 }
 
 let timer = null;
-const SIX_HOURS = 6 * 60 * 60 * 1000;
+// Flashscore-режим: события матчей (голы, замены) обновляются каждые 30 минут.
+// FFSPB сам обновляется по факту заполнения протокола судьёй после матча — чаще нет смысла.
+const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
 
 export function startMatchEventsCron() {
   if (timer) return;
   // Первый прогон через 25 секунд после старта (после calendar+standings+players-sync)
   setTimeout(() => syncRecentEvents().catch((e) => console.error('[match-events] tick failed:', e.message)), 25_000);
-  timer = setInterval(() => syncRecentEvents().catch(() => {}), SIX_HOURS);
-  console.log('[match-events] cron started, every 6h');
+  timer = setInterval(() => syncRecentEvents().catch(() => {}), REFRESH_INTERVAL_MS);
+  console.log('[match-events] cron started, every 30 min');
 }
 export function stopMatchEventsCron() { if (timer) clearInterval(timer); timer = null; }
