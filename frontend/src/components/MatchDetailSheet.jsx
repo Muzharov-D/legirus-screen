@@ -24,7 +24,9 @@ function shortName(name) {
 // Маппинг типа события матча → имя UI-иконки в /icons/ui/
 const EVENT_KIND_TO_ICON = {
   goal: 'ball',
+  goal_special: 'ball',
   penalty: 'ball',
+  penalty_missed: 'ball', // мяч + CSS-перечёркивание поверх (см. .mds-tl-icon-wrap--strike)
   own_goal: 'ball',
   yellow_card: 'yellow-card',
   yellow: 'yellow-card',
@@ -33,6 +35,7 @@ const EVENT_KIND_TO_ICON = {
   substitution: 'running',
   substitution_in: 'running',
   substitution_out: 'running',
+  sub: 'running',
 };
 
 function fmtDate(iso) {
@@ -141,13 +144,17 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                           <span className="mds-tl-event">
                             <span className="mds-tl-text">
                               <b>{e.playerName || ''}</b>
+                              {e.kind === 'penalty_missed' && <small className="mds-tl-label-missed"> — Незабитый пенальти</small>}
                               {e.assistName && <small> · ассист: {e.assistName}</small>}
                               {e.comment && <small> — {e.comment}</small>}
                             </span>
-                            {EVENT_KIND_TO_ICON[e.kind]
-                              ? <UiIcon name={EVENT_KIND_TO_ICON[e.kind]} size={16} className="mds-tl-icon" />
-                              : <span className="mds-tl-icon mds-tl-icon--emoji" aria-hidden>{e.icon || '·'}</span>
-                            }
+                            {EVENT_KIND_TO_ICON[e.kind] ? (
+                              <span className={`mds-tl-icon-wrap${e.kind === 'penalty_missed' ? ' mds-tl-icon-wrap--strike' : ''}`}>
+                                <UiIcon name={EVENT_KIND_TO_ICON[e.kind]} size={16} className="mds-tl-icon" />
+                              </span>
+                            ) : (
+                              <span className="mds-tl-icon mds-tl-icon--emoji" aria-hidden>{e.icon || '·'}</span>
+                            )}
                           </span>
                         )}
                       </div>
@@ -155,12 +162,16 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                       <div className="mds-tl-side mds-tl-side--away">
                         {side === 'away' && (
                           <span className="mds-tl-event">
-                            {EVENT_KIND_TO_ICON[e.kind]
-                              ? <UiIcon name={EVENT_KIND_TO_ICON[e.kind]} size={16} className="mds-tl-icon" />
-                              : <span className="mds-tl-icon mds-tl-icon--emoji" aria-hidden>{e.icon || '·'}</span>
-                            }
+                            {EVENT_KIND_TO_ICON[e.kind] ? (
+                              <span className={`mds-tl-icon-wrap${e.kind === 'penalty_missed' ? ' mds-tl-icon-wrap--strike' : ''}`}>
+                                <UiIcon name={EVENT_KIND_TO_ICON[e.kind]} size={16} className="mds-tl-icon" />
+                              </span>
+                            ) : (
+                              <span className="mds-tl-icon mds-tl-icon--emoji" aria-hidden>{e.icon || '·'}</span>
+                            )}
                             <span className="mds-tl-text">
                               <b>{e.playerName || ''}</b>
+                              {e.kind === 'penalty_missed' && <small className="mds-tl-label-missed"> — Незабитый пенальти</small>}
                               {e.assistName && <small> · ассист: {e.assistName}</small>}
                               {e.comment && <small> — {e.comment}</small>}
                             </span>
@@ -194,7 +205,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
             rel="noopener noreferrer"
           >
             <UiIcon name="map" size={20} className="mds-cta-icon" />
-            <span>Маршрут в Я.Картах</span>
+            <span>Маршрут в Яндекс.Картах</span>
           </a>
         )}
 

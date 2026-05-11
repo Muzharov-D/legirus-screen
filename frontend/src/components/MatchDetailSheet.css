@@ -552,20 +552,45 @@
 .mds-tl-row--goal_special .mds-tl-text b,
 .mds-tl-row--penalty .mds-tl-text b { color: #4ade80; }
 
-/* Незабитый пенальти — серый/тусклый, имя зачёркнуто, текст «не гол» */
+/* Незабитый пенальти — серый/тусклый, имя зачёркнуто, красная диагональ поверх мяча */
 .mds-tl-row--penalty_missed .mds-tl-event {
   background: linear-gradient(135deg, rgba(148, 163, 184, 0.18) 0%, rgba(148, 163, 184, 0.05) 100%);
   border-color: rgba(148, 163, 184, 0.4);
-  opacity: 0.85;
 }
 .mds-tl-row--penalty_missed .mds-tl-text b {
   color: #cbd5e1;
   text-decoration: line-through;
   text-decoration-color: rgba(239, 68, 68, 0.7);
 }
-.mds-tl-row--penalty_missed .mds-tl-icon--emoji {
-  font-size: 14px;
+.mds-tl-label-missed {
+  color: #ef9a9a;
+  font-weight: 600;
+}
+
+/* Обёртка иконки — нужна для абсолютно-позиционированной диагональной линии */
+.mds-tl-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   line-height: 1;
+}
+/* Перечёркивающая красная диагональ — точно поверх центра мяча, slight glow */
+.mds-tl-icon-wrap--strike {
+  opacity: 0.6;
+}
+.mds-tl-icon-wrap--strike::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -3px;
+  right: -3px;
+  height: 2px;
+  background: #ef4444;
+  transform: translateY(-50%) rotate(-30deg);
+  border-radius: 1px;
+  pointer-events: none;
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.65);
 }
 
 .mds-tl-row--yellow_card .mds-tl-event,
