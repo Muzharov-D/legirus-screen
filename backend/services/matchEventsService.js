@@ -8,15 +8,21 @@
 import { isPgEnabled, query } from '../db/pool.js';
 import { isFfspbConfigured, getMatch as apiGetMatch } from './ffspbApi.js';
 
-// EventType из API (по факту наблюдений на реальных матчах):
-// 0 — гол с игры; 2 — гол с пенальти/автогол; 4 — карточка (yellow); 5 — карточка (red);
-// 6 — замена. Если новый тип — сохраним как 'other'.
+// EventType из FFSPB API (по факту наблюдений на реальных матчах,
+// проверено против https://stat.ffspb.org/api/matches/{id}):
+//   0 — гол с игры
+//   2 — гол с пенальти / автогол
+//   3 — НЕЗАБИТЫЙ пенальти (отдельный код, без флага)
+//   4 — жёлтая карточка
+//   5 — красная карточка
+//   6 — замена
 const TYPE_MAP = {
-  0: { kind: 'goal',         icon: '⚽', label: 'Гол' },
-  2: { kind: 'goal_special', icon: '⚽', label: 'Гол' },
-  4: { kind: 'yellow',       icon: '🟨', label: 'Жёлтая' },
-  5: { kind: 'red',          icon: '🟥', label: 'Красная' },
-  6: { kind: 'sub',          icon: '🔄', label: 'Замена' },
+  0: { kind: 'goal',           icon: '⚽',  label: 'Гол' },
+  2: { kind: 'goal_special',   icon: '⚽',  label: 'Гол' },
+  3: { kind: 'penalty_missed', icon: '⛔',  label: 'Незабитый пенальти' },
+  4: { kind: 'yellow',         icon: '🟨',  label: 'Жёлтая' },
+  5: { kind: 'red',            icon: '🟥',  label: 'Красная' },
+  6: { kind: 'sub',            icon: '🔄',  label: 'Замена' },
 };
 
 function normalizeEvent(e, hostId) {

@@ -144,7 +144,10 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                               {e.assistName && <small> · ассист: {e.assistName}</small>}
                               {e.comment && <small> — {e.comment}</small>}
                             </span>
-                            <UiIcon name={EVENT_KIND_TO_ICON[e.kind] || 'ball'} size={16} className="mds-tl-icon" />
+                            {EVENT_KIND_TO_ICON[e.kind]
+                              ? <UiIcon name={EVENT_KIND_TO_ICON[e.kind]} size={16} className="mds-tl-icon" />
+                              : <span className="mds-tl-icon mds-tl-icon--emoji" aria-hidden>{e.icon || '·'}</span>
+                            }
                           </span>
                         )}
                       </div>
@@ -152,7 +155,10 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                       <div className="mds-tl-side mds-tl-side--away">
                         {side === 'away' && (
                           <span className="mds-tl-event">
-                            <UiIcon name={EVENT_KIND_TO_ICON[e.kind] || 'ball'} size={16} className="mds-tl-icon" />
+                            {EVENT_KIND_TO_ICON[e.kind]
+                              ? <UiIcon name={EVENT_KIND_TO_ICON[e.kind]} size={16} className="mds-tl-icon" />
+                              : <span className="mds-tl-icon mds-tl-icon--emoji" aria-hidden>{e.icon || '·'}</span>
+                            }
                             <span className="mds-tl-text">
                               <b>{e.playerName || ''}</b>
                               {e.assistName && <small> · ассист: {e.assistName}</small>}

@@ -145,11 +145,19 @@
   line-height: 1.1;
 }
 .public-header__myteam:hover { background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%); color: #fff; border-color: rgba(255, 255, 255, 0.3); }
+/* Активный таб (не-primary) — заметно ярче и с акцентным border. */
 .public-header__myteam.is-active {
-  background: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%);
-  border-color: rgba(255, 255, 255, 0.45);
+  background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+  border-color: #67e8f9;
   color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 0 1px rgba(103, 232, 249, 0.35),
+    0 4px 14px rgba(0, 0, 0, 0.55);
+}
+.public-header__myteam.is-active .public-header__myteam-tier {
+  color: #67e8f9;
+  text-shadow: 0 1px 4px rgba(103, 232, 249, 0.35);
 }
 
 /* Primary — изначально выбранная (фаворитная) команда. Красная — фирменный цвет
@@ -346,8 +354,8 @@
   gap: 10px;
   padding: 10px 12px;
   min-height: 56px;
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(0, 0, 0, 0.4) 100%);
-  border: 1px solid rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.32) 0%, rgba(60, 6, 6, 0.65) 100%);
+  border: 1.5px solid rgba(239, 68, 68, 0.7);
   border-radius: 12px;
   cursor: pointer;
   transition: transform 120ms, border-color 120ms, box-shadow 120ms;
@@ -355,12 +363,21 @@
   font-family: inherit;
   text-align: left;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
-.public-header__rank:hover { transform: translateY(-1px); }
+.public-header__rank:hover {
+  transform: translateY(-1px);
+  border-color: #ef4444;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px rgba(220, 38, 38, 0.35);
+}
 .public-header__rank:active { transform: scale(0.98); }
 .public-header__rank--club {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.55) 100%);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(20, 20, 30, 0.7) 100%);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.public-header__rank--club:hover {
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 /* Базовые стили внутренностей rank-блока. Раньше их не было — текст
    съезжал и накладывался. */
@@ -438,5 +455,6 @@
   .public-header__myteam-year { font-size: 9px; }
   .public-header__myteam { padding: 4px 12px 4px 6px; min-height: 40px; }
   .public-header__myteams { gap: 4px; padding: 3px; }
+  .public-header__addbtn { flex-basis: 40px; min-width: 40px; min-height: 40px; font-size: 22px; }
   .public-header__myteam-x { width: 14px; height: 14px; font-size: 12px; top: 1px; right: 2px; }
 }
