@@ -63,18 +63,32 @@ export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legiru
   return { extMatchId, events: events.length };
 }
 
-// Главный tick: для всех наших isPast матчей без events_data — fetch + save.
-// is_past вычисляется по score_home IS NOT NULL (см. dataRepo.loadCalendar маппинг).
+// Главный tick: для всех наших isPast матчей с пустым/устаревшим events_data — fetch + save.
+//
+// КРИТИЧНО: судья заполняет протокол постепенно — сначала только финальный счёт
+// (попадает в standings сразу), потом детальный протокол с goals/cards/subs может
+// появиться через 1-24 часа. Если первый pull попал на момент когда events ещё нет,
+// мы записывали [] и больше никогда не пробовали. Поэтому условие на 2 уровнях:
+//   1. events_data IS NULL — никогда не тянули (новые матчи)
+//   2. ИЛИ events_data это пустой массив И прошло >2ч с прошлой попытки
+//      (даём судье время дозаполнить, но ретраим)
+// Окно — 7 дней (после этого протокол обычно полностью заполнен либо никогда).
 export async function syncRecentEvents() {
   if (!isPgEnabled() || !isFfspbConfigured()) return { skipped: true };
-  // Берём только последние 30 дней, чтобы не лить запросы за весь сезон
   const r = await query(`
     SELECT ext_match_id, age_group, club_id
     FROM calendar
     WHERE club_id = 'legirus' AND is_our_match = TRUE
       AND score_home IS NOT NULL
-      AND match_date >= NOW() - INTERVAL '30 days'
-      AND events_data IS NULL
+      AND match_date >= NOW() - INTERVAL '7 days'
+      AND (
+        events_data IS NULL
+        OR (
+          jsonb_typeof(events_data) = 'array'
+          AND jsonb_array_length(events_data) = 0
+          AND (events_fetched_at IS NULL OR events_fetched_at < NOW() - INTERVAL '2 hours')
+        )
+      )
     ORDER BY match_date DESC
     LIMIT 50`);
   if (r.rows.length === 0) return { fetched: 0 };
