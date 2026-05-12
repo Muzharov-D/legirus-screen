@@ -567,13 +567,22 @@
   font-weight: 600;
 }
 
-/* Обёртка иконки — нужна для абсолютно-позиционированной диагональной линии */
+/* Обёртка иконки — нужна для абсолютно-позиционированной диагональной линии.
+   Явно задаём размер чтобы flex-родитель не схлопывал её и иконка не обрезалась. */
 .mds-tl-icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   position: relative;
   line-height: 1;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.mds-tl-icon-wrap .mds-tl-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 /* Перечёркивающая красная диагональ — точно поверх центра мяча, slight glow */
 .mds-tl-icon-wrap--strike {

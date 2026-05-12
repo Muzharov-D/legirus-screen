@@ -350,10 +350,15 @@ export default function PublicTeamSchedule() {
   const ourRow = standings?.table?.find((t) => t.isOurClub);
 
   async function handleShare() {
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    // Делимся ссылкой на ЛЕНДИНГ (корень mobile.*), а не на конкретную команду.
+    // Получатель сам выберет свою команду из 8 — иначе он попадёт на чужой возраст
+    // (например, я родитель 2010, а отправил ссылку родителю ребёнка 2012 — он бы
+    // увидел расписание 2010 и не понял, как переключиться).
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const shareUrl = origin + '/';
     const shareData = {
-      title: `ФК Легирус ${tierForAge(age)} · Расписание`,
-      text: `Расписание ФК Легирус ${tierForAge(age)} (${age})`,
+      title: 'ФК Легирус · Расписание',
+      text: 'Расписание команд ФК Легирус — выберите год рождения ребёнка',
       url: shareUrl,
     };
     try {
