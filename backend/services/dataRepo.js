@@ -186,20 +186,26 @@ export async function listCup() {
 export async function loadCalendar(ageGroup) {
   if (!isPgEnabled()) return legacy.loadCalendar(ageGroup);
   const r = await query(`
-    SELECT ext_match_id AS "matchId", match_date AS date,
-           home_team AS home, away_team AS away,
-           ext_home_team_id AS "homeTeamId", ext_away_team_id AS "awayTeamId",
-           CASE WHEN score_home IS NOT NULL THEN jsonb_build_object('home', score_home, 'away', score_away) ELSE NULL END AS score,
-           score_home IS NOT NULL AS "isPast",
-           is_our_match AS "isOurMatch",
-           venue, group_name AS "group", round,
-           tournament,
-           home_shield AS "homeShield",
-           away_shield AS "awayShield",
-           events_data AS "events"
-    FROM calendar
-    WHERE club_id = 'legirus' AND age_group = $1
-    ORDER BY match_date NULLS LAST`, [ageGroup]);
+    SELECT c.ext_match_id AS "matchId", c.match_date AS date,
+           c.home_team AS home, c.away_team AS away,
+           c.ext_home_team_id AS "homeTeamId", c.ext_away_team_id AS "awayTeamId",
+           CASE WHEN c.score_home IS NOT NULL THEN jsonb_build_object('home', c.score_home, 'away', c.score_away) ELSE NULL END AS score,
+           c.score_home IS NOT NULL AS "isPast",
+           c.is_our_match AS "isOurMatch",
+           c.venue, c.group_name AS "group", c.round,
+           c.tournament,
+           c.home_shield AS "homeShield",
+           c.away_shield AS "awayShield",
+           c.events_data AS "events",
+           m.team_summary_stats AS "teamSummaryStats",
+           m.team_aggregates AS "teamAggregates"
+    FROM calendar c
+    LEFT JOIN matches m
+      ON DATE(m.match_date) = DATE(c.match_date)
+     AND m.home_team_name = c.home_team
+     AND m.away_team_name = c.away_team
+    WHERE c.club_id = 'legirus' AND c.age_group = $1
+    ORDER BY c.match_date NULLS LAST`, [ageGroup]);
   if (r.rows.length === 0) return null;
 
   const meta = await query(`

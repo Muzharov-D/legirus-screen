@@ -1,10 +1,11 @@
 // Bottom-sheet с деталями матча для родителя.
 // Открывается по клику на карточку матча. Главная фича — кнопка маршрута в Я.Картах.
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useModalBack from '../utils/useModalBack';
 import { shieldFor } from '../utils/legirus';
 import UiIcon from './UiIcon';
+import MatchStatsBlock from './MatchStatsBlock';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
@@ -73,6 +74,17 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
   // Android back / swipe-back — закрывает модалку
   useModalBack(onClose, !!match);
 
+  // Сигнал «матч разобран» — есть непустой teamSummaryStats.home
+  const statsHome = match?.teamSummaryStats?.home;
+  const hasStats = !!(statsHome && typeof statsHome === 'object' && Object.keys(statsHome).length > 0);
+
+  const [tab, setTab] = useState('overview');
+  // Если матч переоткрыли с другим набором — на всякий случай сбрасываем активный таб,
+  // если выбранный больше недоступен.
+  useEffect(() => {
+    if (tab === 'stats' && !hasStats) setTab('overview');
+  }, [hasStats, tab]);
+
   if (!match) return null;
 
   const past = match.isPast;
@@ -128,8 +140,37 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         </div>
 
+        {/* Табы: Обзор / Статистика. Показываем табы только если есть стата —
+            иначе обзор отрисуется без табов как раньше. */}
+        {past && hasStats && (
+          <div className="mds-tabs" role="tablist">
+            <button
+              role="tab"
+              aria-selected={tab === 'overview'}
+              className={`mds-tab${tab === 'overview' ? ' mds-tab--active' : ''}`}
+              onClick={() => setTab('overview')}
+            >Обзор</button>
+            <button
+              role="tab"
+              aria-selected={tab === 'stats'}
+              className={`mds-tab${tab === 'stats' ? ' mds-tab--active' : ''}`}
+              onClick={() => setTab('stats')}
+            >Статистика</button>
+          </div>
+        )}
+
+        {/* Стат-блок (SportVisor): командная стата host vs guest */}
+        {past && hasStats && tab === 'stats' && (
+          <MatchStatsBlock
+            home={match.teamSummaryStats.home}
+            away={match.teamSummaryStats.away}
+            hostName={shortName(match.home)}
+            guestName={shortName(match.away)}
+          />
+        )}
+
         {/* События матча в виде 2 колонок: home слева, away справа, минута по центру */}
-        {past && Array.isArray(match.events) && match.events.length > 0 && (
+        {past && (!hasStats || tab === 'overview') && Array.isArray(match.events) && match.events.length > 0 && (
           <div className="mds-events">
             <div className="mds-events__title"><UiIcon name="ball" size={12} /> Ход матча</div>
             <div className="mds-tl-list">

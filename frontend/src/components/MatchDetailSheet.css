@@ -619,6 +619,32 @@
 .mds-tl-row--substitution_out .mds-tl-event,
 .mds-tl-row--sub .mds-tl-event { opacity: 0.9; }
 
+/* Табы Обзор / Статистика — в модалке матча */
+.mds-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 12px 0 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.mds-tab {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  color: #94a3c8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.mds-tab:hover { color: #cbd5e1; }
+.mds-tab--active {
+  color: #22d3ee;
+  border-bottom-color: #22d3ee;
+}
+
 /* Замена: пара «вошёл/ушёл» с цветовым акцентом */
 .mds-tl-sub-pair { font-weight: 600; white-space: normal; }
 .mds-tl-sub-in  { color: #4ade80; }
