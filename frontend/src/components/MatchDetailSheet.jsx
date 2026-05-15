@@ -143,10 +143,20 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                         {side === 'home' && (
                           <span className="mds-tl-event">
                             <span className="mds-tl-text">
-                              <b>{e.playerName || ''}</b>
-                              {e.kind === 'penalty_missed' && <small className="mds-tl-label-missed"> — Незабитый пенальти</small>}
-                              {e.assistName && <small> · ассист: {e.assistName}</small>}
-                              {e.comment && <small> — {e.comment}</small>}
+                              {e.kind === 'sub' && e.in?.name && e.out?.name ? (
+                                <b className="mds-tl-sub-pair">
+                                  <span className="mds-tl-sub-in">→ {e.in.name}</span>
+                                  {' '}
+                                  <span className="mds-tl-sub-out">← {e.out.name}</span>
+                                </b>
+                              ) : (
+                                <>
+                                  <b>{e.playerName || ''}</b>
+                                  {e.kind === 'penalty_missed' && <small className="mds-tl-label-missed"> — Незабитый пенальти</small>}
+                                  {e.assistName && <small> · ассист: {e.assistName}</small>}
+                                  {e.comment && <small> — {e.comment}</small>}
+                                </>
+                              )}
                             </span>
                             {EVENT_KIND_TO_ICON[e.kind] ? (
                               <span className={`mds-tl-icon-wrap${e.kind === 'penalty_missed' ? ' mds-tl-icon-wrap--strike' : ''}`}>
@@ -170,10 +180,20 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                               <span className="mds-tl-icon mds-tl-icon--emoji" aria-hidden>{e.icon || '·'}</span>
                             )}
                             <span className="mds-tl-text">
-                              <b>{e.playerName || ''}</b>
-                              {e.kind === 'penalty_missed' && <small className="mds-tl-label-missed"> — Незабитый пенальти</small>}
-                              {e.assistName && <small> · ассист: {e.assistName}</small>}
-                              {e.comment && <small> — {e.comment}</small>}
+                              {e.kind === 'sub' && e.in?.name && e.out?.name ? (
+                                <b className="mds-tl-sub-pair">
+                                  <span className="mds-tl-sub-in">→ {e.in.name}</span>
+                                  {' '}
+                                  <span className="mds-tl-sub-out">← {e.out.name}</span>
+                                </b>
+                              ) : (
+                                <>
+                                  <b>{e.playerName || ''}</b>
+                                  {e.kind === 'penalty_missed' && <small className="mds-tl-label-missed"> — Незабитый пенальти</small>}
+                                  {e.assistName && <small> · ассист: {e.assistName}</small>}
+                                  {e.comment && <small> — {e.comment}</small>}
+                                </>
+                              )}
                             </span>
                           </span>
                         )}

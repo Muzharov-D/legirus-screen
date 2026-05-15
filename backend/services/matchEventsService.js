@@ -8,21 +8,27 @@
 import { isPgEnabled, query } from '../db/pool.js';
 import { isFfspbConfigured, getMatch as apiGetMatch } from './ffspbApi.js';
 
-// EventType из FFSPB API (по факту наблюдений на реальных матчах,
-// проверено против https://stat.ffspb.org/api/matches/{id}):
-//   0 — гол с игры
-//   2 — гол с пенальти / автогол
-//   3 — НЕЗАБИТЫЙ пенальти (отдельный код, без флага)
-//   4 — жёлтая карточка
-//   5 — красная карточка
-//   6 — замена
+// EventType из FFSPB API (исследование 2026-05-15 на 300 последних матчах +
+// сверка с UI stat.ffspb.org):
+//   0  — гол с игры
+//   1  — автогол (идёт в счёт противнику)
+//   2  — гол с пенальти
+//   3  — незабитый пенальти
+//   4  — жёлтая карточка (обычная, без удаления)
+//   5  — красная карточка (прямая)
+//   6  — жёлтая карточка из связки «2ЖК → удаление» (обе записи помечаются 6)
+//   15 — травма (в comment — записка врача)
+// Замены в `events` НЕ приходят — они в match.participatedPlayers[]
+// (см. normalizeSubstitutions ниже).
 const TYPE_MAP = {
-  0: { kind: 'goal',           icon: '⚽',  label: 'Гол' },
-  2: { kind: 'goal_special',   icon: '⚽',  label: 'Гол' },
-  3: { kind: 'penalty_missed', icon: '⛔',  label: 'Незабитый пенальти' },
-  4: { kind: 'yellow',         icon: '🟨',  label: 'Жёлтая' },
-  5: { kind: 'red',            icon: '🟥',  label: 'Красная' },
-  6: { kind: 'sub',            icon: '🔄',  label: 'Замена' },
+  0:  { kind: 'goal',           icon: '⚽',     label: 'Гол' },
+  1:  { kind: 'own_goal',       icon: '🥅',     label: 'Автогол' },
+  2:  { kind: 'penalty',        icon: '⚽',     label: 'Гол с пенальти' },
+  3:  { kind: 'penalty_missed', icon: '⛔',     label: 'Незабитый пенальти' },
+  4:  { kind: 'yellow',         icon: '🟨',     label: 'Жёлтая' },
+  5:  { kind: 'red',            icon: '🟥',     label: 'Красная' },
+  6:  { kind: 'yellow_to_red',  icon: '🟨→🟥', label: 'Жёлтая (→ удаление)' },
+  15: { kind: 'injury',         icon: '🩹',     label: 'Травма' },
 };
 
 function normalizeEvent(e, hostId) {
@@ -53,20 +59,79 @@ function normalizeEvent(e, hostId) {
 function normalizeEvents(match) {
   if (!match || !Array.isArray(match.events)) return [];
   const hostId = match.host?.['@id'];
-  const arr = match.events.map((e) => normalizeEvent(e, hostId));
-  arr.sort((a, b) => (a.minute || 0) - (b.minute || 0));
-  return arr;
+  return match.events.map((e) => normalizeEvent(e, hostId));
+}
+
+function shortName(player) {
+  if (!player) return '—';
+  const last = player.surname || player.member?.surname || '';
+  const first = player.firstName || player.member?.firstName || '';
+  return (last + (first ? ' ' + first.slice(0, 1) + '.' : '')).trim() || '—';
+}
+
+// Замены приходят в FFSPB не как match.events, а как match.participatedPlayers[].
+// Каждый PlayerParticipation у УХОДЯЩЕГО игрока содержит:
+//   bench: 0|1 (стартовый или с лавки), number, replacedBy: Player, replaceMin: number.
+// У вошедшего (того, на кого ссылается replacedBy) данные пустые — replaceMin=0, replacedBy=null.
+function normalizeSubstitutions(match) {
+  if (!match || !Array.isArray(match.participatedPlayers)) return [];
+  const hostId = match.host?.['@id'];
+  const byPlayerId = new Map();
+  for (const p of match.participatedPlayers) {
+    const pid = p.request?.['@id'];
+    if (pid) byPlayerId.set(pid, p);
+  }
+  const subs = [];
+  for (const p of match.participatedPlayers) {
+    if (!p.replacedBy || !p.replaceMin) continue;
+    const inParticipation = byPlayerId.get(p.replacedBy['@id']);
+    const teamSide = p.team?.['@id'] === hostId ? 'host' : 'guest';
+    const outName = shortName(p.request);
+    const inName = shortName(p.replacedBy);
+    subs.push({
+      minute: p.replaceMin,
+      addedTime: false,
+      eventType: 'sub',
+      kind: 'sub',
+      icon: '🔄',
+      label: 'Замена',
+      team: teamSide,
+      playerName: outName,
+      playerId: p.request?.['@id']?.split('/').pop() || null,
+      assistName: null,
+      comment: `⇄ ${inName}`,
+      out: {
+        playerId: p.request?.['@id']?.split('/').pop() || null,
+        name: outName,
+        number: p.number ?? null,
+        photo: p.request?.photo || null,
+      },
+      in: {
+        playerId: p.replacedBy?.['@id']?.split('/').pop() || null,
+        name: inName,
+        number: inParticipation?.number ?? null,
+        photo: p.replacedBy?.photo || null,
+      },
+    });
+  }
+  return subs;
+}
+
+function buildTimeline(match) {
+  const events = normalizeEvents(match);
+  const subs = normalizeSubstitutions(match);
+  return [...events, ...subs].sort((a, b) => (a.minute || 0) - (b.minute || 0));
 }
 
 // Sync events для одного матча
 export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legirus') {
   const apiMatch = await apiGetMatch(extMatchId);
-  const events = normalizeEvents(apiMatch);
+  const timeline = buildTimeline(apiMatch);
   await query(
     `UPDATE calendar SET events_data = $1::jsonb, events_fetched_at = NOW()
      WHERE club_id = $2 AND age_group = $3 AND ext_match_id = $4`,
-    [JSON.stringify(events), clubId, ageGroup, extMatchId]);
-  return { extMatchId, events: events.length };
+    [JSON.stringify(timeline), clubId, ageGroup, extMatchId]);
+  return { extMatchId, events: timeline.length };
 }
 
 // Главный tick: для всех наших isPast матчей с пустым/устаревшим events_data — fetch + save.

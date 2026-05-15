@@ -616,7 +616,13 @@
 
 .mds-tl-row--substitution .mds-tl-event,
 .mds-tl-row--substitution_in .mds-tl-event,
-.mds-tl-row--substitution_out .mds-tl-event { opacity: 0.85; }
+.mds-tl-row--substitution_out .mds-tl-event,
+.mds-tl-row--sub .mds-tl-event { opacity: 0.9; }
+
+/* Замена: пара «вошёл/ушёл» с цветовым акцентом */
+.mds-tl-sub-pair { font-weight: 600; white-space: normal; }
+.mds-tl-sub-in  { color: #4ade80; }
+.mds-tl-sub-out { color: #94a3c8; }
 
 /* Legirus theme overrides для двухколоночного таймлайна */
 .mds-theme--legirus .mds-tl-event {
