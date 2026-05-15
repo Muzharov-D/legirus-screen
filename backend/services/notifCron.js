@@ -18,6 +18,7 @@
 
 import { isPgEnabled, query } from '../db/pool.js';
 import { sendToSubscription, configurePush } from './pushService.js';
+import { notifyMatchKickoff, processDeferredNotifications } from './matchNotifications.js';
 
 const WINDOWS = [
   { hours: 24, scope: 'callup-reminder-24h', label: '1 день' },
@@ -127,6 +128,30 @@ async function processWindow(w) {
   return { matches: matches.rows.length, sent: totalSent };
 }
 
+// Триггер match-kickoff: ищем наши матчи, начавшиеся за последние 30 мин.
+// Дедуп выполняется внутри notifyMatchKickoff → broadcastTeam (notif_log).
+async function tickKickoffs() {
+  const r = await query(
+    `SELECT club_id, age_group, ext_match_id, home_team, away_team
+     FROM calendar
+     WHERE is_our_match = TRUE
+       AND match_date BETWEEN NOW() - INTERVAL '30 minutes' AND NOW()`);
+  if (r.rows.length === 0) return { matches: 0 };
+  let fired = 0;
+  for (const m of r.rows) {
+    try {
+      const res = await notifyMatchKickoff({
+        clubId: m.club_id, ageGroup: m.age_group, extMatchId: m.ext_match_id,
+        homeTeam: m.home_team, awayTeam: m.away_team,
+      });
+      if (res?.sent) fired++;
+    } catch (e) {
+      console.error('[notif] kickoff failed:', m.ext_match_id, e.message);
+    }
+  }
+  return { matches: r.rows.length, fired };
+}
+
 export async function tickNotifications() {
   if (!isPgEnabled()) return;
   await configurePush();
@@ -137,6 +162,22 @@ export async function tickNotifications() {
     } catch (e) {
       console.error(`[notif] ${w.scope} failed:`, e.message);
     }
+  }
+
+  // Kickoffs (T-0 ± 30 мин).
+  try {
+    const k = await tickKickoffs();
+    if (k.matches > 0) console.log(`[notif] match-kickoff: ${k.matches} matches, ${k.fired} fired`);
+  } catch (e) {
+    console.error('[notif] kickoff tick failed:', e.message);
+  }
+
+  // Очередь отложенных пушей (тихие часы 23:00–08:00).
+  try {
+    const d = await processDeferredNotifications();
+    if (d.processed > 0) console.log(`[notif] deferred processed: ${d.processed}`);
+  } catch (e) {
+    console.error('[notif] deferred tick failed:', e.message);
   }
 }
 

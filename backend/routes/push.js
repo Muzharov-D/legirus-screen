@@ -9,8 +9,21 @@ import {
   getPublicKey,
   listSubscriptions,
 } from '../services/pushService.js';
+import { isPgEnabled, query } from '../db/pool.js';
 
 const router = express.Router();
+
+// Доступные kinds, которыми пользователь может управлять. Ключи должны совпадать
+// со scope'ами в matchNotifications.js. Эти kinds — для родительских/тренерских
+// нотификаций; критические (callup-invited) НЕ выводим в UI, они always-on.
+const TOGGLEABLE_KINDS = [
+  'match-reminder-24h',
+  'match-lineup-published',
+  'match-events-first',
+  'match-final',
+  'match-coach-comment',
+  'match-kickoff',
+];
 
 // Публичный VAPID ключ для frontend подписки.
 // Не секретный — используется как applicationServerKey в PushManager.subscribe().
@@ -66,6 +79,76 @@ router.post('/test', async (req, res) => {
       teamId ? { teamId } : {},
     );
     res.json({ ok: true, ...result });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Получить prefs текущей подписки. Параметр — endpoint (browser PushSubscription).
+// Возвращаем { kinds: [...], prefs: { kind: enabled, ... } }.
+router.get('/preferences', async (req, res) => {
+  try {
+    const endpoint = req.query?.endpoint;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint обязателен' });
+    if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
+    const r = await query(
+      `SELECT prefs, user_id FROM push_subscriptions WHERE endpoint = $1`,
+      [endpoint]);
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Подписка не найдена' });
+    // Проверка владения: если у подписки есть user_id, он должен совпадать с auth-user.
+    const ownerId = r.rows[0].user_id;
+    const authedId = req.user?.id || req.user?.userId || req.user?.username || null;
+    if (ownerId && authedId && ownerId !== authedId) {
+      return res.status(403).json({ error: 'Чужая подписка' });
+    }
+    const stored = r.rows[0].prefs || {};
+    // Возвращаем дефолты (true) для kinds, которых нет в prefs.
+    const prefs = {};
+    for (const k of TOGGLEABLE_KINDS) prefs[k] = stored[k] !== false;
+    res.json({ kinds: TOGGLEABLE_KINDS, prefs });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Обновить prefs. Тело: { endpoint, kind, enabled } или { endpoint, prefs: { kind: bool, ... } }.
+router.patch('/preferences', async (req, res) => {
+  try {
+    const endpoint = req.body?.endpoint;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint обязателен' });
+    if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
+
+    const r = await query(
+      `SELECT prefs, user_id FROM push_subscriptions WHERE endpoint = $1`,
+      [endpoint]);
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Подписка не найдена' });
+    const ownerId = r.rows[0].user_id;
+    const authedId = req.user?.id || req.user?.userId || req.user?.username || null;
+    if (ownerId && authedId && ownerId !== authedId) {
+      return res.status(403).json({ error: 'Чужая подписка' });
+    }
+
+    const cur = r.rows[0].prefs || {};
+    let updated = { ...cur };
+    if (req.body?.kind != null) {
+      if (!TOGGLEABLE_KINDS.includes(req.body.kind)) {
+        return res.status(400).json({ error: `Неизвестный kind: ${req.body.kind}` });
+      }
+      updated[req.body.kind] = !!req.body.enabled;
+    } else if (req.body?.prefs && typeof req.body.prefs === 'object') {
+      for (const [k, v] of Object.entries(req.body.prefs)) {
+        if (TOGGLEABLE_KINDS.includes(k)) updated[k] = !!v;
+      }
+    } else {
+      return res.status(400).json({ error: 'Нужно передать kind+enabled или prefs объект' });
+    }
+
+    await query(
+      `UPDATE push_subscriptions SET prefs = $1::jsonb, updated_at = NOW() WHERE endpoint = $2`,
+      [JSON.stringify(updated), endpoint]);
+    const out = {};
+    for (const k of TOGGLEABLE_KINDS) out[k] = updated[k] !== false;
+    res.json({ ok: true, prefs: out });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
