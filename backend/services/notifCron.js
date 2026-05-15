@@ -1,7 +1,7 @@
-// Cron-задача: напоминания о матче за 36h / 24h / 6h до старта.
-// Запускается каждые 30 минут. Дедуп через notif_log (UNIQUE scope+scope_id).
+// Cron-задача: напоминание о матче за 24h до старта (одно окно — базовый push).
+// Тикает каждые 30 минут. Дедуп через notif_log (UNIQUE scope+scope_id).
 //
-// Логика для каждого окна W (часов):
+// Логика:
 //   1. SELECT cal.* WHERE is_our_match=TRUE
 //        AND match_date BETWEEN NOW()+(W-30m) AND NOW()+(W+30m)
 //        AND NOT EXISTS (SELECT 1 FROM notif_log WHERE scope=$1 AND scope_id=ext_match_id)
@@ -11,14 +11,16 @@
 //
 // Push идёт всем подписчикам команды — включая тренера, родителей через PWA-подписки,
 // игроков с авторизацией. notif_log дедуп предотвращает повторную отправку.
+//
+// Окна T-36h и T-6h раньше тоже стреляли — отключены по запросу: на первом шаге
+// нам нужен ровно один информативный пинг — за сутки. Триггеры на lineup.published /
+// coach.comment / final-score добавим отдельным шагом event-driven (см. гипотезу).
 
 import { isPgEnabled, query } from '../db/pool.js';
 import { sendToSubscription, configurePush } from './pushService.js';
 
 const WINDOWS = [
-  { hours: 36, scope: 'callup-reminder-36h', label: '1.5 дня' },
   { hours: 24, scope: 'callup-reminder-24h', label: '1 день' },
-  { hours: 6,  scope: 'callup-reminder-6h',  label: '6 часов' },
 ];
 
 const TICK_MIN = 30;       // как часто запускать
