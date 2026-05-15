@@ -291,7 +291,9 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
-        {match.venue && (
+        {/* Стадион, маршрут в карты и .ics — показываем только на табе «Обзор»,
+            чтобы не мозолили глаза на Статистике / Составе / Комментарии. */}
+        {tab === 'overview' && match.venue && (
           <div className="mds-venue">
             <div className="mds-venue-icon">📍</div>
             <div className="mds-venue-text">
@@ -303,7 +305,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
-        {yaUrl && !past && (
+        {tab === 'overview' && yaUrl && !past && (
           <a
             className="mds-cta"
             href={yaUrl}
@@ -315,14 +317,14 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </a>
         )}
 
-        {icsUrl && !past && (
+        {tab === 'overview' && icsUrl && !past && (
           <a className="mds-cta-secondary" href={icsUrl}>
             <UiIcon name="calendar" size={18} />
             <span>В мой календарь</span>
           </a>
         )}
 
-        {!match.venue && (
+        {tab === 'overview' && !match.venue && (
           <div className="mds-no-venue">
             Адрес стадиона пока не указан. Уточните у тренера в чате команды.
           </div>
