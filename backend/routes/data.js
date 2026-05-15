@@ -14,6 +14,7 @@ import {
   listCalendar,
 } from '../services/dataRepo.js';
 import { query, isPgEnabled } from '../db/pool.js';
+import { notifyCoachComment } from '../services/matchNotifications.js';
 import { refreshAge, refreshAll } from '../services/standingsService.js';
 import { refreshCupAge, refreshCupAll } from '../services/cupService.js';
 import { refreshCalendarAge, refreshCalendarAll } from '../services/calendarService.js';
@@ -195,13 +196,26 @@ router.patch('/match/:age/:extMatchId/comment', async (req, res) => {
     const r = await query(
       `UPDATE calendar SET coach_comment = $1
          WHERE club_id = 'legirus' AND age_group = $2 AND ext_match_id = $3
-       RETURNING coach_comment`,
+       RETURNING coach_comment, home_team, away_team`,
       [value, age, extMatchId],
     );
     if (r.rowCount === 0) {
       return res.status(404).json({ error: 'Матч не найден' });
     }
-    res.json({ ok: true, coachComment: r.rows[0].coach_comment });
+    const row = r.rows[0];
+    res.json({ ok: true, coachComment: row.coach_comment });
+
+    // Триггер push: только при сохранении непустого комментария.
+    // notif_log дедуп — повторное «Сохранить» того же текста не разошлёт второй пуш
+    // (UNIQUE на scope+scope_id = match-coach-comment + ext_match_id).
+    if (value) {
+      notifyCoachComment({
+        clubId: 'legirus', ageGroup: age, extMatchId,
+        homeTeam: row.home_team, awayTeam: row.away_team,
+        excerpt: value,
+      }).catch((e) => console.error('[notify] coach-comment failed:', e.message));
+    }
+    return;
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

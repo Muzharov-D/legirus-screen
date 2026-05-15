@@ -7,6 +7,10 @@
 
 import { isPgEnabled, query } from '../db/pool.js';
 import { isFfspbConfigured, getMatch as apiGetMatch } from './ffspbApi.js';
+import {
+  notifyLineupPublished,
+  notifyEventsFirst,
+} from './matchNotifications.js';
 
 // EventType из FFSPB API (исследование 2026-05-15 на 300 последних матчах +
 // сверка с UI stat.ffspb.org):
@@ -151,10 +155,24 @@ function normalizeLineups(match) {
 }
 
 // Sync events + lineups для одного матча. Один HTTP-запрос — обе колонки.
+// Триггерит push:
+//   match-events-first — когда events_data впервые становится непустым
+//   match-lineup-published — когда lineups_data впервые непустой
 export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legirus') {
   const apiMatch = await apiGetMatch(extMatchId);
   const timeline = buildTimeline(apiMatch);
   const lineups = normalizeLineups(apiMatch);
+
+  // Снимаем «до»-состояние для state-diff триггеров.
+  const before = await query(
+    `SELECT home_team, away_team, match_date,
+            (events_data IS NOT NULL AND jsonb_typeof(events_data) = 'array'
+              AND jsonb_array_length(events_data) > 0) AS had_events,
+            (lineups_data IS NOT NULL) AS had_lineups
+     FROM calendar WHERE club_id = $1 AND age_group = $2 AND ext_match_id = $3`,
+    [clubId, ageGroup, extMatchId]);
+  const prev = before.rows[0] || {};
+
   await query(
     `UPDATE calendar
        SET events_data = $1::jsonb,
@@ -163,21 +181,57 @@ export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legiru
            lineups_fetched_at = CASE WHEN $2::jsonb IS NOT NULL THEN NOW() ELSE lineups_fetched_at END
      WHERE club_id = $3 AND age_group = $4 AND ext_match_id = $5`,
     [JSON.stringify(timeline), lineups ? JSON.stringify(lineups) : null, clubId, ageGroup, extMatchId]);
+
+  // Триггеры — после успешного UPDATE. Сами по себе идемпотентны через notif_log dedup.
+  const hasEvents = timeline.length > 0;
+  if (hasEvents && !prev.had_events) {
+    notifyEventsFirst({
+      clubId, ageGroup, extMatchId,
+      homeTeam: prev.home_team, awayTeam: prev.away_team,
+      eventsCount: timeline.length,
+    }).catch((e) => console.error('[notify] events-first failed:', e.message));
+  }
+  if (lineups && !prev.had_lineups) {
+    notifyLineupPublished({
+      clubId, ageGroup, extMatchId,
+      homeTeam: prev.home_team, awayTeam: prev.away_team,
+      matchDate: prev.match_date,
+    }).catch((e) => console.error('[notify] lineup-published failed:', e.message));
+  }
+
   return { extMatchId, events: timeline.length, lineups: lineups ? (lineups.home.length + lineups.away.length) : 0 };
 }
 
 // Pre-match синк: только lineups для предстоящих матчей в окне до начала.
 // Не пишем events_data (матч ещё не сыгран, events будут пустые).
+// Триггерит push match-lineup-published, когда состав появился впервые.
 async function fetchAndStoreLineups(extMatchId, ageGroup, clubId = 'legirus') {
   const apiMatch = await apiGetMatch(extMatchId);
   const lineups = normalizeLineups(apiMatch);
   if (!lineups) return { extMatchId, lineups: 0 };
+
+  const before = await query(
+    `SELECT home_team, away_team, match_date,
+            (lineups_data IS NOT NULL) AS had_lineups
+     FROM calendar WHERE club_id = $1 AND age_group = $2 AND ext_match_id = $3`,
+    [clubId, ageGroup, extMatchId]);
+  const prev = before.rows[0] || {};
+
   await query(
     `UPDATE calendar
        SET lineups_data = $1::jsonb,
            lineups_fetched_at = NOW()
      WHERE club_id = $2 AND age_group = $3 AND ext_match_id = $4`,
     [JSON.stringify(lineups), clubId, ageGroup, extMatchId]);
+
+  if (!prev.had_lineups) {
+    notifyLineupPublished({
+      clubId, ageGroup, extMatchId,
+      homeTeam: prev.home_team, awayTeam: prev.away_team,
+      matchDate: prev.match_date,
+    }).catch((e) => console.error('[notify] lineup-published failed:', e.message));
+  }
+
   return { extMatchId, lineups: lineups.home.length + lineups.away.length };
 }
 

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { invalidateCache } from './dataLoader.js';
 import { isPgEnabled, query } from '../db/pool.js';
 import { isFfspbConfigured, listMatches as apiListMatches } from './ffspbApi.js';
+import { notifyMatchFinal } from './matchNotifications.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -297,6 +298,17 @@ async function persistCalendarToPg(age, out) {
   );
   for (const m of out.matches || []) {
     if (!m.matchId) continue;
+
+    // Снимаем «до»-состояние, чтобы поймать переход score: null → not null
+    // и отправить push match-final только для НАШИХ матчей.
+    let prevScoreHome = null;
+    if (m.isOurMatch) {
+      const before = await query(
+        `SELECT score_home FROM calendar WHERE club_id='legirus' AND age_group=$1 AND ext_match_id=$2`,
+        [age, m.matchId]);
+      prevScoreHome = before.rows[0]?.score_home ?? null;
+    }
+
     await query(
       `INSERT INTO calendar (club_id, age_group, season, ext_match_id, match_date, home_team, away_team,
                              ext_home_team_id, ext_away_team_id, score_home, score_away, is_our_match,
@@ -320,6 +332,15 @@ async function persistCalendarToPg(age, out) {
        null, // source_url на match-уровне не храним (есть в meta.sources)
        out.lastUpdated || new Date().toISOString()],
     );
+
+    // Триггер match-final: только для наших матчей, только при переходе null → not-null.
+    if (m.isOurMatch && prevScoreHome === null && (m.score?.home ?? null) !== null) {
+      notifyMatchFinal({
+        clubId: 'legirus', ageGroup: age, extMatchId: m.matchId,
+        homeTeam: m.home, awayTeam: m.away,
+        scoreHome: m.score.home, scoreAway: m.score.away,
+      }).catch((e) => console.error('[notify] match-final failed:', e.message));
+    }
   }
 }
 
