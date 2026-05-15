@@ -225,27 +225,56 @@ export async function syncRecentEvents() {
   return { fetched: ok, failed: fail };
 }
 
-// Pre-match составы: тики каждые 5 минут. Для каждого нашего матча с kick-off
-// в окне [сейчас, сейчас+6h] обновляем lineups_data, если её нет или она старше 5 мин.
-// Это покрывает классическое окно «за 6/4/2/1ч / 15 мин до начала».
+// Pre-match составы: cron тикает каждые 5 минут. Дёргаем FFSPB только когда
+// крест-кросcится новый чекпоинт ИЛИ матч в финальном часе (тогда каждые 5 мин,
+// чтобы поймать любые правки судьи перед стартом).
+//
+// Чекпоинты: T-24h / T-12h / T-6h / T-4h / T-2h / T-1h до начала.
+// Дальше (T<1h) — refresh каждые 5 мин до старта.
+const LINEUP_CHECKPOINTS_HOURS = [24, 12, 6, 4, 2, 1];
+
+function shouldFetchLineups(matchDate, lineupsFetchedAt) {
+  const now = Date.now();
+  const ttkMs = new Date(matchDate).getTime() - now;
+  if (ttkMs <= 0) return false; // прошедшие матчи — у events-крона
+  const ttkHours = ttkMs / 3_600_000;
+  if (ttkHours > 24) return false; // слишком далеко
+
+  // T<1h — обновляем каждые 5 минут.
+  if (ttkHours <= 1) {
+    if (!lineupsFetchedAt) return true;
+    const ageMin = (now - new Date(lineupsFetchedAt).getTime()) / 60_000;
+    return ageMin >= 5;
+  }
+
+  // Иначе — тригернем только при переходе через новый чекпоинт.
+  const passed = LINEUP_CHECKPOINTS_HOURS.filter((cp) => ttkHours <= cp);
+  if (passed.length === 0) return false;
+  const latestCpHours = Math.min(...passed);
+  const cpTimeMs = new Date(matchDate).getTime() - latestCpHours * 3_600_000;
+  if (!lineupsFetchedAt) return true;
+  return new Date(lineupsFetchedAt).getTime() < cpTimeMs;
+}
+
 export async function syncUpcomingLineups() {
   if (!isPgEnabled() || !isFfspbConfigured()) return { skipped: true };
   const r = await query(`
-    SELECT ext_match_id, age_group, club_id
+    SELECT ext_match_id, age_group, club_id, match_date, lineups_fetched_at
     FROM calendar
     WHERE club_id = 'legirus' AND is_our_match = TRUE
       AND score_home IS NULL
-      AND match_date BETWEEN NOW() AND NOW() + INTERVAL '6 hours'
-      AND (lineups_fetched_at IS NULL OR lineups_fetched_at < NOW() - INTERVAL '5 minutes')
+      AND match_date BETWEEN NOW() AND NOW() + INTERVAL '24 hours'
     ORDER BY match_date ASC
-    LIMIT 20`);
-  if (r.rows.length === 0) return { fetched: 0 };
+    LIMIT 50`);
+  const due = r.rows.filter((row) => shouldFetchLineups(row.match_date, row.lineups_fetched_at));
+  if (due.length === 0) return { fetched: 0 };
 
   let ok = 0, fail = 0;
-  for (const row of r.rows) {
+  for (const row of due) {
     try {
       const res = await fetchAndStoreLineups(row.ext_match_id, row.age_group, row.club_id);
-      console.log(`[match-lineups] ${row.age_group}/${row.ext_match_id}: ${res.lineups} players`);
+      const ttkH = ((new Date(row.match_date).getTime() - Date.now()) / 3_600_000).toFixed(1);
+      console.log(`[match-lineups] ${row.age_group}/${row.ext_match_id} (T-${ttkH}h): ${res.lineups} players`);
       ok++;
     } catch (e) {
       console.error(`[match-lineups] ${row.age_group}/${row.ext_match_id} failed:`, e.message);
@@ -260,7 +289,8 @@ let lineupsTimer = null;
 // Flashscore-режим: события матчей (голы, замены) обновляются каждые 30 минут.
 // FFSPB сам обновляется по факту заполнения протокола судьёй после матча — чаще нет смысла.
 const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
-// Pre-match составы — каждые 5 минут (только для матчей в ближайшие 6ч).
+// Pre-match составы — cron тикает каждые 5 мин, но фактически дёргает FFSPB
+// только когда у матча наступил новый чекпоинт (T-24/12/6/4/2/1h) или T<1h.
 const LINEUPS_INTERVAL_MS = 5 * 60 * 1000;
 
 export function startMatchEventsCron() {
