@@ -31,8 +31,12 @@
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.mds-lu__col--home .mds-lu__team { color: #dc2626; }
-.mds-lu__col--away .mds-lu__team { color: #f1f5fb; }
+/* Бренд: Легирус — красный, соперник — белый. Класс на корне определяет
+   на какой стороне Легирус. */
+.mds-lu--us-home .mds-lu__col--home .mds-lu__team,
+.mds-lu--us-away .mds-lu__col--away .mds-lu__team { color: #dc2626; }
+.mds-lu--us-home .mds-lu__col--away .mds-lu__team,
+.mds-lu--us-away .mds-lu__col--home .mds-lu__team { color: #fff; }
 
 .mds-lu__group {
   font-size: 10px;

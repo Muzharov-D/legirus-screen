@@ -38,9 +38,12 @@ const METRICS = [
   { key: 'offsides',         label: 'Офсайды' },
 ];
 
-export default function MatchStatsBlock({ home, away, hostName, guestName }) {
+export default function MatchStatsBlock({ home, away, hostName, guestName, homeIsUs = true }) {
+  // Класс на корне переключает который из host/guest = Легирус (красный),
+  // соперник окрашивается в белый.
+  const usClass = homeIsUs ? 'mds-stats--us-home' : 'mds-stats--us-away';
   return (
-    <div className="mds-stats">
+    <div className={`mds-stats ${usClass}`}>
       <div className="mds-stats__header">
         <span className="mds-stats__team mds-stats__team--home">{hostName || 'Хозяева'}</span>
         <span className="mds-stats__team mds-stats__team--away">{guestName || 'Гости'}</span>

@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import useModalBack from '../utils/useModalBack';
-import { shieldFor } from '../utils/legirus';
+import { shieldFor, isLegirus } from '../utils/legirus';
 import UiIcon from './UiIcon';
 import MatchStatsBlock from './MatchStatsBlock';
 import MatchLineupsBlock from './MatchLineupsBlock';
@@ -194,13 +194,15 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
-        {/* Стат-блок (SportVisor): командная стата host vs guest */}
+        {/* Стат-блок (SportVisor): командная стата host vs guest.
+            Цветовая логика: Легирус всегда красный, соперник всегда белый. */}
         {past && hasStats && tab === 'stats' && (
           <MatchStatsBlock
             home={match.teamSummaryStats.home}
             away={match.teamSummaryStats.away}
             hostName={shortName(match.home)}
             guestName={shortName(match.away)}
+            homeIsUs={isLegirus(match.home)}
           />
         )}
 
@@ -210,6 +212,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
             lineups={lineupsData}
             hostName={shortName(match.home)}
             guestName={shortName(match.away)}
+            homeIsUs={isLegirus(match.home)}
           />
         )}
 

@@ -39,7 +39,7 @@ function TeamColumn({ players, title, side }) {
   );
 }
 
-export default function MatchLineupsBlock({ lineups, hostName, guestName }) {
+export default function MatchLineupsBlock({ lineups, hostName, guestName, homeIsUs = true }) {
   if (!lineups) {
     return (
       <div className="mds-lu mds-lu--empty">
@@ -47,8 +47,9 @@ export default function MatchLineupsBlock({ lineups, hostName, guestName }) {
       </div>
     );
   }
+  const usClass = homeIsUs ? 'mds-lu--us-home' : 'mds-lu--us-away';
   return (
-    <div className="mds-lu">
+    <div className={`mds-lu ${usClass}`}>
       <TeamColumn players={lineups.home} title={hostName || 'Хозяева'} side="home" />
       <TeamColumn players={lineups.away} title={guestName || 'Гости'} side="away" />
     </div>
