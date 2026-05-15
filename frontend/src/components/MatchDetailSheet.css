@@ -621,13 +621,20 @@
 .mds-tl-row--substitution_out .mds-tl-event,
 .mds-tl-row--sub .mds-tl-event { opacity: 0.9; }
 
-/* Табы Обзор / Статистика — в модалке матча */
+/* Табы Обзор / Статистика / Состав / Комментарий — в модалке матча.
+   На узких экранах (iPhone XS = 375px, SE = 320px) 4 таба не помещаются в строку,
+   поэтому контейнер прокручивается горизонтально без видимой полосы. */
 .mds-tabs {
   display: flex;
   gap: 4px;
   margin: 12px 0 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;          /* Firefox */
+  -webkit-overflow-scrolling: touch;
 }
+.mds-tabs::-webkit-scrollbar { display: none; } /* WebKit/Blink */
 .mds-tab {
   flex: 0 0 auto;
   padding: 8px 14px;
@@ -637,6 +644,7 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: color 0.15s, border-color 0.15s;
@@ -645,6 +653,9 @@
 .mds-tab--active {
   color: #22d3ee;
   border-bottom-color: #22d3ee;
+}
+@media (max-width: 480px) {
+  .mds-tab { padding: 7px 10px; font-size: 12px; }
 }
 
 /* Комментарий тренера — таб «Комментарий» */
