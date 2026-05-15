@@ -9,6 +9,7 @@ import {
   unsubscribe,
   checkExistingSubscription,
 } from '../services/push';
+import PushPreferencesPanel from './PushPreferencesPanel';
 import './PushOptInButton.css';
 
 export default function PushOptInButton() {
@@ -16,6 +17,7 @@ export default function PushOptInButton() {
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [prefsOpen, setPrefsOpen] = useState(false);
 
   useEffect(() => {
     setSupported(pushSupported());
@@ -48,15 +50,29 @@ export default function PushOptInButton() {
     : 'Включить push-уведомления о новых матчах';
 
   return (
-    <button
-      className={`push-opt-btn ${subscribed ? 'push-opt-btn--on' : ''}`}
-      onClick={toggle}
-      disabled={busy}
-      title={error || title}
-      aria-label={title}
-    >
-      <span className="push-opt-btn__icon">{subscribed ? '🔔' : '🔕'}</span>
-      {error && <span className="push-opt-btn__dot" aria-hidden="true">!</span>}
-    </button>
+    <span className="push-opt-group">
+      <button
+        className={`push-opt-btn ${subscribed ? 'push-opt-btn--on' : ''}`}
+        onClick={toggle}
+        disabled={busy}
+        title={error || title}
+        aria-label={title}
+      >
+        <span className="push-opt-btn__icon">{subscribed ? '🔔' : '🔕'}</span>
+        {error && <span className="push-opt-btn__dot" aria-hidden="true">!</span>}
+      </button>
+      {subscribed && (
+        <button
+          type="button"
+          className="push-opt-btn push-opt-btn--gear"
+          onClick={() => setPrefsOpen(true)}
+          aria-label="Настройки уведомлений"
+          title="Настройки уведомлений"
+        >
+          <span className="push-opt-btn__icon">⚙</span>
+        </button>
+      )}
+      {prefsOpen && <PushPreferencesPanel onClose={() => setPrefsOpen(false)} />}
+    </span>
   );
 }

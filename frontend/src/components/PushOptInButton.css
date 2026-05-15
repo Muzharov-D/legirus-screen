@@ -16,16 +16,27 @@
   transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
 }
 .push-opt-btn:hover:not(:disabled) {
-  background: rgba(34, 211, 238, 0.12);
-  border-color: rgba(34, 211, 238, 0.45);
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.45);
 }
 .push-opt-btn:active:not(:disabled) { transform: scale(0.95); }
 .push-opt-btn:disabled { opacity: 0.5; cursor: progress; }
 
 .push-opt-btn--on {
-  background: rgba(34, 211, 238, 0.18);
-  border-color: rgba(34, 211, 238, 0.55);
-  color: #22d3ee;
+  background: rgba(220, 38, 38, 0.18);
+  border-color: rgba(220, 38, 38, 0.55);
+  color: #dc2626;
+}
+
+/* Группа: колокольчик + шестерёнка (когда подписан) */
+.push-opt-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.push-opt-btn--gear { color: #94a3c8; }
+.push-opt-btn--gear:hover:not(:disabled) {
+  color: #fff;
 }
 
 .push-opt-btn__icon {

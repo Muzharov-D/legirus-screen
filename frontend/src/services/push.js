@@ -112,3 +112,15 @@ export async function checkExistingSubscription() {
     return sub ? sub.toJSON() : null;
   } catch { return null; }
 }
+
+// Prefs API (бэкенд: routes/push.js).
+export async function fetchPushPreferences(endpoint) {
+  return apiFetch(`/api/push/preferences?endpoint=${encodeURIComponent(endpoint)}`);
+}
+
+export async function setPushPreference(endpoint, kind, enabled) {
+  return apiFetch('/api/push/preferences', {
+    method: 'PATCH',
+    body: { endpoint, kind, enabled },
+  });
+}
