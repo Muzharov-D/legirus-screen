@@ -13,6 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import CallupRoster from '../components/CallupRoster';
 import MatchDetailSheet from '../components/MatchDetailSheet';
 import TrainingDetailSheet from '../components/TrainingDetailSheet';
+import CoachCommentForm from '../components/CoachCommentForm';
 import { shieldFor, isLegirus } from '../utils/legirus';
 import './CalendarPage.css';
 
@@ -453,15 +454,24 @@ export default function CalendarPage() {
           match={openMatch}
           age={age}
           onClose={() => setOpenMatch(null)}
-          extra={isCoach && openMatch.isOurMatch && !openMatch.isPast && (
-            <button
-              className="mds-cta-secondary"
-              onClick={() => { setOpenCallup(openMatch); setOpenMatch(null); }}
-            >
-              <span>👥</span>
-              <span>Состав на матч</span>
-            </button>
-          )}
+          extra={
+            isCoach && openMatch.isOurMatch && !openMatch.isPast ? (
+              <button
+                className="mds-cta-secondary"
+                onClick={() => { setOpenCallup(openMatch); setOpenMatch(null); }}
+              >
+                <span>👥</span>
+                <span>Состав на матч</span>
+              </button>
+            ) : isCoach && openMatch.isOurMatch && openMatch.isPast ? (
+              <CoachCommentForm
+                age={age}
+                extMatchId={openMatch.matchId}
+                initialValue={openMatch.coachComment || ''}
+                onSaved={(newComment) => setOpenMatch((prev) => prev ? { ...prev, coachComment: newComment } : prev)}
+              />
+            ) : null
+          }
         />
       )}
 

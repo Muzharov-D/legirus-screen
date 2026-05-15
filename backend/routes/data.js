@@ -13,6 +13,7 @@ import {
   loadCalendar,
   listCalendar,
 } from '../services/dataRepo.js';
+import { query, isPgEnabled } from '../db/pool.js';
 import { refreshAge, refreshAll } from '../services/standingsService.js';
 import { refreshCupAge, refreshCupAll } from '../services/cupService.js';
 import { refreshCalendarAge, refreshCalendarAll } from '../services/calendarService.js';
@@ -173,6 +174,36 @@ router.get('/match/:matchId', async (req, res) => {
     res.json(match);
   } catch (e) {
     res.status(404).json({ error: `Матч ${req.params.matchId} не найден` });
+  }
+});
+
+// Пост-матчевый комментарий тренера — сохраняем в calendar.coach_comment.
+// Видят родители в публичной модалке. Редактируют тренеры (head_coach / team_coach).
+router.patch('/match/:age/:extMatchId/comment', async (req, res) => {
+  try {
+    if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
+      return res.status(403).json({ error: 'Доступ только для тренеров' });
+    }
+    if (!isPgEnabled()) {
+      return res.status(503).json({ error: 'Сервис временно недоступен' });
+    }
+    const { age, extMatchId } = req.params;
+    const raw = req.body?.comment;
+    const comment = (raw == null) ? null : String(raw).trim();
+    const value = comment && comment.length > 0 ? comment.slice(0, 4000) : null;
+
+    const r = await query(
+      `UPDATE calendar SET coach_comment = $1
+         WHERE club_id = 'legirus' AND age_group = $2 AND ext_match_id = $3
+       RETURNING coach_comment`,
+      [value, age, extMatchId],
+    );
+    if (r.rowCount === 0) {
+      return res.status(404).json({ error: 'Матч не найден' });
+    }
+    res.json({ ok: true, coachComment: r.rows[0].coach_comment });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 

@@ -75,6 +75,10 @@ export const fetchPlayers = (teamId) =>
 export const fetchMatches = (teamId) =>
   fetchJson(`/data/matches${teamId ? `?teamId=${encodeURIComponent(teamId)}` : ''}`);
 export const fetchMatch = (id) => fetchJson(`/data/match/${id}`);
+export const updateMatchCoachComment = (age, extMatchId, comment) =>
+  fetchJson(`/data/match/${encodeURIComponent(age)}/${encodeURIComponent(extMatchId)}/comment`, {
+    method: 'PATCH', body: { comment },
+  });
 export const fetchMetrics = () => fetchJson('/data/metrics');
 export const fetchStandings = (ageGroup) => fetchJson(`/data/standings/${encodeURIComponent(ageGroup)}`);
 export const fetchStandingsList = () => fetchJson('/data/standings');

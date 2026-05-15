@@ -83,12 +83,17 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
   const lineupsData = match?.lineups;
   const hasLineups = !!(lineupsData && ((lineupsData.home || []).length > 0 || (lineupsData.away || []).length > 0));
 
+  // Комментарий тренера к матчу (post-match)
+  const coachComment = typeof match?.coachComment === 'string' ? match.coachComment.trim() : '';
+  const hasCoachComment = coachComment.length > 0;
+
   const [tab, setTab] = useState('overview');
   // Если активный таб стал недоступен — переключаем на 'overview'.
   useEffect(() => {
     if (tab === 'stats' && !hasStats) setTab('overview');
     if (tab === 'lineups' && !hasLineups) setTab('overview');
-  }, [hasStats, hasLineups, tab]);
+    if (tab === 'comment' && !hasCoachComment) setTab('overview');
+  }, [hasStats, hasLineups, hasCoachComment, tab]);
 
   if (!match) return null;
 
@@ -145,8 +150,8 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         </div>
 
-        {/* Табы: Обзор / Статистика / Состав. Показываем если есть хотя бы один из «доп» табов. */}
-        {(hasStats || hasLineups) && (
+        {/* Табы: Обзор / Статистика / Состав / Комментарий. Показываем если есть хотя бы один из «доп» табов. */}
+        {(hasStats || hasLineups || hasCoachComment) && (
           <div className="mds-tabs" role="tablist">
             <button
               role="tab"
@@ -170,6 +175,22 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                 onClick={() => setTab('lineups')}
               >Состав</button>
             )}
+            {hasCoachComment && (
+              <button
+                role="tab"
+                aria-selected={tab === 'comment'}
+                className={`mds-tab${tab === 'comment' ? ' mds-tab--active' : ''}`}
+                onClick={() => setTab('comment')}
+              >Комментарий</button>
+            )}
+          </div>
+        )}
+
+        {/* Комментарий тренера — публичный текст для родителей */}
+        {hasCoachComment && tab === 'comment' && (
+          <div className="mds-comment">
+            <div className="mds-comment__caption">От тренера ФК Легирус</div>
+            <div className="mds-comment__body">{coachComment}</div>
           </div>
         )}
 
