@@ -3,8 +3,8 @@
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  background: rgba(34, 211, 238, 0.06);
-  border: 1px solid rgba(34, 211, 238, 0.25);
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   border-radius: 8px;
   margin: 8px 0;
   max-width: 100%;
@@ -16,7 +16,7 @@
 .coach-comment-form__label {
   font-size: 11px;
   font-weight: 600;
-  color: #22d3ee;
+  color: #dc2626;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -39,7 +39,7 @@
 }
 .coach-comment-form__textarea:focus {
   outline: none;
-  border-color: rgba(34, 211, 238, 0.6);
+  border-color: rgba(220, 38, 38, 0.6);
 }
 
 .coach-comment-form__actions {
@@ -54,8 +54,8 @@
 }
 .coach-comment-form__save {
   padding: 6px 14px;
-  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
-  color: #0d1424;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: #fff;
   border: none;
   border-radius: 6px;
   font-weight: 700;

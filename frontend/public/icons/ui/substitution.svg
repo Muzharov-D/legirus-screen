@@ -1,8 +1,8 @@
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Up arrow (came on) — green -->
-  <path d="M8 4 L8 19" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
-  <path d="M5 7 L8 4 L11 7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- Down arrow (came off) — gray -->
-  <path d="M16 5 L16 20" stroke="#94a3c8" stroke-width="2" stroke-linecap="round"/>
-  <path d="M13 17 L16 20 L19 17" stroke="#94a3c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Up arrow (came on) — red -->
+  <path d="M8 4 L8 19" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+  <path d="M5 7 L8 4 L11 7" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Down arrow (came off) — white -->
+  <path d="M16 5 L16 20" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <path d="M13 17 L16 20 L19 17" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>

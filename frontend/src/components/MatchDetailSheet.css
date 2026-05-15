@@ -651,8 +651,8 @@
 }
 .mds-tab:hover { color: #cbd5e1; }
 .mds-tab--active {
-  color: #22d3ee;
-  border-bottom-color: #22d3ee;
+  color: #dc2626;
+  border-bottom-color: #dc2626;
 }
 @media (max-width: 480px) {
   .mds-tab { padding: 7px 10px; font-size: 12px; }
@@ -662,7 +662,7 @@
 .mds-comment {
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid #22d3ee;
+  border-left: 3px solid #dc2626;
   border-radius: 0 8px 8px 0;
   margin: 6px 0 4px;
   max-width: 100%;
@@ -673,7 +673,7 @@
 .mds-comment__caption {
   font-size: 11px;
   font-weight: 700;
-  color: #22d3ee;
+  color: #dc2626;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 6px;
@@ -698,8 +698,8 @@
   gap: 1px;
   line-height: 1.25;
 }
-.mds-tl-sub-in  { color: #4ade80; }
-.mds-tl-sub-out { color: #94a3c8; }
+.mds-tl-sub-in  { color: #dc2626; }
+.mds-tl-sub-out { color: #f1f5fb; }
 /* Сторонняя ориентация: на home (правая колонка модалки) — пара выровнена к
    правому краю, на away — к левому. */
 .mds-tl-side--home .mds-tl-sub-pair { align-items: flex-end; }
