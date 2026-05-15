@@ -698,8 +698,9 @@
   gap: 1px;
   line-height: 1.25;
 }
-.mds-tl-sub-in  { color: #dc2626; }
-.mds-tl-sub-out { color: #f1f5fb; }
+/* Классика футбольной графики: вошёл — зелёный, ушёл — красный. */
+.mds-tl-sub-in  { color: #22c55e; }
+.mds-tl-sub-out { color: #ef4444; }
 /* Сторонняя ориентация: на home (правая колонка модалки) — пара выровнена к
    правому краю, на away — к левому. */
 .mds-tl-side--home .mds-tl-sub-pair { align-items: flex-end; }
