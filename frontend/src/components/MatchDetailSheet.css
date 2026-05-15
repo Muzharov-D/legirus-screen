@@ -668,10 +668,21 @@
   white-space: pre-wrap;
 }
 
-/* Замена: пара «вошёл/ушёл» с цветовым акцентом */
-.mds-tl-sub-pair { font-weight: 600; white-space: normal; }
+/* Замена: пара «вошёл/ушёл» — каждая стрелка с новой строки */
+.mds-tl-sub-pair {
+  font-weight: 600;
+  white-space: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.25;
+}
 .mds-tl-sub-in  { color: #4ade80; }
 .mds-tl-sub-out { color: #94a3c8; }
+/* Сторонняя ориентация: на home (правая колонка модалки) — пара выровнена к
+   правому краю, на away — к левому. */
+.mds-tl-side--home .mds-tl-sub-pair { align-items: flex-end; }
+.mds-tl-side--away .mds-tl-sub-pair { align-items: flex-start; }
 
 /* Legirus theme overrides для двухколоночного таймлайна */
 .mds-theme--legirus .mds-tl-event {

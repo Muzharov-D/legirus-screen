@@ -34,10 +34,10 @@ const EVENT_KIND_TO_ICON = {
   yellow: 'yellow-card',
   red_card: 'red-card',
   red: 'red-card',
-  substitution: 'running',
-  substitution_in: 'running',
-  substitution_out: 'running',
-  sub: 'running',
+  substitution: 'substitution',
+  substitution_in: 'substitution',
+  substitution_out: 'substitution',
+  sub: 'substitution',
 };
 
 function fmtDate(iso) {
@@ -230,9 +230,8 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                             <span className="mds-tl-text">
                               {e.kind === 'sub' && e.in?.name && e.out?.name ? (
                                 <b className="mds-tl-sub-pair">
-                                  <span className="mds-tl-sub-in">→ {e.in.name}</span>
-                                  {' '}
-                                  <span className="mds-tl-sub-out">← {e.out.name}</span>
+                                  <span className="mds-tl-sub-in">↑ {e.in.name}</span>
+                                  <span className="mds-tl-sub-out">↓ {e.out.name}</span>
                                 </b>
                               ) : (
                                 <>
@@ -267,9 +266,8 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                             <span className="mds-tl-text">
                               {e.kind === 'sub' && e.in?.name && e.out?.name ? (
                                 <b className="mds-tl-sub-pair">
-                                  <span className="mds-tl-sub-in">→ {e.in.name}</span>
-                                  {' '}
-                                  <span className="mds-tl-sub-out">← {e.out.name}</span>
+                                  <span className="mds-tl-sub-in">↑ {e.in.name}</span>
+                                  <span className="mds-tl-sub-out">↓ {e.out.name}</span>
                                 </b>
                               ) : (
                                 <>
