@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
-import { fetchMatches, fetchMatch, fetchStandings, fetchStandingsList, fetchCup } from '../services/api';
+import { fetchMatches, fetchMatch, fetchStandings, fetchStandingsList, fetchCup, fetchClubRank } from '../services/api';
 import { useTeam } from '../contexts/TeamContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
@@ -82,47 +82,11 @@ export default function ClubPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ageGroupsAvailable.join('|')]);
 
-  // Клубный зачёт = сумма всех очков всех возрастов в разрезе клубов
-  const clubStandings = useMemo(() => {
-    const ages = Object.keys(allStandings);
-    if (!ages.length) return null;
-    const byClub = new Map(); // normalizedName → aggregate
-    ages.forEach((ag) => {
-      (allStandings[ag]?.table || []).forEach((row) => {
-        const key = normalizeClubName(row.team);
-        if (!key) return;
-        const e = byClub.get(key) || {
-          club: key,
-          shield: row.shield || null,
-          isOurClub: false,
-          games: 0, wins: 0, draws: 0, losses: 0,
-          goalsFor: 0, goalsAgainst: 0, points: 0,
-          ageGroups: [],
-        };
-        // если у первого встретившегося не было shield — берём первый ненулевой
-        if (!e.shield && row.shield) e.shield = row.shield;
-        e.games += row.games || 0;
-        e.wins  += row.wins  || 0;
-        e.draws += row.draws || 0;
-        e.losses += row.losses || 0;
-        e.goalsFor += row.goalsFor || 0;
-        e.goalsAgainst += row.goalsAgainst || 0;
-        e.points += row.points || 0;
-        e.isOurClub = e.isOurClub || !!row.isOurClub;
-        e.ageGroups.push(ag);
-        byClub.set(key, e);
-      });
-    });
-    return [...byClub.values()]
-      .sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points;
-        const gdA = a.goalsFor - a.goalsAgainst;
-        const gdB = b.goalsFor - b.goalsAgainst;
-        if (gdB !== gdA) return gdB - gdA;
-        return b.goalsFor - a.goalsFor;
-      })
-      .map((e, i) => ({ ...e, pos: i + 1 }));
-  }, [allStandings]);
+  // Клубный зачёт берём из публичного API (place-sum, без 2008-09 — фильтр на бэке).
+  const clubRankRes = useApi(() => fetchClubRank(), []);
+  const clubStandings = clubRankRes.data?.ranking || null;
+  const countedAgeGroups = clubRankRes.data?.countedAgeGroups || [];
+  const ourClubRank = clubRankRes.data?.ourClubRank || null;
 
   // ----- Standings ТЕКУЩЕГО возраста (вторая таблица под клубным зачётом) -----
   const ageStandings = ageGroup ? allStandings[ageGroup] : null;
@@ -259,7 +223,7 @@ export default function ClubPage() {
           </div>
           <div className="club-standings__hint">
             {view === 'club'
-              ? `сумма по ${ageGroupsAvailable.length} возрастам`
+              ? `сумма мест по ${countedAgeGroups.length} возрастам`
               : (ageStandings?.title || '')}
           </div>
         </div>
@@ -287,18 +251,18 @@ export default function ClubPage() {
                   </thead>
                   <tbody>
                     {clubStandings.map((row) => (
-                      <tr key={row.club} className={row.isOurClub ? 'club-standings__row--ours' : ''}>
-                        <td className="club-standings__pos">{row.pos}</td>
+                      <tr key={row.name} className={row.rank === ourClubRank ? 'club-standings__row--ours' : ''}>
+                        <td className="club-standings__pos">{row.rank}</td>
                         <td className="club-standings__team">
                           {row.shield && <img className="club-standings__shield" src={row.shield} alt="" />}
-                          {displayTeamName(row.club)}
+                          {displayTeamName(row.name)}
                         </td>
                         <td>{row.games}</td>
                         <td>{row.wins}</td>
                         <td>{row.draws}</td>
                         <td>{row.losses}</td>
                         <td className="club-standings__gd">{row.goalsFor}–{row.goalsAgainst}</td>
-                        <td className="club-standings__pts">{row.points}</td>
+                        <td className="club-standings__pts">{row.posSum}</td>
                       </tr>
                     ))}
                   </tbody>
