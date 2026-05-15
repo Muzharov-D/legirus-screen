@@ -6,6 +6,7 @@ import useModalBack from '../utils/useModalBack';
 import { shieldFor } from '../utils/legirus';
 import UiIcon from './UiIcon';
 import MatchStatsBlock from './MatchStatsBlock';
+import MatchLineupsBlock from './MatchLineupsBlock';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
@@ -78,12 +79,16 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
   const statsHome = match?.teamSummaryStats?.home;
   const hasStats = !!(statsHome && typeof statsHome === 'object' && Object.keys(statsHome).length > 0);
 
+  // Lineups: либо предматчевые (для предстоящих в окне 6h), либо итоговые (после игры)
+  const lineupsData = match?.lineups;
+  const hasLineups = !!(lineupsData && ((lineupsData.home || []).length > 0 || (lineupsData.away || []).length > 0));
+
   const [tab, setTab] = useState('overview');
-  // Если матч переоткрыли с другим набором — на всякий случай сбрасываем активный таб,
-  // если выбранный больше недоступен.
+  // Если активный таб стал недоступен — переключаем на 'overview'.
   useEffect(() => {
     if (tab === 'stats' && !hasStats) setTab('overview');
-  }, [hasStats, tab]);
+    if (tab === 'lineups' && !hasLineups) setTab('overview');
+  }, [hasStats, hasLineups, tab]);
 
   if (!match) return null;
 
@@ -140,9 +145,8 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         </div>
 
-        {/* Табы: Обзор / Статистика. Показываем табы только если есть стата —
-            иначе обзор отрисуется без табов как раньше. */}
-        {past && hasStats && (
+        {/* Табы: Обзор / Статистика / Состав. Показываем если есть хотя бы один из «доп» табов. */}
+        {(hasStats || hasLineups) && (
           <div className="mds-tabs" role="tablist">
             <button
               role="tab"
@@ -150,12 +154,22 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
               className={`mds-tab${tab === 'overview' ? ' mds-tab--active' : ''}`}
               onClick={() => setTab('overview')}
             >Обзор</button>
-            <button
-              role="tab"
-              aria-selected={tab === 'stats'}
-              className={`mds-tab${tab === 'stats' ? ' mds-tab--active' : ''}`}
-              onClick={() => setTab('stats')}
-            >Статистика</button>
+            {hasStats && (
+              <button
+                role="tab"
+                aria-selected={tab === 'stats'}
+                className={`mds-tab${tab === 'stats' ? ' mds-tab--active' : ''}`}
+                onClick={() => setTab('stats')}
+              >Статистика</button>
+            )}
+            {hasLineups && (
+              <button
+                role="tab"
+                aria-selected={tab === 'lineups'}
+                className={`mds-tab${tab === 'lineups' ? ' mds-tab--active' : ''}`}
+                onClick={() => setTab('lineups')}
+              >Состав</button>
+            )}
           </div>
         )}
 
@@ -169,8 +183,17 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           />
         )}
 
+        {/* Составы (FFSPB lineups): pre-match за 6ч и итоговый после игры */}
+        {hasLineups && tab === 'lineups' && (
+          <MatchLineupsBlock
+            lineups={lineupsData}
+            hostName={shortName(match.home)}
+            guestName={shortName(match.away)}
+          />
+        )}
+
         {/* События матча в виде 2 колонок: home слева, away справа, минута по центру */}
-        {past && (!hasStats || tab === 'overview') && Array.isArray(match.events) && match.events.length > 0 && (
+        {past && tab === 'overview' && Array.isArray(match.events) && match.events.length > 0 && (
           <div className="mds-events">
             <div className="mds-events__title"><UiIcon name="ball" size={12} /> Ход матча</div>
             <div className="mds-tl-list">

@@ -123,15 +123,62 @@ function buildTimeline(match) {
   return [...events, ...subs].sort((a, b) => (a.minute || 0) - (b.minute || 0));
 }
 
-// Sync events для одного матча
+// Составы (lineups) — компактная карта host/guest из participatedPlayers.
+// bench=false  → стартовый состав
+// bench=true   → запасной
+function normalizeLineups(match) {
+  if (!match || !Array.isArray(match.participatedPlayers)) return null;
+  const hostId = match.host?.['@id'];
+  const home = [];
+  const away = [];
+  for (const p of match.participatedPlayers) {
+    const side = p.team?.['@id'] === hostId ? home : away;
+    side.push({
+      playerId: p.request?.['@id']?.split('/').pop() || null,
+      name: shortName(p.request),
+      number: p.number ?? null,
+      bench: !!p.bench,
+      photo: p.request?.photo || null,
+    });
+  }
+  const sortFn = (a, b) =>
+    Number(a.bench) - Number(b.bench) ||
+    (a.number == null ? 999 : a.number) - (b.number == null ? 999 : b.number);
+  home.sort(sortFn);
+  away.sort(sortFn);
+  if (home.length === 0 && away.length === 0) return null;
+  return { home, away };
+}
+
+// Sync events + lineups для одного матча. Один HTTP-запрос — обе колонки.
 export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legirus') {
   const apiMatch = await apiGetMatch(extMatchId);
   const timeline = buildTimeline(apiMatch);
+  const lineups = normalizeLineups(apiMatch);
   await query(
-    `UPDATE calendar SET events_data = $1::jsonb, events_fetched_at = NOW()
+    `UPDATE calendar
+       SET events_data = $1::jsonb,
+           events_fetched_at = NOW(),
+           lineups_data = COALESCE($2::jsonb, lineups_data),
+           lineups_fetched_at = CASE WHEN $2::jsonb IS NOT NULL THEN NOW() ELSE lineups_fetched_at END
+     WHERE club_id = $3 AND age_group = $4 AND ext_match_id = $5`,
+    [JSON.stringify(timeline), lineups ? JSON.stringify(lineups) : null, clubId, ageGroup, extMatchId]);
+  return { extMatchId, events: timeline.length, lineups: lineups ? (lineups.home.length + lineups.away.length) : 0 };
+}
+
+// Pre-match синк: только lineups для предстоящих матчей в окне до начала.
+// Не пишем events_data (матч ещё не сыгран, events будут пустые).
+async function fetchAndStoreLineups(extMatchId, ageGroup, clubId = 'legirus') {
+  const apiMatch = await apiGetMatch(extMatchId);
+  const lineups = normalizeLineups(apiMatch);
+  if (!lineups) return { extMatchId, lineups: 0 };
+  await query(
+    `UPDATE calendar
+       SET lineups_data = $1::jsonb,
+           lineups_fetched_at = NOW()
      WHERE club_id = $2 AND age_group = $3 AND ext_match_id = $4`,
-    [JSON.stringify(timeline), clubId, ageGroup, extMatchId]);
-  return { extMatchId, events: timeline.length };
+    [JSON.stringify(lineups), clubId, ageGroup, extMatchId]);
+  return { extMatchId, lineups: lineups.home.length + lineups.away.length };
 }
 
 // Главный tick: для всех наших isPast матчей с пустым/устаревшим events_data — fetch + save.
@@ -178,10 +225,43 @@ export async function syncRecentEvents() {
   return { fetched: ok, failed: fail };
 }
 
+// Pre-match составы: тики каждые 5 минут. Для каждого нашего матча с kick-off
+// в окне [сейчас, сейчас+6h] обновляем lineups_data, если её нет или она старше 5 мин.
+// Это покрывает классическое окно «за 6/4/2/1ч / 15 мин до начала».
+export async function syncUpcomingLineups() {
+  if (!isPgEnabled() || !isFfspbConfigured()) return { skipped: true };
+  const r = await query(`
+    SELECT ext_match_id, age_group, club_id
+    FROM calendar
+    WHERE club_id = 'legirus' AND is_our_match = TRUE
+      AND score_home IS NULL
+      AND match_date BETWEEN NOW() AND NOW() + INTERVAL '6 hours'
+      AND (lineups_fetched_at IS NULL OR lineups_fetched_at < NOW() - INTERVAL '5 minutes')
+    ORDER BY match_date ASC
+    LIMIT 20`);
+  if (r.rows.length === 0) return { fetched: 0 };
+
+  let ok = 0, fail = 0;
+  for (const row of r.rows) {
+    try {
+      const res = await fetchAndStoreLineups(row.ext_match_id, row.age_group, row.club_id);
+      console.log(`[match-lineups] ${row.age_group}/${row.ext_match_id}: ${res.lineups} players`);
+      ok++;
+    } catch (e) {
+      console.error(`[match-lineups] ${row.age_group}/${row.ext_match_id} failed:`, e.message);
+      fail++;
+    }
+  }
+  return { fetched: ok, failed: fail };
+}
+
 let timer = null;
+let lineupsTimer = null;
 // Flashscore-режим: события матчей (голы, замены) обновляются каждые 30 минут.
 // FFSPB сам обновляется по факту заполнения протокола судьёй после матча — чаще нет смысла.
 const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
+// Pre-match составы — каждые 5 минут (только для матчей в ближайшие 6ч).
+const LINEUPS_INTERVAL_MS = 5 * 60 * 1000;
 
 export function startMatchEventsCron() {
   if (timer) return;
@@ -189,5 +269,13 @@ export function startMatchEventsCron() {
   setTimeout(() => syncRecentEvents().catch((e) => console.error('[match-events] tick failed:', e.message)), 25_000);
   timer = setInterval(() => syncRecentEvents().catch(() => {}), REFRESH_INTERVAL_MS);
   console.log('[match-events] cron started, every 30 min');
+
+  // Pre-match lineups — каждые 5 минут.
+  setTimeout(() => syncUpcomingLineups().catch((e) => console.error('[match-lineups] tick failed:', e.message)), 35_000);
+  lineupsTimer = setInterval(() => syncUpcomingLineups().catch(() => {}), LINEUPS_INTERVAL_MS);
+  console.log('[match-lineups] cron started, every 5 min');
 }
-export function stopMatchEventsCron() { if (timer) clearInterval(timer); timer = null; }
+export function stopMatchEventsCron() {
+  if (timer) clearInterval(timer); timer = null;
+  if (lineupsTimer) clearInterval(lineupsTimer); lineupsTimer = null;
+}

@@ -197,6 +197,7 @@ export async function loadCalendar(ageGroup) {
            c.home_shield AS "homeShield",
            c.away_shield AS "awayShield",
            c.events_data AS "events",
+           c.lineups_data AS "lineups",
            m.team_summary_stats AS "teamSummaryStats",
            m.team_aggregates AS "teamAggregates"
     FROM calendar c
