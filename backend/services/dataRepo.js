@@ -202,10 +202,20 @@ export async function loadCalendar(ageGroup) {
            m.team_summary_stats AS "teamSummaryStats",
            m.team_aggregates AS "teamAggregates"
     FROM calendar c
-    LEFT JOIN matches m
-      ON DATE(m.match_date) = DATE(c.match_date)
-     AND m.home_team_name = c.home_team
-     AND m.away_team_name = c.away_team
+    LEFT JOIN (
+      -- matches принадлежит конкретной команде; возрастная группа берётся из teams.
+      -- Имена команд между matches и calendar НЕ совпадают (matches: "Легирус 2010",
+      -- calendar: "ФК Легирус (ЦФКСиЗ ВО)"), поэтому матчим по age_group + календарной
+      -- дате в МСК (matches иногда хранит 21:00 UTC = 00:00 MSK следующего дня).
+      SELECT mt.age_group,
+             (m.match_date AT TIME ZONE 'Europe/Moscow')::date AS msk_date,
+             m.team_summary_stats,
+             m.team_aggregates
+      FROM matches m
+      JOIN teams mt ON mt.id = m.team_id
+    ) m
+      ON m.age_group = c.age_group
+     AND m.msk_date = (c.match_date AT TIME ZONE 'Europe/Moscow')::date
     WHERE c.club_id = 'legirus' AND c.age_group = $1
     ORDER BY c.match_date NULLS LAST`, [ageGroup]);
   if (r.rows.length === 0) return null;
