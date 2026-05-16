@@ -5,6 +5,91 @@
   padding-bottom: 32px;
 }
 
+/* === Pizza chart card === */
+.player-detail__pizza { padding: 16px; }
+.player-detail__pizza-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.player-detail__pizza-pos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3c8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.player-detail__pizza-pos select {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.player-detail__pizza-pos select:focus {
+  border-color: #dc2626;
+}
+
+/* === Полная таблица метрик: <details> аккордеон === */
+.player-detail__splits-toggle {
+  padding: 0;
+  overflow: hidden;
+}
+.player-detail__splits-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  color: #fff;
+  user-select: none;
+  border-radius: inherit;
+  position: relative;
+}
+.player-detail__splits-summary::-webkit-details-marker { display: none; }
+.player-detail__splits-summary::before {
+  content: '▸';
+  color: #dc2626;
+  font-size: 14px;
+  margin-right: 6px;
+  transition: transform 0.18s;
+  display: inline-block;
+}
+.player-detail__splits-toggle[open] .player-detail__splits-summary::before {
+  transform: rotate(90deg);
+}
+.player-detail__splits-summary-meta {
+  font-weight: 500;
+  font-size: 11px;
+  color: #94a3c8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.player-detail__splits-body {
+  padding: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 480px) {
+  .player-detail__pizza { padding: 12px 8px; }
+  .player-detail__splits-summary { padding: 12px; font-size: 13px; }
+  .player-detail__splits-summary-meta { display: none; }
+}
+
 .player-detail__topbar {
   display: flex;
   gap: 8px;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { fetchMatch, fetchMatches, fetchMetrics, fetchPlayer } from '../services/api';
@@ -8,9 +8,11 @@ import PlayerPhoto from '../components/PlayerPhoto';
 import AttendanceBlock from '../components/AttendanceBlock';
 import RatingCard from '../components/RatingCard';
 import RatingPill from '../components/RatingPill';
-import RadarChart from '../components/RadarChart';
 import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
+import PizzaChart from '../components/PizzaChart';
 import { ratingColor } from '../utils/colors';
+import { num, percentileRank } from '../utils/num';
+import { POSITION_OPTIONS, TEMPLATES, getStatValue, positionGroup } from '../utils/pizzaTemplates';
 import './PlayerDetail.css';
 
 // Ключевые метрики для бейджей "Лучший в команде" — топ-3 ранг по матчу.
@@ -76,16 +78,6 @@ const HALFTIME_KEYS = [
 ];
 
 const RADAR_PALETTE = ['#22d3ee', '#7cb342', '#42a5f5', '#ef5350', '#ab47bc', '#26a69a', '#ff9800', '#03a9f4'];
-
-function num(v) {
-  if (v === null || v === undefined) return null;
-  if (typeof v === 'object') {
-    if (v.value !== undefined) return Number(v.value);
-    if (v.pct !== undefined) return Number(v.pct);
-    return null;
-  }
-  return Number(v);
-}
 
 function fmtNum(v, digits = 0) {
   const n = num(v);
@@ -176,24 +168,39 @@ export default function PlayerDetail() {
     return out.sort((a, b) => a.rank - b.rank);
   }, [match, player]);
 
+  // Pizza chart: выбор позиционного шаблона.
+  // Дефолт — позиция самого игрока. Если он не классифицирован — MID.
+  const [pizzaPos, setPizzaPos] = useState(() => positionGroup(player) || 'MID');
+  useEffect(() => {
+    const next = positionGroup(player) || 'MID';
+    setPizzaPos(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerId]);
+
   if (matchesRes.loading || matchRes.loading) return <div className="empty-state">Загрузка…</div>;
   if (!match) return <div className="empty-state">Нет данных о матче</div>;
   if (!player) return <div className="empty-state">Игрок не найден</div>;
 
   const ratings = player.ratings || {};
-  const teamAvg = match.teamAvgRatings || {};
   const splits = player.splits || {};
   const fitnessStats = player.stats?.fitness || {};
 
   const attackRows = ATTACK_SPLIT_KEYS.filter((k) => splits[k]);
   const defenceRows = DEFENCE_SPLIT_KEYS.filter((k) => splits[k]);
 
-  const ratingAxes = [
-    { key: 'overall', label: 'Общий' },
-    { key: 'fitness', label: 'Фитнес' },
-    { key: 'attack',  label: 'Атака' },
-    { key: 'defence', label: 'Защита' },
-  ];
+  // Pizza slices: для каждой метрики шаблона считаем percentile vs игроков клуба той же позиции.
+  // Базис: все игроки текущего матча с той же positionGroup.
+  const pizzaTemplate = TEMPLATES[pizzaPos];
+  const posOption = POSITION_OPTIONS.find((o) => o.value === pizzaPos);
+  const peers = (match.players || []).filter((p) => positionGroup(p) === pizzaPos);
+  const pizzaSlices = pizzaTemplate
+    ? pizzaTemplate.slices.map((s) => {
+        const myValue = getStatValue(player, s.key);
+        const allValues = peers.map((p) => getStatValue(p, s.key));
+        const pct = percentileRank(myValue, allValues);
+        return { axis: s.axis, group: s.group, value: pct ?? 0 };
+      })
+    : [];
 
   return (
     <div className="page player-detail">
@@ -250,53 +257,33 @@ export default function PlayerDetail() {
         </div>
       )}
 
-      {/* RADAR + PLAYER-vs-TEAM */}
-      <div className="player-detail__radars">
-        <div className="card">
-          <div className="page-section-title">Радарная диаграмма (14 осей)</div>
-          {radarAxes.length ? (
-            <RadarChart
-              axes={radarAxes}
-              series={[{ name: player.lastName || player.fullName, values: player.radar || {}, color: '#22d3ee' }]}
-              max={10}
-              height={420}
-            />
-          ) : <div className="empty-state">Нет осей</div>}
+      {/* PIZZA CHART — фронт-витрина профиля игрока */}
+      <div className="card player-detail__pizza">
+        <div className="player-detail__pizza-head">
+          <div className="page-section-title">Профиль игрока</div>
+          <div className="player-detail__pizza-pos">
+            <label htmlFor="pizza-pos">Шаблон:</label>
+            <select
+              id="pizza-pos"
+              value={pizzaPos}
+              onChange={(e) => setPizzaPos(e.target.value)}
+            >
+              {POSITION_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
-
-        <div className="card" id="vs-team">
-          <div className="page-section-title">Игрок vs средние по команде</div>
-          <RadarChart
-            axes={ratingAxes}
-            series={[
-              { name: 'Команда (среднее)', values: teamAvg, color: '#7e7eff', fillOpacity: 0.18 },
-              { name: player.lastName || player.fullName, values: ratings, color: '#22d3ee', fillOpacity: 0.35 },
-            ]}
-            max={10}
-            height={320}
-          />
-        </div>
+        <PizzaChart
+          subjectName={`${player.fullName} · ${player.positionFull || ''} · ${player.minutes ?? '?'} мин`}
+          subjectMeta={`Percentile vs ${posOption?.vsLabel || 'игроков клуба'} (${peers.length} чел.)`}
+          vsLabel={posOption?.vsLabel}
+          slices={pizzaSlices}
+        />
       </div>
 
-      {/* POSITION RADAR */}
-      {samePos.length > 1 && (
-        <div className="card" id="by-position">
-          <div className="page-section-title">
-            Сравнение по позиции — {player.positionFull} ({samePos.length} игр.)
-          </div>
-          <RadarChart
-            axes={ratingAxes}
-            series={samePos.map((p, i) => ({
-              name: `${p.lastName} (${p.ratings?.overall ?? '—'})`,
-              values: p.ratings || {},
-              color: p.id === player.id ? '#22d3ee' : RADAR_PALETTE[(i + 1) % RADAR_PALETTE.length],
-              fillOpacity: p.id === player.id ? 0.4 : 0.08,
-            }))}
-            max={10}
-            height={360}
-          />
-        </div>
-      )}
+      {/* RATINGS vs TEAM AVG — оставил, нагляднее по 4 общим осям */}
+      {/* (радары удалены — pizza заменила и 14-осевой radar, и position-сравнение) */}
 
       {/* MAPS */}
       <div className="player-detail__maps">
@@ -331,21 +318,30 @@ export default function PlayerDetail() {
         </div>
       </div>
 
-      {/* ATTACK SPLITS */}
-      <SplitsTable
-        title="Атака — раскладка по таймам"
-        keys={attackRows}
-        splits={splits}
-        labels={labels}
-      />
-
-      {/* DEFENCE SPLITS */}
-      <SplitsTable
-        title="Защита — раскладка по таймам"
-        keys={defenceRows}
-        splits={splits}
-        labels={labels}
-      />
+      {/* ПОЛНАЯ ТАБЛИЦА МЕТРИК — свёрнута по умолчанию.
+          Раскрывается по клику. Внутри — две большие сплит-таблицы. */}
+      <details className="card player-detail__splits-toggle">
+        <summary className="player-detail__splits-summary">
+          <span>Раскрыть полную таблицу метрик</span>
+          <span className="player-detail__splits-summary-meta">
+            {attackRows.length} атака · {defenceRows.length} защита · по таймам
+          </span>
+        </summary>
+        <div className="player-detail__splits-body">
+          <SplitsTable
+            title="Атака — раскладка по таймам"
+            keys={attackRows}
+            splits={splits}
+            labels={labels}
+          />
+          <SplitsTable
+            title="Защита — раскладка по таймам"
+            keys={defenceRows}
+            splits={splits}
+            labels={labels}
+          />
+        </div>
+      </details>
     </div>
   );
 }
