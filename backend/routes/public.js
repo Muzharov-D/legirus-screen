@@ -9,6 +9,7 @@ import { loadAllStandings, buildClubRanking } from '../services/clubRanking.js';
 import { getPublicKey, saveSubscription, removeSubscription, sendToSubscription } from '../services/pushService.js';
 import { isPgEnabled, query } from '../db/pool.js';
 import { getWeather, getWeatherDebugInfo } from '../services/weatherService.js';
+import { getTeamRankDelta, getAllStandingsSnapshotsAt, lastMondayMsk23 } from '../services/standingsHistory.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -99,6 +100,56 @@ router.get('/club-rank', async (_req, res) => {
     cdnCache(res, 60, 300);
     res.json(buildClubRanking(filtered, matcher));
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Дельта позиции команды за неделю (для бейджей ↑/↓ в шапке).
+// Baseline = прошлый понедельник 23:00 МСК (читаем snapshot из standings PG history),
+// сравниваем с текущей позицией. Возвращает дельту по лиге И клубному зачёту.
+// Знак: <0 = поднялись (улучшение, зелёная ↑), >0 = опустились (красная ↓).
+router.get('/team-rank-delta/:age([0-9-]+)', async (req, res) => {
+  try {
+    const ageGroup = req.params.age;
+    // Читаем config — нужен matcher и список засчитываемых ages
+    let matcher = 'Легирус';
+    let counted = null;
+    if (fs.existsSync(STANDINGS_CONFIG)) {
+      try {
+        const cfg = JSON.parse(fs.readFileSync(STANDINGS_CONFIG, 'utf-8'));
+        matcher = cfg.ourClubMatcher || matcher;
+        if (Array.isArray(cfg.clubRankCounted) && cfg.clubRankCounted.length > 0) {
+          counted = new Set(cfg.clubRankCounted.map(String));
+        }
+      } catch (_) {}
+    }
+
+    // Лиговая дельта + baseline clubPos (требует пересчёта по snapshot всех age)
+    const leaguePart = await getTeamRankDelta(ageGroup, matcher, counted);
+
+    // Текущий клубный ранк — пересчитываем как в /club-rank
+    const allCurrent = await loadAllStandings();
+    const filteredCurrent = counted
+      ? allCurrent.filter((s) => counted.has(String(s.ageGroup)))
+      : allCurrent;
+    const curClubRank = buildClubRanking(filteredCurrent, matcher);
+    const clubPos = curClubRank?.ourClubRank || null;
+    const clubDelta = (clubPos != null && leaguePart.clubPosBaseline != null)
+      ? clubPos - leaguePart.clubPosBaseline
+      : null;
+
+    cdnCache(res, 60, 300);
+    res.json({
+      leaguePos: leaguePart.leaguePos,
+      leaguePosBaseline: leaguePart.leaguePosBaseline,
+      leagueDelta: leaguePart.leagueDelta,
+      clubPos,
+      clubPosBaseline: leaguePart.clubPosBaseline,
+      clubDelta,
+      baselineAt: leaguePart.baselineAt,
+    });
+  } catch (e) {
+    console.error('[team-rank-delta]', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // PWA-манифест для публичной страницы команды.

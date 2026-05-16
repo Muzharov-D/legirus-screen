@@ -5,7 +5,7 @@
 // Под шапкой — горизонтальные табы команд из myTeams (если >1) + ранг-блоки.
 // Кнопка «+» открывает AddTeamSheet с двумя страницами (Младшие / Старшие).
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tierForAge, leaguePosClass, clubPosClass, displayAge } from '../utils/ageRating';
 import { useMyTeams, switchActive, removeTeam } from '../utils/myTeams';
@@ -13,7 +13,13 @@ import AddTeamSheet from './AddTeamSheet';
 import PushOptInButton from './PushOptInButton';
 import PushBellTab from './PushBellTab';
 import StreakBadge from './StreakBadge';
+import RankDelta from './RankDelta';
 import './PublicTeamHeader.css';
+
+const API_BASE = (() => {
+  const base = import.meta.env.VITE_API_BASE_URL || '';
+  return String(base).replace(/\/+$/, '');
+})();
 
 const TG_AVANDATA = 'https://t.me/AvanData';
 
@@ -29,6 +35,19 @@ export default function PublicTeamHeader({
   const tier = tierForAge(age);
   const { teams: myTeams } = useMyTeams();
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  // Дельта позиций за неделю (с прошлого понедельника 23:00 МСК).
+  // Если бэк не отдал — RankDelta просто не нарисует стрелку.
+  const [delta, setDelta] = useState(null);
+  useEffect(() => {
+    if (!age) return;
+    let cancelled = false;
+    fetch(`${API_BASE}/api/public/team-rank-delta/${age}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled) setDelta(d); })
+      .catch(() => { /* тихо игнорим — без стрелок ничего страшного */ });
+    return () => { cancelled = true; };
+  }, [age]);
 
   function tabClick(targetAge) {
     if (String(targetAge) === String(age)) return;
@@ -165,6 +184,7 @@ export default function PublicTeamHeader({
                   {ourLeagueRow.pos === 1 ? '🥇' : ourLeagueRow.pos === 2 ? '🥈' : '🥉'}
                 </span>
               )}
+              <RankDelta delta={delta?.leagueDelta} />
             </div>
             <div className="public-header__rank-meta">
               в лиге {tier}
@@ -188,6 +208,7 @@ export default function PublicTeamHeader({
                   {clubRank.ourClubRank === 1 ? '🥇' : '🥈'}
                 </span>
               )}
+              <RankDelta delta={delta?.clubDelta} />
             </div>
             <div className="public-header__rank-meta">
               клубный зачёт
