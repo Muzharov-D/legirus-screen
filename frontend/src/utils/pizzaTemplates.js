@@ -6,11 +6,14 @@
 
 import { num } from './num';
 
+// vsLabel единый — сравнение всегда vs всей команды.
+// Дропдаун позиции — только переключатель набора метрик в pizza.
 export const POSITION_OPTIONS = [
-  { value: 'FWD', label: 'Нападающий', vsLabel: 'нападающих клуба' },
-  { value: 'MID', label: 'Полузащитник', vsLabel: 'полузащитников клуба' },
-  { value: 'DEF', label: 'Защитник', vsLabel: 'защитников клуба' },
+  { value: 'FWD', label: 'Нападающий' },
+  { value: 'MID', label: 'Полузащитник' },
+  { value: 'DEF', label: 'Защитник' },
 ];
+export const PIZZA_VS_LABEL = 'игроков команды';
 
 // statKey может быть как путь в stats ("attack4.goal"), так и путь в splits ("split:Pass.match")
 // или в radar ("radar:dribbling"). Разные источники — разный префикс.

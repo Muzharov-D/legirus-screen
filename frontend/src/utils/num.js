@@ -27,3 +27,17 @@ export function percentileRank(value, allValues, inverse = false) {
   }
   return Math.round((cnt / arr.length) * 100);
 }
+
+// Форматирование «сырых» значений метрик для подписи на слайсе:
+// - integer-значения как целые числа;
+// - дробные (xG/xA, среднее) — 1 знак;
+// - больше 1000 — без дроби и с пробелом-разделителем тысяч.
+export function formatRaw(v) {
+  if (v === null || v === undefined) return '—';
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '—';
+  if (Math.abs(n) >= 1000) return Math.round(n).toLocaleString('ru-RU');
+  if (Number.isInteger(n)) return String(n);
+  if (Math.abs(n) >= 10) return String(Math.round(n));
+  return n.toFixed(Math.abs(n) < 1 ? 2 : 1);
+}

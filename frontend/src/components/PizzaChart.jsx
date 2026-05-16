@@ -62,7 +62,12 @@ function wrapAxisLabel(text) {
  *   subjectName   string  — заголовок (например, имя игрока)
  *   subjectMeta   string  — подзаголовок (контекст: команда / сезон)
  *   vsLabel       string  — текст рядом со «vs» в центре (например, «нападающих клуба»)
- *   slices        Array<{ axis: string, value: 0-100, group: 'attack'|'defence'|'fitness' }>
+ *   slices        Array<{
+ *                   axis: string,
+ *                   value: 0-100,            // длина слайса (percentile)
+ *                   group: 'attack'|'defence'|'fitness',
+ *                   displayValue?: string,    // что отрисовать на слайсе (если нет — округлённый value)
+ *                 }>
  *   centerLabel   string  — лейбл центра, дефолт 'ЛЕГИРУС'
  *   size          number  — размер SVG по viewBox (дефолт 640). На фронте SVG растягивается по контейнеру.
  */
@@ -104,11 +109,13 @@ export default function PizzaChart({
     const axisPos = placeAxisLabel(cx, cy, outerMax + 12, midA);
     const axisLines = wrapAxisLabel(s.axis);
 
+    const labelText = s.displayValue != null ? s.displayValue : String(Math.round(value));
+
     return (
       <g key={i}>
         <path d={trackPath} fill={conf.track} stroke="rgba(7,7,28,0.6)" strokeWidth="0.5" />
         <path d={filledPath} fill={conf.fill} stroke="rgba(7,7,28,0.85)" strokeWidth="1">
-          <title>{`${s.axis}: ${Math.round(value)}`}</title>
+          <title>{`${s.axis}: ${labelText} (percentile ${Math.round(value)})`}</title>
         </path>
         <text
           className="pizza-label"
@@ -116,7 +123,7 @@ export default function PizzaChart({
           fontSize={FONT_VALUE}
           textAnchor="middle" dominantBaseline="middle"
           fill={conf.text}
-        >{Math.round(value)}</text>
+        >{labelText}</text>
         <text
           className="pizza-axis-label"
           x={axisPos.x} y={axisPos.y}

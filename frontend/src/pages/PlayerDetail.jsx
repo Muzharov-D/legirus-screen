@@ -11,8 +11,8 @@ import RatingPill from '../components/RatingPill';
 import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
 import PizzaChart from '../components/PizzaChart';
 import { ratingColor } from '../utils/colors';
-import { num, percentileRank } from '../utils/num';
-import { POSITION_OPTIONS, TEMPLATES, getStatValue, positionGroup } from '../utils/pizzaTemplates';
+import { num, percentileRank, formatRaw } from '../utils/num';
+import { POSITION_OPTIONS, PIZZA_VS_LABEL, TEMPLATES, getStatValue, positionGroup } from '../utils/pizzaTemplates';
 import './PlayerDetail.css';
 
 // Ключевые метрики для бейджей "Лучший в команде" — топ-3 ранг по матчу.
@@ -191,18 +191,24 @@ export default function PlayerDetail() {
   const attackRows = ATTACK_SPLIT_KEYS.filter((k) => splits[k]);
   const defenceRows = DEFENCE_SPLIT_KEYS.filter((k) => splits[k]);
 
-  // Pizza slices: для каждой метрики шаблона считаем percentile vs игроков клуба той же позиции.
-  // Базис: все игроки текущего матча с той же positionGroup.
-  // inverse=true в шаблоне (Фолы, ЖК, потери) флипает рейтинг — меньше значит лучше.
+  // Pizza slices: для каждой метрики шаблона считаем percentile vs ВСЕЙ команды
+  // (peer-pool = все игроки матча, не только позиционная подгруппа).
+  // - длина слайса = percentile (0–100, насколько игрок впереди команды)
+  // - подпись = реальное «сырое» значение метрики (голы, отборы, xG…)
+  // inverse=true в шаблоне (Фолы, ЖК, потери) флипает percentile — меньше = лучше.
   const pizzaTemplate = TEMPLATES[pizzaPos];
-  const posOption = POSITION_OPTIONS.find((o) => o.value === pizzaPos);
-  const peers = (match.players || []).filter((p) => positionGroup(p) === pizzaPos);
+  const peers = match.players || [];
   const allSlices = pizzaTemplate
     ? pizzaTemplate.slices.map((s) => {
         const myValue = getStatValue(player, s.key);
         const allValues = peers.map((p) => getStatValue(p, s.key));
         const pct = percentileRank(myValue, allValues, !!s.inverse);
-        return { axis: s.axis, group: s.group, value: pct ?? 0 };
+        return {
+          axis: s.axis,
+          group: s.group,
+          value: pct ?? 0,
+          displayValue: formatRaw(myValue),
+        };
       })
     : [];
   const pizzaSlices = pizzaGroup === 'all'
@@ -313,8 +319,8 @@ export default function PlayerDetail() {
 
         <PizzaChart
           subjectName={`${player.fullName} · ${player.positionFull || ''} · ${player.minutes ?? '?'} мин`}
-          subjectMeta={`Percentile vs ${posOption?.vsLabel || 'игроков клуба'} (${peers.length} чел.)`}
-          vsLabel={posOption?.vsLabel}
+          subjectMeta={`Цифры — реальные значения, длина слайса — percentile vs ${PIZZA_VS_LABEL} (${peers.length} чел.)`}
+          vsLabel={PIZZA_VS_LABEL}
           slices={pizzaSlices}
         />
       </div>
