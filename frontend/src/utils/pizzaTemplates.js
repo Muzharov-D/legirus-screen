@@ -1,11 +1,16 @@
 // Шаблоны метрик для pizza-chart по позициям.
-// Каждая метрика — { axis, group, key }, где key — dotted-path в player.stats.
-// 18 метрик в каждом шаблоне для одинаково плотного «пирога».
+// 28 метрик в каждом шаблоне; расклад групп позиционно-смещённый:
+//   FWD = 18 attack / 5 defence / 5 fitness
+//   MID = 12 attack / 11 defence / 5 fitness
+//   DEF = 7  attack / 16 defence / 5 fitness
+// Это сразу показывает фокус игрока по позиции: у защитника много оборонительных,
+// у нападающего — атакующих. Кому нужны конкретные группы в отдельности — есть
+// фильтр-табы (Все / Атака / Оборона / Фитнес) над пиццей.
 //
 // Group: 'attack' | 'defence' | 'fitness' — цвет слайса.
-// inverse: true — метрика «меньше = лучше» (фолы, потери, ЖК).
+// inverse: true — метрика «меньше = лучше» (фолы, ЖК, потери).
 //
-// Ключи — РЕАЛЬНЫЕ из player.stats (проверено по match-001.json):
+// Все ключи — РЕАЛЬНЫЕ из player.stats (audit match-001.json):
 //   attack1: attackTotal, goalActions, xG, xA, keyPass, assist, secondAssist, thirdAssist
 //   attack2: shotAssist, shotOnTargetAssist, intoPenArea, cross, passPacking, throughPass,
 //            progressivePass, passToFinalThird, progressiveRun, pass
@@ -26,8 +31,6 @@
 
 import { num } from './num';
 
-// vsLabel единый — сравнение всегда vs всей команды.
-// Дропдаун позиции — только переключатель набора метрик в pizza.
 export const POSITION_OPTIONS = [
   { value: 'FWD', label: 'Нападающий' },
   { value: 'MID', label: 'Полузащитник' },
@@ -38,62 +41,85 @@ export const PIZZA_VS_LABEL = 'игроков команды';
 export const TEMPLATES = {
   FWD: {
     slices: [
-      // ATTACK (12)
-      { axis: 'xG',                         group: 'attack',  key: 'attack1.xG' },
-      { axis: 'xA',                         group: 'attack',  key: 'attack1.xA' },
+      // ATTACK (18)
       { axis: 'Голы',                       group: 'attack',  key: 'attack4.goal' },
+      { axis: 'xG',                         group: 'attack',  key: 'attack1.xG' },
+      { axis: 'Ассисты',                    group: 'attack',  key: 'attack1.assist' },
+      { axis: 'xA',                         group: 'attack',  key: 'attack1.xA' },
+      { axis: 'Голевые действия',           group: 'attack',  key: 'attack1.goalActions' },
+      { axis: 'Ключевые передачи',          group: 'attack',  key: 'attack1.keyPass' },
+      { axis: 'Передачи под удар',          group: 'attack',  key: 'attack2.shotAssist' },
+      { axis: 'Передачи в створ',           group: 'attack',  key: 'attack2.shotOnTargetAssist' },
       { axis: 'Удары',                      group: 'attack',  key: 'attack4.shot' },
       { axis: 'Удары головой',              group: 'attack',  key: 'attack5.byHead' },
-      { axis: 'Ассисты',                    group: 'attack',  key: 'attack1.assist' },
-      { axis: 'Передачи под удар',          group: 'attack',  key: 'attack2.shotAssist' },
+      { axis: 'Удары со штрафных',          group: 'attack',  key: 'attack4.freeKickShot' },
       { axis: 'Обводки',                    group: 'attack',  key: 'attack4.dribble' },
       { axis: 'Касания в штрафной',         group: 'attack',  key: 'attack3.touchesInPenArea' },
       { axis: 'Входы в штрафную',           group: 'attack',  key: 'attack5.entriesInBox' },
       { axis: 'Передачи в фин. треть',      group: 'attack',  key: 'attack2.passToFinalThird' },
+      { axis: 'Прогрессивные передачи',     group: 'attack',  key: 'attack2.progressivePass' },
       { axis: 'Заработанные фолы',          group: 'attack',  key: 'attack3.foulsSuffered' },
-      // DEFENCE (3)
+      { axis: 'Ускорения',                  group: 'attack',  key: 'attack5.acceleration' },
+      // DEFENCE (5)
       { axis: 'Прессинг',                   group: 'defence', key: 'defence2.pressing' },
       { axis: 'Контрпрессинг',              group: 'defence', key: 'defence2.counterpressing' },
       { axis: 'Подборы',                    group: 'defence', key: 'defence1.recovery' },
-      // FITNESS (3)
-      { axis: 'Спринты',                    group: 'fitness', key: 'fitness.sprintsCount' },
+      { axis: 'Перехваты',                  group: 'defence', key: 'defence1.interception' },
+      { axis: 'Возвраты',                   group: 'defence', key: 'defence2.return' },
+      // FITNESS (5)
+      { axis: 'Общая дистанция',            group: 'fitness', key: 'fitness.totalDistance' },
       { axis: 'Дистанция спринтов',         group: 'fitness', key: 'fitness.sprintDistance' },
+      { axis: 'Спринты',                    group: 'fitness', key: 'fitness.sprintsCount' },
       { axis: 'Интенсивный бег',            group: 'fitness', key: 'fitness.intenseRunning' },
+      { axis: 'Средняя скорость',           group: 'fitness', key: 'fitness.averageSpeed' },
     ],
   },
   MID: {
     slices: [
-      // ATTACK (8)
-      { axis: 'xG',                         group: 'attack',  key: 'attack1.xG' },
-      { axis: 'xA',                         group: 'attack',  key: 'attack1.xA' },
-      { axis: 'Ключевые передачи',          group: 'attack',  key: 'attack1.keyPass' },
+      // ATTACK (12)
       { axis: 'Ассисты',                    group: 'attack',  key: 'attack1.assist' },
+      { axis: 'xA',                         group: 'attack',  key: 'attack1.xA' },
+      { axis: 'xG',                         group: 'attack',  key: 'attack1.xG' },
+      { axis: 'Ключевые передачи',          group: 'attack',  key: 'attack1.keyPass' },
+      { axis: 'Всего передач',              group: 'attack',  key: 'attack2.pass' },
       { axis: 'Прогрессивные передачи',     group: 'attack',  key: 'attack2.progressivePass' },
       { axis: 'Передачи в фин. треть',      group: 'attack',  key: 'attack2.passToFinalThird' },
+      { axis: 'Длинные передачи',           group: 'attack',  key: 'attack3.passLong' },
+      { axis: 'Передачи под удар',          group: 'attack',  key: 'attack2.shotAssist' },
       { axis: 'Обводки',                    group: 'attack',  key: 'attack4.dribble' },
       { axis: 'Навесы',                     group: 'attack',  key: 'attack2.cross' },
-      // DEFENCE (7) — Фолы инвертированы
+      { axis: 'Прогрессивный рывок',        group: 'attack',  key: 'attack2.progressiveRun' },
+      // DEFENCE (11) — Фолы инвертированы
       { axis: 'Отборы',                     group: 'defence', key: 'defence1.tackle' },
+      { axis: 'Отбор с подбором',           group: 'defence', key: 'defence1.tackleAndRecovery' },
       { axis: 'Перехваты',                  group: 'defence', key: 'defence1.interception' },
       { axis: 'Подборы',                    group: 'defence', key: 'defence1.recovery' },
       { axis: 'Единоборства',               group: 'defence', key: 'defence2.duel' },
+      { axis: 'Верховые единоборства',      group: 'defence', key: 'defence2.aerialDuel' },
       { axis: 'Прессинг',                   group: 'defence', key: 'defence2.pressing' },
       { axis: 'Контрпрессинг',              group: 'defence', key: 'defence2.counterpressing' },
+      { axis: 'Возвраты',                   group: 'defence', key: 'defence2.return' },
+      { axis: 'Возвраты на чужой',          group: 'defence', key: 'defence2.returnOnOppHalf' },
       { axis: 'Фолы',                       group: 'defence', key: 'defence2.foul', inverse: true },
-      // FITNESS (3)
+      // FITNESS (5)
       { axis: 'Общая дистанция',            group: 'fitness', key: 'fitness.totalDistance' },
+      { axis: 'Дистанция спринтов',         group: 'fitness', key: 'fitness.sprintDistance' },
       { axis: 'Спринты',                    group: 'fitness', key: 'fitness.sprintsCount' },
       { axis: 'Интенсивный бег',            group: 'fitness', key: 'fitness.intenseRunning' },
+      { axis: 'Средняя скорость',           group: 'fitness', key: 'fitness.averageSpeed' },
     ],
   },
   DEF: {
     slices: [
-      // ATTACK (4)
-      { axis: 'Прогрессивные передачи',     group: 'attack',  key: 'attack2.progressivePass' },
+      // ATTACK (7) — у защитника атакующие метрики только пасовые/стандарты
       { axis: 'Длинные передачи',           group: 'attack',  key: 'attack3.passLong' },
+      { axis: 'Прогрессивные передачи',     group: 'attack',  key: 'attack2.progressivePass' },
       { axis: 'Передачи в фин. треть',      group: 'attack',  key: 'attack2.passToFinalThird' },
       { axis: 'Всего передач',              group: 'attack',  key: 'attack2.pass' },
-      // DEFENCE (11) — Фолы и опасные потери инвертированы (меньше = лучше)
+      { axis: 'Передачи вперёд',            group: 'attack',  key: 'attack3.passForward' },
+      { axis: 'Принятые передачи',          group: 'attack',  key: 'attack3.receivedPass' },
+      { axis: 'Угловые',                    group: 'attack',  key: 'attack5.corner' },
+      // DEFENCE (16) — Фолы / ЖК / Опасные потери инвертированы
       { axis: 'Отборы',                     group: 'defence', key: 'defence1.tackle' },
       { axis: 'Подкаты',                    group: 'defence', key: 'defence1.slidingTackles' },
       { axis: 'Отбор с подбором',           group: 'defence', key: 'defence1.tackleAndRecovery' },
@@ -103,12 +129,19 @@ export const TEMPLATES = {
       { axis: 'Блокированные удары',        group: 'defence', key: 'defence1.blockedShot' },
       { axis: 'Единоборства',               group: 'defence', key: 'defence2.duel' },
       { axis: 'Верховые единоборства',      group: 'defence', key: 'defence2.aerialDuel' },
-      { axis: 'Фолы',                       group: 'defence', key: 'defence2.foul',                       inverse: true },
-      { axis: 'Опасные потери у ворот',     group: 'defence', key: 'attack4.dangerousLosesOnOwnHalf',     inverse: true },
-      // FITNESS (3)
+      { axis: 'Прессинг',                   group: 'defence', key: 'defence2.pressing' },
+      { axis: 'Контрпрессинг',              group: 'defence', key: 'defence2.counterpressing' },
+      { axis: 'Возвраты',                   group: 'defence', key: 'defence2.return' },
+      { axis: 'Возвраты на чужой',          group: 'defence', key: 'defence2.returnOnOppHalf' },
+      { axis: 'Фолы',                       group: 'defence', key: 'defence2.foul',                    inverse: true },
+      { axis: 'Жёлтые карточки',            group: 'defence', key: 'defence2.yellowCard',              inverse: true },
+      { axis: 'Опасные потери у ворот',     group: 'defence', key: 'attack4.dangerousLosesOnOwnHalf',  inverse: true },
+      // FITNESS (5)
       { axis: 'Общая дистанция',            group: 'fitness', key: 'fitness.totalDistance' },
+      { axis: 'Дистанция спринтов',         group: 'fitness', key: 'fitness.sprintDistance' },
       { axis: 'Спринты',                    group: 'fitness', key: 'fitness.sprintsCount' },
       { axis: 'Интенсивный бег',            group: 'fitness', key: 'fitness.intenseRunning' },
+      { axis: 'Средняя скорость',           group: 'fitness', key: 'fitness.averageSpeed' },
     ],
   },
 };
