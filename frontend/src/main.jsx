@@ -18,7 +18,10 @@ createRoot(document.getElementById('root')).render(
 // SW логика — см. /public/sw.js.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    // updateViaCache: 'none' — браузер НИКОГДА не использует HTTP-кеш для проверки
+    // обновлений sw.js. Это критично для iOS PWA, где SW может «застревать» на
+    // старой версии месяцами из-за агрессивного кеширования.
+    navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' })
       .then((reg) => {
         // Проверяем обновления при каждой загрузке страницы (cheap)
         try { reg.update(); } catch (_) {}
