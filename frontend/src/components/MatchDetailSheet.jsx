@@ -25,6 +25,10 @@ function shortName(name) {
 
 // shieldFor() и isLegirus() — из utils/legirus (single source of truth)
 
+// Центр СПб — используем для прогноза погоды всех матчей. Все наши площадки
+// в пределах города (~15 км радиус), разница в погоде минимальна.
+const SPB_CENTER = { lat: 59.9343, lng: 30.3351 };
+
 // Маппинг типа события матча → имя UI-иконки в /icons/ui/
 const EVENT_KIND_TO_ICON = {
   goal: 'ball',
@@ -284,12 +288,15 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
-        {/* Погода на момент матча (OpenWeatherMap) — для будущих матчей,
-            у которых есть координаты venue. Через бэк /api/public/weather. */}
-        {tab === 'overview' && !past && hasCoords(venue) && (
+        {/* Погода на момент матча — всегда по центру СПб, без привязки к venue.
+            Раньше использовали coords стадиона, но это требовало успешного venue
+            lookup, и для матчей с неизвестной площадкой погода не показывалась.
+            Микро-точность (±2-3 км по городу) для прогноза не важна — разница
+            температур между Купчино и Васильевским ≈ 1°. */}
+        {tab === 'overview' && !past && (
           <MatchWeather
-            lat={venue.lat}
-            lng={venue.lng}
+            lat={SPB_CENTER.lat}
+            lng={SPB_CENTER.lng}
             atIso={match.date}
           />
         )}
