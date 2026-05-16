@@ -7,16 +7,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fmtRelative, fmtCountdown } from '../utils/dates';
 import { shieldFor, isLegirus } from '../utils/legirus';
+import { buildRouteUrl } from '../utils/map';
 import UiIcon from './UiIcon';
 import './HeroNextMatch.css';
-
-function buildYandexUrl(venue, coords) {
-  if (coords?.lat && coords?.lng) {
-    return `https://yandex.ru/maps/?rtext=~${coords.lat}%2C${coords.lng}&rtt=auto`;
-  }
-  if (venue) return `https://yandex.ru/maps/?text=${encodeURIComponent(venue)}`;
-  return null;
-}
 
 function shortTeamName(name) {
   if (!name) return '—';
@@ -52,7 +45,9 @@ export default function HeroNextMatch({ match, venue, onOpen }) {
   const placeLabel = homeIsUs ? 'Дома' : 'В гостях';
 
   const countdownStr = fmtCountdown(matchDate, now);
-  const yaUrl = buildYandexUrl(match.venue, venue?.coords);
+  // Маршрут — ТОЛЬКО при наличии координат. Без text-fallback, иначе уедет
+  // не к тому стадиону (одних «Локомотивов» в России 7+).
+  const yaUrl = buildRouteUrl(venue);
 
   return (
     <div
@@ -100,23 +95,21 @@ export default function HeroNextMatch({ match, venue, onOpen }) {
         </div>
       )}
 
-      <div className="hero-next__bottomline">
-        <span className="hero-next__where">
-          <UiIcon name="pin" size={12} />
-          {match.venue || 'Стадион уточняется'} · {placeLabel}
-        </span>
-        {yaUrl && (
-          <a
-            className="hero-next__route"
-            href={yaUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <UiIcon name="map" size={12} /> Маршрут
-          </a>
-        )}
-      </div>
+      <span className="hero-next__where">
+        <UiIcon name="pin" size={12} />
+        <span className="hero-next__where-text">{match.venue || 'Стадион уточняется'} · {placeLabel}</span>
+      </span>
+      {yaUrl && (
+        <a
+          className="hero-next__route"
+          href={yaUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <UiIcon name="map" size={16} /> Маршрут в Я.Картах
+        </a>
+      )}
     </div>
   );
 }

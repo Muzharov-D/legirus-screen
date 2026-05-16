@@ -310,7 +310,12 @@ export default function PublicTeamSchedule() {
     });
     return items;
   }, [ourMatches, trainings, filter, showTrainings, weekOffset]);
-  const filtered = events;
+  // Если ближайший матч уже отрисован в Hero-блоке — не дублируем его в списке.
+  // (Hero видим только при filter='upcoming' и в weekOffset=0, т.е. текущая неделя.)
+  const filtered = useMemo(() => {
+    if (!nextMatch || filter !== 'upcoming') return events;
+    return events.filter((e) => !(e.kind === 'match' && e.data?.matchId === nextMatch.matchId));
+  }, [events, nextMatch, filter]);
 
   // В месячном виде показываем все тренировки (фильтр недели не применяется)
   const visibleTrainings = (filter !== 'past' && !hideTrainings) ? trainings : [];

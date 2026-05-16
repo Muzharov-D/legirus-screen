@@ -8,6 +8,7 @@ import UiIcon from './UiIcon';
 import MatchStatsBlock from './MatchStatsBlock';
 import MatchLineupsBlock from './MatchLineupsBlock';
 import MatchWeather from './MatchWeather';
+import { buildRouteUrl, buildMapViewUrl, buildStaticMapUrl, hasCoords } from '../utils/map';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
@@ -50,17 +51,8 @@ function fmtDate(iso) {
   });
 }
 
-// Точка по координатам или fallback на текстовый search
-function buildYandexMapsUrl(venue, coords) {
-  if (coords && coords.lat && coords.lng) {
-    // С маршрутом — rtext=~lat,lng означает «отсюда» (~) до этой точки
-    return `https://yandex.ru/maps/?rtext=~${coords.lat}%2C${coords.lng}&rtt=auto`;
-  }
-  if (venue) {
-    return `https://yandex.ru/maps/?text=${encodeURIComponent(venue)}`;
-  }
-  return null;
-}
+// Маршрут только когда есть координаты — text-search возвращает не тот
+// стадион (одних «Локомотивов» по России 7+). См. utils/map.js
 
 export default function MatchDetailSheet({ match, venue, age, onClose, theme = 'default', extra = null }) {
   // Esc для закрытия
@@ -100,7 +92,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
 
   const past = match.isPast;
   const tournamentLabel = match.tournament === 'cup' ? 'Кубок' : 'Лига';
-  const yaUrl = buildYandexMapsUrl(match.venue, venue);
+  const yaUrl = buildRouteUrl(venue);
 
   // Single-event ICS для скачивания (только если есть matchId и age)
   const apiBase = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
@@ -294,10 +286,10 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
 
         {/* Погода на момент матча (OpenWeatherMap) — для будущих матчей,
             у которых есть координаты venue. Через бэк /api/public/weather. */}
-        {tab === 'overview' && !past && venue?.coords?.lat && venue?.coords?.lng && (
+        {tab === 'overview' && !past && hasCoords(venue) && (
           <MatchWeather
-            lat={venue.coords.lat}
-            lng={venue.coords.lng}
+            lat={venue.lat}
+            lng={venue.lng}
             atIso={match.date}
           />
         )}
@@ -316,11 +308,11 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
-        {/* Mini-map стадиона — Я.Карты embed, только если есть координаты */}
-        {tab === 'overview' && venue?.coords?.lat && venue?.coords?.lng && (
+        {/* Mini-map стадиона — Я.Карты static-snapshot, только при наличии координат */}
+        {tab === 'overview' && hasCoords(venue) && (
           <a
             className="mds-map"
-            href={yaUrl || `https://yandex.ru/maps/?ll=${venue.coords.lng},${venue.coords.lat}&z=16&pt=${venue.coords.lng},${venue.coords.lat},pm2rdm`}
+            href={buildMapViewUrl(venue)}
             target="_blank"
             rel="noopener noreferrer"
             title="Открыть в Я.Картах"
@@ -328,7 +320,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
             <img
               alt={`Карта · ${match.venue}`}
               loading="lazy"
-              src={`https://static-maps.yandex.ru/1.x/?ll=${venue.coords.lng},${venue.coords.lat}&z=15&size=600,260&l=map&pt=${venue.coords.lng},${venue.coords.lat},pm2rdm`}
+              src={buildStaticMapUrl(venue)}
               onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }}
             />
           </a>

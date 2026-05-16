@@ -21,10 +21,12 @@ function plural(count, t) {
 
 export default function StreakBadge({ matches }) {
   const { type, count, recent } = computeStreak(matches);
-  if (!type) return null;
+  // «1 ничья подряд» — бессмысленная фраза. Серия начинается с 2.
+  if (!type || count < 2) return null;
 
   const t = TYPE_LABEL[type];
-  const showHot = type === 'W' && count >= 2;
+  // Огонёк — только для горячей победной серии 3+.
+  const showHot = type === 'W' && count >= 3;
 
   return (
     <div className={`streak-badge streak-badge--${type}${showHot ? ' streak-badge--hot' : ''}`}>
