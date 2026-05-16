@@ -1,7 +1,10 @@
 // Прогноз погоды на момент матча (OpenWeatherMap).
-// Рендерится в модалке матча (таб «Обзор»), если у venue есть координаты
-// И матч в окне 5 дней (free-tier API).
-// Если прогноз недоступен или нет ключа на бэке — компонент не рендерится.
+// Рендерится в модалке матча (таб «Обзор»), если у venue есть координаты.
+// Поведение:
+//   - матч > 5 дней   → placeholder "появится через N дней"
+//   - матч ≤ 5 дней   → реальный прогноз от бэка
+//   - нет ключа / API → placeholder "временно недоступен"
+//   - нет координат   → ничего не рендерим (родитель проверяет hasCoords)
 
 import { useEffect, useState } from 'react';
 import './MatchWeather.css';
@@ -50,7 +53,7 @@ export default function MatchWeather({ lat, lng, atIso }) {
     let cancelled = false;
     const url = `${API_BASE}/api/public/weather?lat=${lat}&lng=${lng}` + (atIso ? `&at=${encodeURIComponent(atIso)}` : '');
     fetch(url)
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => r.json().catch(() => null))
       .then((d) => { if (!cancelled) { setData(d); setLoaded(true); } })
       .catch(() => { if (!cancelled) setLoaded(true); });
     return () => { cancelled = true; };
@@ -71,9 +74,32 @@ export default function MatchWeather({ lat, lng, atIso }) {
     );
   }
 
-  // Не рендерим ничего если данных нет (ключ не настроен / API упал) —
-  // тихо отсутствуем, не путаем пустым блоком.
-  if (!loaded || !data) return null;
+  if (!loaded) return null;
+
+  // Бэк теперь возвращает { error: '...' } при проблемах. Показываем
+  // компактный placeholder с человеко-понятной причиной — иначе родитель
+  // видит «у одного матча погода есть, у другого нет» и не понимает почему.
+  if (!data || data.error) {
+    const errCode = data?.error;
+    let message;
+    if (errCode === 'no_api_key' || errCode === 'invalid_api_key') {
+      message = 'Прогноз погоды временно недоступен';
+    } else if (errCode === 'rate_limited') {
+      message = 'Прогноз обновляется — загляните чуть позже';
+    } else if (errCode === 'out_of_window') {
+      // На всякий случай — фронт сам должен поймать tooFar выше
+      message = 'Прогноз появится ближе к дате матча';
+    } else {
+      // network_error / upstream_5xx / etc
+      message = 'Прогноз погоды временно недоступен';
+    }
+    return (
+      <div className="match-weather match-weather--soon">
+        <span className="match-weather__soon-icon" aria-hidden>🌦</span>
+        <span className="match-weather__soon-text">{message}</span>
+      </div>
+    );
+  }
 
   const advice = adviceFor(data);
 

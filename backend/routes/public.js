@@ -175,11 +175,18 @@ router.get('/weather', async (req, res) => {
       return res.status(400).json({ error: 'lat и lng обязательны (число)' });
     }
     const data = await getWeather(lat, lng, at);
-    if (!data) return res.status(404).json({ error: 'Прогноз недоступен (вне окна 5 дней или нет ключа)' });
+    // getWeather теперь всегда возвращает объект — либо данные, либо { error: '...' }
+    if (data && data.error) {
+      // 200, чтобы фронт мог разобрать тип ошибки и показать осмысленный плейсхолдер.
+      // Кешируем коротко чтобы при починке ключа быстро подхватилось.
+      cdnCache(res, 60, 60);
+      return res.status(200).json(data);
+    }
     cdnCache(res, 1800, 3600); // 30 мин edge cache, ещё час SWR
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error('[weather route]', e);
+    res.status(200).json({ error: 'internal_error' });
   }
 });
 

@@ -4,8 +4,10 @@
 // ENV:
 //   OPENWEATHER_API_KEY — ключ с https://openweathermap.org/api (free план)
 //
-// Если ключ не задан — getWeather возвращает null. Фронт это норм обрабатывает
-// (просто не показывает погодную карточку).
+// Если ключ не задан — getWeather возвращает { error: 'no_api_key' }.
+// Раньше возвращали null, теперь — объект с конкретным кодом ошибки,
+// чтобы можно было различать «нет ключа», «ключ битый», «вне окна»,
+// «rate limit» и сетевую ошибку.
 
 const API_KEY = process.env.OPENWEATHER_API_KEY || '';
 const TTL_MS = 30 * 60 * 1000; // 30 мин
@@ -17,10 +19,14 @@ export function isWeatherConfigured() {
 
 // Получить прогноз на конкретный момент времени по координатам.
 // Используется 5-day/3-hour forecast (free): берём ближайший по времени слот.
-// Если матч < сейчас+5 дней — есть прогноз; иначе — null (выдадим заглушку).
+//
+// Возвращает либо данные прогноза, либо объект { error: '...code...' }
+// для точной диагностики на фронте/в логах. Раньше возвращали null на ВСЁ
+// (no key / wrong key / out of window / network) — невозможно было понять
+// в чём дело.
 export async function getWeather(lat, lng, atIso) {
-  if (!isWeatherConfigured()) return null;
-  if (!lat || !lng) return null;
+  if (!isWeatherConfigured()) return { error: 'no_api_key' };
+  if (!lat || !lng) return { error: 'bad_coords' };
 
   const key = `${lat.toFixed(3)},${lng.toFixed(3)},${atIso || 'current'}`;
   const cached = cache.get(key);
@@ -29,10 +35,17 @@ export async function getWeather(lat, lng, atIso) {
   try {
     const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric&lang=ru`;
     const res = await fetch(url);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      console.error(`[weather] OpenWeather HTTP ${res.status}:`, body.slice(0, 300));
+      // 401 = ключ невалиден; 429 = превышен rate-limit; иначе network/API down
+      if (res.status === 401) return { error: 'invalid_api_key' };
+      if (res.status === 429) return { error: 'rate_limited' };
+      return { error: `upstream_${res.status}` };
+    }
     const data = await res.json();
     const list = data?.list || [];
-    if (list.length === 0) return null;
+    if (list.length === 0) return { error: 'empty_forecast' };
 
     // Найти ближайший по времени к atIso. Если atIso = null — текущий момент.
     const target = atIso ? new Date(atIso).getTime() : Date.now();
@@ -43,7 +56,7 @@ export async function getWeather(lat, lng, atIso) {
       if (diff < bestDiff) { best = item; bestDiff = diff; }
     }
     // Если разница >12ч — прогноз вне окна 5-day, не отдаём.
-    if (bestDiff > 12 * 3600 * 1000) return null;
+    if (bestDiff > 12 * 3600 * 1000) return { error: 'out_of_window' };
 
     const out = {
       tempC: Math.round(best.main?.temp ?? 0),
@@ -61,7 +74,7 @@ export async function getWeather(lat, lng, atIso) {
     cache.set(key, { data: out, expiresAt: Date.now() + TTL_MS });
     return out;
   } catch (e) {
-    console.error('[weather] error:', e.message);
-    return null;
+    console.error('[weather] fetch error:', e.message);
+    return { error: 'network_error' };
   }
 }
