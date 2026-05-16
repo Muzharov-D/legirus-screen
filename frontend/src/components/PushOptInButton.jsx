@@ -8,11 +8,16 @@ import {
   requestAndSubscribe,
   unsubscribe,
   checkExistingSubscription,
+  requestAndSubscribePublic,
+  unsubscribePublic,
 } from '../services/push';
 import PushPreferencesPanel from './PushPreferencesPanel';
 import './PushOptInButton.css';
 
-export default function PushOptInButton() {
+// publicMode=true — анонимный поток для родителей на mobile.legirus.
+// age — для какой возрастной группы родитель подписывается (нужно бэку,
+//       чтобы пометить team_id='legirus-{age}' и адресовать push-крон).
+export default function PushOptInButton({ publicMode = false, age = null } = {}) {
   const [supported, setSupported] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -32,10 +37,10 @@ export default function PushOptInButton() {
     setBusy(true);
     try {
       if (subscribed) {
-        await unsubscribe();
+        await (publicMode ? unsubscribePublic() : unsubscribe());
         setSubscribed(false);
       } else {
-        await requestAndSubscribe();
+        await (publicMode ? requestAndSubscribePublic(age) : requestAndSubscribe());
         setSubscribed(true);
       }
     } catch (e) {
@@ -72,7 +77,7 @@ export default function PushOptInButton() {
           <span className="push-opt-btn__icon">⚙</span>
         </button>
       )}
-      {prefsOpen && <PushPreferencesPanel onClose={() => setPrefsOpen(false)} />}
+      {prefsOpen && <PushPreferencesPanel onClose={() => setPrefsOpen(false)} publicMode={publicMode} />}
     </span>
   );
 }

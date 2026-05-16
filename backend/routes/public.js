@@ -6,6 +6,8 @@ import { loadCalendar, loadStandings } from '../services/dataRepo.js';
 import { listTrainings } from '../services/trainingsRepo.js';
 import { loadVenues, buildVEvent, buildVCalendar } from '../services/icsBuilder.js';
 import { loadAllStandings, buildClubRanking } from '../services/clubRanking.js';
+import { getPublicKey, saveSubscription, removeSubscription } from '../services/pushService.js';
+import { isPgEnabled, query } from '../db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -158,6 +160,117 @@ router.get('/match/:age/:matchId.ics', async (req, res) => {
     res.setHeader('Content-Disposition', 'attachment; filename="match-' + req.params.matchId + '.ics"');
     res.send(ics);
   } catch (e) { res.status(500).type('text/plain').send(e.message); }
+});
+
+// ============================================================================
+// PUSH (анонимный, без auth — для родителей на mobile.legirus)
+// ============================================================================
+//
+// Зеркалит /api/push/* (которые под auth) с тем отличием, что:
+// - подписка сохраняется с user_id=null, role=null;
+// - в body POST /subscribe приходит ageGroup, и team_id = 'legirus-{age}'.
+//   Это позволяет cron'у адресовать пуши родителям конкретной команды.
+//
+// Один endpoint = одна подписка (т.к. push_subscriptions UNIQUE по endpoint).
+// Если родитель повторно жмёт «подписаться» на другой команде — последний
+// клик меняет team_id. Для подписки на несколько команд нужна отдельная фича
+// (отдельная колонка JSONB team_ids) — пока не реализовано.
+
+const TOGGLEABLE_KINDS_PUBLIC = [
+  'match-reminder-24h',
+  'match-lineup-published',
+  'match-events-first',
+  'match-final',
+  'match-coach-comment',
+  'match-kickoff',
+];
+
+router.get('/push/public-key', (_req, res) => {
+  const key = getPublicKey();
+  if (!key) return res.status(503).json({ error: 'Push не настроен на сервере' });
+  res.json({ publicKey: key });
+});
+
+router.post('/push/subscribe', async (req, res) => {
+  try {
+    const { ageGroup, ...subscription } = req.body || {};
+    if (!subscription?.endpoint) return res.status(400).json({ error: 'subscription.endpoint обязателен' });
+    const teamId = ageGroup ? `legirus-${ageGroup}` : null;
+    const entry = await saveSubscription({
+      userId: null,
+      teamId,
+      role: null,
+      subscription,
+    });
+    res.json({ ok: true, endpoint: entry.subscription.endpoint, teamId });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/push/unsubscribe', async (req, res) => {
+  try {
+    const endpoint = req.body?.endpoint;
+    const removed = await removeSubscription(endpoint);
+    res.json({ ok: removed });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get('/push/preferences', async (req, res) => {
+  try {
+    const endpoint = req.query?.endpoint;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint обязателен' });
+    if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
+    const r = await query(
+      `SELECT prefs, team_id FROM push_subscriptions WHERE endpoint = $1`,
+      [endpoint]);
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Подписка не найдена' });
+    const stored = r.rows[0].prefs || {};
+    const prefs = {};
+    for (const k of TOGGLEABLE_KINDS_PUBLIC) prefs[k] = stored[k] !== false;
+    res.json({ kinds: TOGGLEABLE_KINDS_PUBLIC, prefs, teamId: r.rows[0].team_id });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.patch('/push/preferences', async (req, res) => {
+  try {
+    const endpoint = req.body?.endpoint;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint обязателен' });
+    if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
+
+    const r = await query(
+      `SELECT prefs FROM push_subscriptions WHERE endpoint = $1`,
+      [endpoint]);
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Подписка не найдена' });
+
+    const cur = r.rows[0].prefs || {};
+    let updated = { ...cur };
+    if (req.body?.kind != null) {
+      if (!TOGGLEABLE_KINDS_PUBLIC.includes(req.body.kind)) {
+        return res.status(400).json({ error: `Неизвестный kind: ${req.body.kind}` });
+      }
+      updated[req.body.kind] = !!req.body.enabled;
+    } else if (req.body?.prefs && typeof req.body.prefs === 'object') {
+      for (const [k, v] of Object.entries(req.body.prefs)) {
+        if (TOGGLEABLE_KINDS_PUBLIC.includes(k)) updated[k] = !!v;
+      }
+    } else {
+      return res.status(400).json({ error: 'Нужно передать kind+enabled или prefs объект' });
+    }
+
+    await query(
+      `UPDATE push_subscriptions SET prefs = $1::jsonb, updated_at = NOW() WHERE endpoint = $2`,
+      [JSON.stringify(updated), endpoint]);
+    const out = {};
+    for (const k of TOGGLEABLE_KINDS_PUBLIC) out[k] = updated[k] !== false;
+    res.json({ ok: true, prefs: out });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 

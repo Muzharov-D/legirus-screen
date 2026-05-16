@@ -6,6 +6,8 @@ import {
   checkExistingSubscription,
   fetchPushPreferences,
   setPushPreference,
+  fetchPushPreferencesPublic,
+  setPushPreferencePublic,
 } from '../services/push';
 import './PushPreferencesPanel.css';
 
@@ -20,12 +22,15 @@ const KIND_LABELS = {
   'match-coach-comment':    { title: 'Комментарий тренера',       desc: 'Когда тренер напишет разбор матча.' },
 };
 
-export default function PushPreferencesPanel({ onClose }) {
+export default function PushPreferencesPanel({ onClose, publicMode = false }) {
   const [endpoint, setEndpoint] = useState(null);
   const [kinds, setKinds] = useState([]);
   const [prefs, setPrefs] = useState({});
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+
+  const fetchFn = publicMode ? fetchPushPreferencesPublic : fetchPushPreferences;
+  const saveFn  = publicMode ? setPushPreferencePublic   : setPushPreference;
 
   useEffect(() => {
     let cancelled = false;
@@ -39,7 +44,7 @@ export default function PushPreferencesPanel({ onClose }) {
           return;
         }
         setEndpoint(sub.endpoint);
-        const data = await fetchPushPreferences(sub.endpoint);
+        const data = await fetchFn(sub.endpoint);
         if (cancelled) return;
         setKinds(data.kinds || []);
         setPrefs(data.prefs || {});
@@ -50,6 +55,7 @@ export default function PushPreferencesPanel({ onClose }) {
       }
     })();
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Esc — закрыть.
@@ -69,7 +75,7 @@ export default function PushPreferencesPanel({ onClose }) {
     // Optimistic update
     setPrefs((p) => ({ ...p, [kind]: next }));
     try {
-      await setPushPreference(endpoint, kind, next);
+      await saveFn(endpoint, kind, next);
     } catch (e) {
       // Откат
       setPrefs((p) => ({ ...p, [kind]: !next }));

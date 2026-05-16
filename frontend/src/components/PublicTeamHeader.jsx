@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { tierForAge, leaguePosClass, clubPosClass, displayAge } from '../utils/ageRating';
 import { useMyTeams, switchActive, removeTeam } from '../utils/myTeams';
 import AddTeamSheet from './AddTeamSheet';
+import PushOptInButton from './PushOptInButton';
 import './PublicTeamHeader.css';
 
 const TG_AVANDATA = 'https://t.me/AvanData';
@@ -70,6 +71,9 @@ export default function PublicTeamHeader({
             className="public-header__platform-logo"
           />
         </a>
+
+        {/* Кнопка пуш-уведомлений — анонимный (public) поток для родителей */}
+        <PushOptInButton publicMode age={age} />
 
         {/* Справа — клуб (название + тир + щит) */}
         <button

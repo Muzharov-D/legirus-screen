@@ -124,3 +124,86 @@ export async function setPushPreference(endpoint, kind, enabled) {
     body: { endpoint, kind, enabled },
   });
 }
+
+// ============================================================================
+// PUBLIC (анонимный) push — для родителей на mobile.legirus без авторизации.
+// Бьём в /api/public/push/* через обычный fetch (без Bearer-токена).
+// ============================================================================
+
+const PUBLIC_API = (() => {
+  const base = import.meta.env.VITE_API_BASE_URL || '';
+  return String(base).replace(/\/+$/, '') + '/api/public/push';
+})();
+
+export async function requestAndSubscribePublic(ageGroup) {
+  if (!pushSupported()) throw new Error('Push не поддерживается этим браузером');
+  const reg = await getRegistration();
+  if (!reg) throw new Error('Не удалось зарегистрировать service worker');
+
+  // VAPID public key
+  let publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+  if (!publicKey) {
+    const r = await fetch(`${PUBLIC_API}/public-key`);
+    if (!r.ok) throw new Error('Push не настроен на сервере');
+    publicKey = (await r.json()).publicKey;
+  }
+
+  let permission = Notification.permission;
+  if (permission === 'default') permission = await Notification.requestPermission();
+  if (permission !== 'granted') throw new Error('Пользователь не разрешил уведомления');
+
+  let subscription = await reg.pushManager.getSubscription();
+  if (!subscription) {
+    subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicKey),
+    });
+  }
+
+  const r = await fetch(`${PUBLIC_API}/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...subscription.toJSON(), ageGroup: ageGroup ?? null }),
+  });
+  if (!r.ok) throw new Error('Ошибка подписки: ' + r.status);
+
+  try { localStorage.setItem(LS_KEY, '1'); } catch {}
+  return subscription.toJSON();
+}
+
+export async function unsubscribePublic() {
+  if (!pushSupported()) return false;
+  const reg = await navigator.serviceWorker.getRegistration('/');
+  if (!reg) return false;
+  const sub = await reg.pushManager.getSubscription();
+  if (!sub) {
+    try { localStorage.removeItem(LS_KEY); } catch {}
+    return true;
+  }
+  try {
+    await fetch(`${PUBLIC_API}/unsubscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: sub.endpoint }),
+    });
+  } catch (_) {}
+  await sub.unsubscribe();
+  try { localStorage.removeItem(LS_KEY); } catch {}
+  return true;
+}
+
+export async function fetchPushPreferencesPublic(endpoint) {
+  const r = await fetch(`${PUBLIC_API}/preferences?endpoint=${encodeURIComponent(endpoint)}`);
+  if (!r.ok) throw new Error('Ошибка загрузки настроек: ' + r.status);
+  return r.json();
+}
+
+export async function setPushPreferencePublic(endpoint, kind, enabled) {
+  const r = await fetch(`${PUBLIC_API}/preferences`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ endpoint, kind, enabled }),
+  });
+  if (!r.ok) throw new Error('Ошибка сохранения: ' + r.status);
+  return r.json();
+}
