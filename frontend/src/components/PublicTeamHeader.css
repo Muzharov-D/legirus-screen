@@ -342,6 +342,13 @@
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
 }
 
+/* Серия (W/L/D) — отдельной строчкой под рангами, мелким акцентом */
+.public-header__streak-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
 /* === Ранг-блоки === */
 .public-header__ranks {
   display: grid;

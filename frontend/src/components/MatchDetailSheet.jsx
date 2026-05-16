@@ -316,6 +316,24 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </div>
         )}
 
+        {/* Mini-map стадиона — Я.Карты embed, только если есть координаты */}
+        {tab === 'overview' && venue?.coords?.lat && venue?.coords?.lng && (
+          <a
+            className="mds-map"
+            href={yaUrl || `https://yandex.ru/maps/?ll=${venue.coords.lng},${venue.coords.lat}&z=16&pt=${venue.coords.lng},${venue.coords.lat},pm2rdm`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Открыть в Я.Картах"
+          >
+            <img
+              alt={`Карта · ${match.venue}`}
+              loading="lazy"
+              src={`https://static-maps.yandex.ru/1.x/?ll=${venue.coords.lng},${venue.coords.lat}&z=15&size=600,260&l=map&pt=${venue.coords.lng},${venue.coords.lat},pm2rdm`}
+              onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }}
+            />
+          </a>
+        )}
+
         {tab === 'overview' && yaUrl && !past && (
           <a
             className="mds-cta"

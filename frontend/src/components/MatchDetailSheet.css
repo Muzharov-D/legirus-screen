@@ -623,6 +623,28 @@
 .mds-tl-row--substitution_out .mds-tl-event,
 .mds-tl-row--sub .mds-tl-event { opacity: 0.9; }
 
+/* Мини-карта стадиона (statiс-maps yandex) — клик открывает Я.Карты */
+.mds-map {
+  display: block;
+  width: 100%;
+  max-height: 200px;
+  overflow: hidden;
+  border-radius: 10px;
+  margin: 4px 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 0;
+  background: rgba(255, 255, 255, 0.02);
+}
+.mds-map img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 250ms cubic-bezier(.34,1.56,.64,1);
+}
+.mds-map:hover img, .mds-map:active img {
+  transform: scale(1.02);
+}
+
 /* Табы Обзор / Статистика / Состав / Комментарий — в модалке матча.
    На узких экранах (iPhone XS = 375px, SE = 320px) 4 таба не помещаются в строку,
    поэтому контейнер прокручивается горизонтально без видимой полосы. */

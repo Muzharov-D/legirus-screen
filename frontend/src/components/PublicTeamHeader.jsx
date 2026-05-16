@@ -12,6 +12,7 @@ import { useMyTeams, switchActive, removeTeam } from '../utils/myTeams';
 import AddTeamSheet from './AddTeamSheet';
 import PushOptInButton from './PushOptInButton';
 import PushBellTab from './PushBellTab';
+import StreakBadge from './StreakBadge';
 import './PublicTeamHeader.css';
 
 const TG_AVANDATA = 'https://t.me/AvanData';
@@ -22,6 +23,7 @@ export default function PublicTeamHeader({
   clubRank,
   onOpenLeague,
   onOpenClub,
+  matches, // для StreakBadge
 }) {
   const navigate = useNavigate();
   const tier = tierForAge(age);
@@ -190,6 +192,13 @@ export default function PublicTeamHeader({
           </button>
         )}
       </div>
+
+      {/* Серия команды — последние результаты W/L/D */}
+      {matches && (
+        <div className="public-header__streak-row">
+          <StreakBadge matches={matches} />
+        </div>
+      )}
 
       {/* Bottom sheet выбора команды */}
       <AddTeamSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />

@@ -17,6 +17,8 @@ import UiIcon from '../components/UiIcon';
 import Skeleton from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import HeroNextMatch from '../components/HeroNextMatch';
+import PullToRefresh from '../components/PullToRefresh';
+import { toast } from '../components/Toast';
 import { tierForAge } from '../utils/ageRating';
 import { shieldFor, isLegirus } from '../utils/legirus';
 import { fmtRelative } from '../utils/dates';
@@ -393,8 +395,15 @@ export default function PublicTeamSchedule() {
   const TYPE_ICONS = { training:'🏃', extra:'⚡', warmup:'🔥', recovery:'💧', meet:'👥' };
   const TYPE_LABELS_SHORT = { training:'Трен.', extra:'Доп.', warmup:'Разм.', recovery:'Восст.', meet:'Сбор' };
 
+  // Pull-to-refresh handler. Дёргает все fetch-и заново, показывает toast.
+  async function handlePullRefresh() {
+    await loadData(false);
+    toast.success('Расписание обновлено');
+  }
+
   return (
     <div className="public-page">
+      <PullToRefresh onRefresh={handlePullRefresh} />
       <OfflineBanner lastUpdated={cal?.lastUpdated} />
       <div className="public-page__container">
         <PublicTeamHeader
@@ -402,6 +411,7 @@ export default function PublicTeamSchedule() {
           divisionName={standings?.title}
           ourLeagueRow={ourRow}
           clubRank={clubRank}
+          matches={cal?.matches}
           onOpenLeague={() => setShowStandings('league')}
           onOpenClub={() => setShowStandings('club')}
         />
