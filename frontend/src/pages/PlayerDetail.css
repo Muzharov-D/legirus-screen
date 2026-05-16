@@ -39,6 +39,53 @@
   border-color: #dc2626;
 }
 
+/* Табы фильтра группы метрик: Все / Атака / Оборона / Фитнес */
+.player-detail__pizza-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.player-detail__pizza-tab {
+  flex: 0 0 auto;
+  padding: 7px 12px 9px;
+  background: transparent;
+  border: none;
+  color: #94a3c8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.player-detail__pizza-tab:disabled { opacity: 0.35; cursor: default; }
+.player-detail__pizza-tab:hover:not(:disabled) { color: #fff; }
+.player-detail__pizza-tab.is-active {
+  color: #fff;
+  border-bottom-color: #dc2626;
+}
+.player-detail__pizza-tab-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3c8;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+.player-detail__pizza-tab.is-active .player-detail__pizza-tab-count {
+  color: #fff;
+  background: rgba(220, 38, 38, 0.3);
+}
+@media (max-width: 480px) {
+  .player-detail__pizza-tab { padding: 6px 9px 8px; font-size: 11px; }
+}
+
 /* === Полная таблица метрик: <details> аккордеон === */
 .player-detail__splits-toggle {
   padding: 0;

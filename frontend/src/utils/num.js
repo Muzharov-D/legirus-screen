@@ -12,13 +12,18 @@ export function num(v) {
 }
 
 // Percentile rank — позиция значения внутри отсортированной выборки в %.
-// Использует "less than or equal" (т.е. percentile = доля значений ≤ value).
+// По умолчанию «больше = лучше»: percentile = доля значений ≤ value.
+// inverse=true — «меньше = лучше» (фолы, ЖК, потери): percentile = доля значений ≥ value.
 // Возвращает 0–100. Если выборка <2 — fallback 50 (нет смысла сравнивать).
-export function percentileRank(value, allValues) {
+export function percentileRank(value, allValues, inverse = false) {
   if (value === null || value === undefined || isNaN(value)) return null;
   const arr = (allValues || []).map(num).filter((v) => v !== null && !isNaN(v));
   if (arr.length < 2) return 50;
-  let leq = 0;
-  for (const v of arr) if (v <= value) leq++;
-  return Math.round((leq / arr.length) * 100);
+  let cnt = 0;
+  if (inverse) {
+    for (const v of arr) if (v >= value) cnt++;
+  } else {
+    for (const v of arr) if (v <= value) cnt++;
+  }
+  return Math.round((cnt / arr.length) * 100);
 }

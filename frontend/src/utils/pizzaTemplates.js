@@ -51,14 +51,14 @@ export const TEMPLATES = {
       { axis: 'Голевые передачи',           group: 'attack',  key: 'attack1.assist' },
       { axis: 'Дриблинг',                   group: 'attack',  key: 'attack1.dribble' },
       { axis: 'Кроссы',                     group: 'attack',  key: 'attack1.cross' },
-      // DEFENCE (7)
+      // DEFENCE (7) — Фолы инвертированы (меньше = лучше)
       { axis: 'Отборы / 90',                group: 'defence', key: 'defence1.tackle' },
       { axis: 'Перехваты / 90',             group: 'defence', key: 'defence1.interception' },
       { axis: 'Единоборства',               group: 'defence', key: 'defence2.duel' },
       { axis: 'Прессинг / 90',              group: 'defence', key: 'defence2.pressing' },
       { axis: 'Контрпрессинг',              group: 'defence', key: 'defence2.contrpressing' },
       { axis: 'Восстановления',             group: 'defence', key: 'defence1.recovery' },
-      { axis: 'Возвраты в свою половину',   group: 'defence', key: 'defence1.return' },
+      { axis: 'Фолы',                       group: 'defence', key: 'defence3.foul', inverse: true },
       // FITNESS (3)
       { axis: 'Общая дистанция',            group: 'fitness', key: 'fitness.totalDistance' },
       { axis: 'Спринты / 90',               group: 'fitness', key: 'fitness.sprintsCount' },
@@ -72,7 +72,7 @@ export const TEMPLATES = {
       { axis: 'Передачи в фин. треть',      group: 'attack',  key: 'attack2.passToFinalThird' },
       { axis: 'Длинные пасы',               group: 'attack',  key: 'attack1.passLong' },
       { axis: 'Точные пасы',                group: 'attack',  key: 'attack1.pass' },
-      // DEFENCE (11)
+      // DEFENCE (11) — Фолы / ЖК / Опасные потери / Технические ошибки инвертированы
       { axis: 'Отборы / 90',                group: 'defence', key: 'defence1.tackle' },
       { axis: 'Перехваты / 90',             group: 'defence', key: 'defence1.interception' },
       { axis: 'Единоборства',               group: 'defence', key: 'defence2.duel' },
@@ -80,10 +80,10 @@ export const TEMPLATES = {
       { axis: 'Блок-удары',                 group: 'defence', key: 'defence3.blockedShot' },
       { axis: 'Очистки',                    group: 'defence', key: 'defence3.clearance' },
       { axis: 'Прессинг / 90',              group: 'defence', key: 'defence2.pressing' },
-      { axis: 'Контрпрессинг',              group: 'defence', key: 'defence2.contrpressing' },
       { axis: 'Восстановления',             group: 'defence', key: 'defence1.recovery' },
-      { axis: 'Возвраты',                   group: 'defence', key: 'defence1.return' },
-      { axis: 'Фолы',                       group: 'defence', key: 'defence3.foul' },
+      { axis: 'Фолы',                       group: 'defence', key: 'defence3.foul',        inverse: true },
+      { axis: 'Жёлтые карточки',            group: 'defence', key: 'defence3.yellowCard',  inverse: true },
+      { axis: 'Опасные потери',             group: 'defence', key: 'attack5.dangerousLosesOnOwnHalf', inverse: true },
       // FITNESS (3)
       { axis: 'Общая дистанция',            group: 'fitness', key: 'fitness.totalDistance' },
       { axis: 'Спринты / 90',               group: 'fitness', key: 'fitness.sprintsCount' },

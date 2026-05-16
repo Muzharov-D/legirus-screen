@@ -171,9 +171,12 @@ export default function PlayerDetail() {
   // Pizza chart: выбор позиционного шаблона.
   // Дефолт — позиция самого игрока. Если он не классифицирован — MID.
   const [pizzaPos, setPizzaPos] = useState(() => positionGroup(player) || 'MID');
+  // Фильтр группы: 'all' | 'attack' | 'defence' | 'fitness'.
+  const [pizzaGroup, setPizzaGroup] = useState('all');
   useEffect(() => {
     const next = positionGroup(player) || 'MID';
     setPizzaPos(next);
+    setPizzaGroup('all');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerId]);
 
@@ -190,17 +193,33 @@ export default function PlayerDetail() {
 
   // Pizza slices: для каждой метрики шаблона считаем percentile vs игроков клуба той же позиции.
   // Базис: все игроки текущего матча с той же positionGroup.
+  // inverse=true в шаблоне (Фолы, ЖК, потери) флипает рейтинг — меньше значит лучше.
   const pizzaTemplate = TEMPLATES[pizzaPos];
   const posOption = POSITION_OPTIONS.find((o) => o.value === pizzaPos);
   const peers = (match.players || []).filter((p) => positionGroup(p) === pizzaPos);
-  const pizzaSlices = pizzaTemplate
+  const allSlices = pizzaTemplate
     ? pizzaTemplate.slices.map((s) => {
         const myValue = getStatValue(player, s.key);
         const allValues = peers.map((p) => getStatValue(p, s.key));
-        const pct = percentileRank(myValue, allValues);
+        const pct = percentileRank(myValue, allValues, !!s.inverse);
         return { axis: s.axis, group: s.group, value: pct ?? 0 };
       })
     : [];
+  const pizzaSlices = pizzaGroup === 'all'
+    ? allSlices
+    : allSlices.filter((s) => s.group === pizzaGroup);
+
+  // Количество слайсов на каждую группу — для бейджей на табах.
+  const groupCounts = allSlices.reduce(
+    (acc, s) => { acc[s.group] = (acc[s.group] || 0) + 1; return acc; },
+    { attack: 0, defence: 0, fitness: 0 },
+  );
+  const GROUP_TABS = [
+    { value: 'all',     label: 'Все',     count: allSlices.length },
+    { value: 'attack',  label: 'Атака',   count: groupCounts.attack },
+    { value: 'defence', label: 'Оборона', count: groupCounts.defence },
+    { value: 'fitness', label: 'Фитнес',  count: groupCounts.fitness },
+  ];
 
   return (
     <div className="page player-detail">
@@ -266,7 +285,7 @@ export default function PlayerDetail() {
             <select
               id="pizza-pos"
               value={pizzaPos}
-              onChange={(e) => setPizzaPos(e.target.value)}
+              onChange={(e) => { setPizzaPos(e.target.value); setPizzaGroup('all'); }}
             >
               {POSITION_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -274,6 +293,24 @@ export default function PlayerDetail() {
             </select>
           </div>
         </div>
+
+        {/* Табы: фильтр по группе метрик. Все | Атака | Оборона | Фитнес. */}
+        <div className="player-detail__pizza-tabs" role="tablist">
+          {GROUP_TABS.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              role="tab"
+              aria-selected={pizzaGroup === t.value}
+              className={`player-detail__pizza-tab player-detail__pizza-tab--${t.value}${pizzaGroup === t.value ? ' is-active' : ''}`}
+              onClick={() => setPizzaGroup(t.value)}
+              disabled={t.count === 0}
+            >
+              {t.label}<span className="player-detail__pizza-tab-count">{t.count}</span>
+            </button>
+          ))}
+        </div>
+
         <PizzaChart
           subjectName={`${player.fullName} · ${player.positionFull || ''} · ${player.minutes ?? '?'} мин`}
           subjectMeta={`Percentile vs ${posOption?.vsLabel || 'игроков клуба'} (${peers.length} чел.)`}
