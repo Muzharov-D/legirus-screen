@@ -11,6 +11,16 @@ const API_BASE = (() => {
   return String(base).replace(/\/+$/, '');
 })();
 
+// Русская плюрализация: plural(1, ['день','дня','дней']) → 'день'
+function plural(n, forms) {
+  const abs = Math.abs(n) % 100;
+  const n1 = abs % 10;
+  if (abs > 10 && abs < 20) return forms[2];
+  if (n1 > 1 && n1 < 5) return forms[1];
+  if (n1 === 1) return forms[0];
+  return forms[2];
+}
+
 function adviceFor(w) {
   if (!w) return null;
   if (w.tempC <= 0) return 'Холодно — тёплая форма, перчатки';
@@ -22,12 +32,21 @@ function adviceFor(w) {
   return null;
 }
 
+// OpenWeatherMap free plan: forecast до 5 суток вперёд. Дальше — нет данных.
+const MAX_FORECAST_DAYS = 5;
+
 export default function MatchWeather({ lat, lng, atIso }) {
   const [data, setData] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
+  // Сколько дней до матча — определяет, есть ли смысл ходить за прогнозом.
+  const daysUntil = atIso ? (new Date(atIso).getTime() - Date.now()) / 86400000 : 0;
+  const tooFar = daysUntil > MAX_FORECAST_DAYS;
+
   useEffect(() => {
     if (!lat || !lng) return;
+    if (tooFar) { setLoaded(true); return; } // не дёргаем API если матч за пределами окна
+
     let cancelled = false;
     const url = `${API_BASE}/api/public/weather?lat=${lat}&lng=${lng}` + (atIso ? `&at=${encodeURIComponent(atIso)}` : '');
     fetch(url)
@@ -35,9 +54,25 @@ export default function MatchWeather({ lat, lng, atIso }) {
       .then((d) => { if (!cancelled) { setData(d); setLoaded(true); } })
       .catch(() => { if (!cancelled) setLoaded(true); });
     return () => { cancelled = true; };
-  }, [lat, lng, atIso]);
+  }, [lat, lng, atIso, tooFar]);
 
-  // Не рендерим placeholder если данных нет — тихо отсутствуем.
+  // Матч за пределами 5-дневного окна — показываем placeholder с объяснением,
+  // чтобы юзер не думал «почему на этом матче погоды нет, а на том есть».
+  if (tooFar) {
+    const showAt = Math.ceil(daysUntil - MAX_FORECAST_DAYS);
+    return (
+      <div className="match-weather match-weather--soon">
+        <span className="match-weather__soon-icon" aria-hidden>🌦</span>
+        <span className="match-weather__soon-text">
+          Прогноз погоды появится {showAt === 1 ? 'через сутки' : `через ${showAt} ${plural(showAt, ['день', 'дня', 'дней'])}`}
+          {' '}— за 5 дней до матча.
+        </span>
+      </div>
+    );
+  }
+
+  // Не рендерим ничего если данных нет (ключ не настроен / API упал) —
+  // тихо отсутствуем, не путаем пустым блоком.
   if (!loaded || !data) return null;
 
   const advice = adviceFor(data);
