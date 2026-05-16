@@ -19,6 +19,7 @@ import PublicTeamSchedule from './pages/PublicTeamSchedule';
 import PublicLanding from './pages/PublicLanding';
 import ClubLanding from './pages/ClubLanding';
 import ErrorBoundary from './components/ErrorBoundary';
+import { ToastHost } from './components/Toast';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import './App.css';
@@ -52,6 +53,8 @@ export default function App() {
       <Analytics />
       {/* Vercel Speed Insights — Core Web Vitals (LCP, CLS, INP) с реальных пользователей. */}
       <SpeedInsights />
+      {/* Глобальный host для toast-уведомлений (toast.success/error/info). */}
+      <ToastHost />
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >

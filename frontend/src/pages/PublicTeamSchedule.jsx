@@ -14,8 +14,11 @@ import StandingsModal from '../components/StandingsModal';
 import PublicTeamHeader from '../components/PublicTeamHeader';
 import OfflineBanner from '../components/OfflineBanner';
 import UiIcon from '../components/UiIcon';
+import Skeleton from '../components/Skeleton';
+import EmptyState from '../components/EmptyState';
 import { tierForAge } from '../utils/ageRating';
 import { shieldFor, isLegirus } from '../utils/legirus';
+import { fmtRelative } from '../utils/dates';
 import './PublicTeamSchedule.css';
 import './CalendarPage.css';
 
@@ -50,13 +53,11 @@ function formatWeekRange(offset) {
   return `${fmt(start)} — ${fmt(end)}`;
 }
 
+// Карточки расписания: для матчей в окне ±7 дней показываем человеческое
+// «Сегодня в 14:00 / Завтра в … / В среду в …», иначе — «18 мая в 14:00».
 function formatDate(iso) {
   if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleString('ru-RU', {
-    day: '2-digit', month: 'short',
-    hour: '2-digit', minute: '2-digit',
-  });
+  return fmtRelative(iso);
 }
 
 function shortName(name) {
@@ -397,7 +398,13 @@ export default function PublicTeamSchedule() {
           onOpenClub={() => setShowStandings('club')}
         />
 
-        {loading && <div className="public-page__empty">Загрузка...</div>}
+        {loading && (
+          <div className="public-page__skeleton">
+            <Skeleton h={44} br={10} />
+            <Skeleton h={36} br={10} style={{ marginTop: 8 }} />
+            <Skeleton.List count={4} h={78} gap={10} br={12} />
+          </div>
+        )}
         {error && (
           <div className="public-page__empty public-page__empty--error">
             Не удалось загрузить расписание: {error}
@@ -477,19 +484,21 @@ export default function PublicTeamSchedule() {
             )}
 
             {view === 'list' && filtered.length === 0 && (
-              <div className="public-page__empty">
-                <div style={{ fontSize: '40px', marginBottom: '8px' }}>📭</div>
-                <div style={{ fontWeight: 600, color: '#fff', marginBottom: '4px' }}>
-                  {filter === 'upcoming' ? 'Событий пока нет' :
-                   filter === 'past' ? 'Сыгранных матчей нет' :
-                                       'Событий не найдено'}
-                </div>
-                {filter === 'upcoming' && (
-                  <div style={{ fontSize: '12px' }}>
-                    Подпишись на календарь — пришлём, как только появится новый матч или тренировка.
-                  </div>
-                )}
-              </div>
+              <EmptyState
+                icon={filter === 'past' ? '🗓' : '📭'}
+                title={
+                  filter === 'upcoming' ? 'Пока ничего не запланировано' :
+                  filter === 'past'     ? 'Сыгранных матчей нет' :
+                                          'Событий не найдено'
+                }
+                subtitle={
+                  filter === 'upcoming'
+                    ? 'Расписание появится — мы оповестим за сутки до матча, если включишь уведомления.'
+                    : filter === 'past'
+                      ? 'Когда команда сыграет первый матч — он появится здесь.'
+                      : undefined
+                }
+              />
             )}
 
             {view === 'list' && filtered.length > 0 && (
