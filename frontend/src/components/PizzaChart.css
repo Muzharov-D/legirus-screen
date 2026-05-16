@@ -30,7 +30,8 @@
 }
 
 .pizza-label {
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: 700;
   pointer-events: none;
 }
 .pizza-axis-label {
