@@ -24,15 +24,76 @@ function plural(n, forms) {
   return forms[2];
 }
 
-function adviceFor(w) {
+// Набор «ободряющих» сообщений по погодным условиям.
+// Где указан author — это документированная цитата. Без author — общая мысль /
+// народная мудрость. Никаких политиков, военных, спорных персон —
+// только спортсмены, учёные, врачи, тренеры.
+const ADVICE_POOL = {
+  cold: [
+    { text: 'Холодное поле — горячая игра. Команда быстро согреется в движении.' },
+    { text: 'Самые тёплые победы рождаются на самых холодных полях.' },
+    { text: 'Мороз — не препятствие, мороз — соавтор истории матча.' },
+  ],
+  cool: [
+    { text: 'Идеальная футбольная погода — бегается без устали.' },
+    { text: 'Прохлада: болельщикам плед, игрокам самое то.' },
+    { text: 'Жизнь — как езда на велосипеде: чтобы держать равновесие, нужно двигаться.', author: 'Альберт Эйнштейн', role: 'физик' },
+  ],
+  hot: [
+    { text: 'В такую жару каждый глоток воды на скамейке — тоже часть игры.' },
+    { text: 'Жара испытывает выносливость. Кто терпит — тот побеждает.' },
+    { text: 'В здоровом теле — здоровый дух.', author: 'Ювенал', role: 'римский поэт' },
+  ],
+  rain: [
+    { text: 'Дождь не отменяет матч — он добавляет ему характера.' },
+    { text: 'На мокром поле выигрывают те, кто крепче стоит на ногах.' },
+    { text: 'Лучшие истории начинаются с фразы «а помнишь, как лило?».' },
+  ],
+  snow: [
+    { text: 'Снег превращает обычный матч в незабываемый.' },
+    { text: 'Под снегопадом счёт не главное — главное впечатления.' },
+    { text: 'Зимний футбол — отдельный жанр, и он прекрасен.' },
+  ],
+  windy: [
+    { text: 'Ветер выравнивает шансы — побеждает тот, кто лучше читает игру.' },
+    { text: 'Сильный ветер — лучшая тренировка концентрации.' },
+    { text: 'С таким ветром любой пас становится приключением.' },
+  ],
+  fine: [
+    { text: 'Удачи команде на поле!' },
+    { text: 'Поехали!', author: 'Юрий Гагарин', role: 'космонавт' },
+    { text: 'Главное — не победа, а участие.', author: 'Пьер де Кубертен', role: 'основатель Олимпиад' },
+  ],
+};
+
+function categoryFor(w) {
   if (!w) return null;
-  if (w.tempC <= 0) return 'Холодно — тёплая форма, перчатки';
-  if (w.tempC <= 8) return 'Прохладно — кофта под форму';
-  if (w.tempC >= 25) return 'Жарко — больше воды';
-  if (w.condition?.includes('дожд') || w.condition?.includes('ливен')) return 'Дождь — бутсы с шипами';
-  if (w.condition?.includes('снег')) return 'Снег — оранжевый мяч и зимняя экипировка';
-  if (w.windMs >= 10) return 'Сильный ветер — учитывай при подаче';
-  return null;
+  const cond = (w.condition || '').toLowerCase();
+  if (cond.includes('снег')) return 'snow';
+  if (cond.includes('дожд') || cond.includes('ливен') || cond.includes('морос')) return 'rain';
+  if (w.windMs >= 10) return 'windy';
+  if (w.tempC <= 0) return 'cold';
+  if (w.tempC <= 8) return 'cool';
+  if (w.tempC >= 25) return 'hot';
+  return 'fine';
+}
+
+// Стабильный детерминированный выбор: одна и та же цитата для одного и того же
+// прогноза, не «прыгает» при перерендерах. Хеш строится из forecastFor (метка
+// времени слота) — так каждый матч получает свою цитату.
+function hash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function adviceFor(w) {
+  const cat = categoryFor(w);
+  if (!cat) return null;
+  const pool = ADVICE_POOL[cat] || [];
+  if (pool.length === 0) return null;
+  const seed = hash(`${cat}|${w?.forecastFor || ''}`);
+  return pool[seed % pool.length];
 }
 
 // OpenWeatherMap free plan: forecast до 5 суток вперёд. Дальше — нет данных.
@@ -130,7 +191,12 @@ export default function MatchWeather({ lat, lng, atIso }) {
       </div>
       {advice && (
         <div className="match-weather__advice" aria-label="Совет">
-          <span aria-hidden>💡</span> {advice}
+          <div className="match-weather__advice-text">{advice.text}</div>
+          {advice.author && (
+            <div className="match-weather__advice-author">
+              — {advice.author}{advice.role ? `, ${advice.role}` : ''}
+            </div>
+          )}
         </div>
       )}
     </div>
