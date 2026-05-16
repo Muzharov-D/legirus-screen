@@ -9,12 +9,15 @@ import {
   unsubscribePublicAge,
   isSubscribedToAgePublic,
 } from '../services/push';
+import { toast } from './Toast';
+import PushPrePrompt from './PushPrePrompt';
 import './PushBellTab.css';
 
 export default function PushBellTab({ age }) {
   const [supported, setSupported] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [prePromptOpen, setPrePromptOpen] = useState(false);
 
   useEffect(() => {
     if (!pushSupported()) return;
@@ -28,36 +31,67 @@ export default function PushBellTab({ age }) {
 
   if (!supported) return null;
 
+  // Уже подписан → клик сразу отключает (с toast-подтверждением)
+  // Не подписан → сначала pre-prompt (он сам вызовет permission API)
   async function onClick(e) {
-    e.stopPropagation(); // не переключать таб
+    e.stopPropagation();
     e.preventDefault();
     if (busy) return;
-    setBusy(true);
-    try {
-      if (subscribed) {
+    if (subscribed) {
+      setBusy(true);
+      try {
         await unsubscribePublicAge(age);
         setSubscribed(false);
-      } else {
-        await requestAndSubscribePublic(age);
-        setSubscribed(true);
+        toast.info(`Уведомления по ${age} выключены`);
+      } catch (_) {
+        toast.error('Не получилось отписаться, попробуй ещё раз');
+      } finally {
+        setBusy(false);
       }
-    } catch (_) {
-      // тихо игнорируем — пользователь может не выдать permission
+    } else {
+      // Открываем pre-prompt вместо немедленного nativе-запроса
+      setPrePromptOpen(true);
+    }
+  }
+
+  async function onConfirmSubscribe() {
+    setPrePromptOpen(false);
+    setBusy(true);
+    try {
+      await requestAndSubscribePublic(age);
+      setSubscribed(true);
+      toast.success(`Готово! Первое уведомление придёт за сутки до матча ${age}`);
+    } catch (e) {
+      const msg = String(e?.message || '');
+      if (msg.includes('не разрешил') || msg.includes('denied')) {
+        toast.error('Уведомления заблокированы в настройках браузера');
+      } else {
+        toast.error(msg || 'Не получилось включить');
+      }
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <span
-      role="button"
-      tabIndex={-1}
-      className={`push-bell-tab${subscribed ? ' push-bell-tab--on' : ''}${busy ? ' push-bell-tab--busy' : ''}`}
-      onClick={onClick}
-      aria-label={subscribed ? 'Отключить уведомления для команды' : 'Включить уведомления для команды'}
-      title={subscribed ? 'Уведомления включены — клик отключит' : 'Включить уведомления'}
-    >
-      {subscribed ? '🔔' : '🔕'}
-    </span>
+    <>
+      <span
+        role="button"
+        tabIndex={-1}
+        className={`push-bell-tab${subscribed ? ' push-bell-tab--on' : ''}${busy ? ' push-bell-tab--busy' : ''}`}
+        onClick={onClick}
+        aria-label={subscribed ? 'Отключить уведомления для команды' : 'Включить уведомления для команды'}
+        title={subscribed ? 'Уведомления включены — клик отключит' : 'Включить уведомления'}
+      >
+        {subscribed ? '🔔' : '🔕'}
+      </span>
+      {prePromptOpen && (
+        <PushPrePrompt
+          ageGroup={age}
+          onConfirm={onConfirmSubscribe}
+          onCancel={() => setPrePromptOpen(false)}
+        />
+      )}
+    </>
   );
 }
