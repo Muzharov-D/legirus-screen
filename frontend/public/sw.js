@@ -15,7 +15,7 @@
 // При деплое новой версии — обновить ОБА: CACHE_VERSION здесь
 // и EXPECTED_SW_VERSION в frontend/src/main.jsx.
 // Иначе self-heal механизм не сработает корректно.
-const CACHE_VERSION = 'v9-2026-05-16-no-html-cache';
+const CACHE_VERSION = 'v8-2026-05-16-self-heal';
 const STATIC_CACHE = `legirus-static-${CACHE_VERSION}`;
 const API_CACHE = `legirus-api-${CACHE_VERSION}`;
 
@@ -104,13 +104,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation (HTML) — НЕ перехватываем вообще. Браузер сам управляет HTML
-  // через Cache-Control: max-age=0, must-revalidate. Это убирает риск
-  // «застрявшего» stale HTML с устаревшим JS hash, который был причиной
-  // того что у части iOS Safari пользователей UI оставался старым после
-  // деплоев. Push handler и /assets кеш сохраняются.
+  // Navigation (HTML) — network-first с timeout, fallback на "/"
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
-    return; // browser default
+    event.respondWith(networkFirstHTML(req, STATIC_CACHE, 2500));
+    return;
   }
 });
 
