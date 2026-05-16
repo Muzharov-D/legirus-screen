@@ -9,11 +9,15 @@ function hasCoords(venue) {
   return !!(venue && Number.isFinite(venue.lat) && Number.isFinite(venue.lng));
 }
 
-// URL для построения МАРШРУТА «отсюда» к точке. Открывается у пользователя
-// сразу с прокладкой пути от текущей геолокации.
+// URL для перехода в Я.Карты «к стадиону».
+// Раньше использовали `?rtext=~lat,lng&rtt=auto` (от current location к точке) —
+// но при universal-link переходе из браузера в нативное Я.Карты приложение
+// параметр rtext часто терялся, app открывался с пустым запросом.
+// Сейчас используем простой формат с placemark: app deep-link его сохраняет
+// надёжно. Маршрут пользователь строит одним тапом «Поехали» уже в приложении.
 export function buildRouteUrl(venue) {
   if (!hasCoords(venue)) return null;
-  return `https://yandex.ru/maps/?rtext=~${venue.lat}%2C${venue.lng}&rtt=auto`;
+  return `https://yandex.ru/maps/?ll=${venue.lng}%2C${venue.lat}&z=17&pt=${venue.lng}%2C${venue.lat}%2Cpm2rdm`;
 }
 
 // URL для ПРОСМОТРА точки на карте (центр + маркер). Используется для

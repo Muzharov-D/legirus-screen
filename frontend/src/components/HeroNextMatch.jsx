@@ -107,7 +107,7 @@ export default function HeroNextMatch({ match, venue, onOpen }) {
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
         >
-          <UiIcon name="map" size={16} /> Маршрут в Я.Картах
+          <UiIcon name="map" size={16} /> Открыть в Я.Картах
         </a>
       )}
     </div>

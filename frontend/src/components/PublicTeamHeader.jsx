@@ -75,8 +75,12 @@ export default function PublicTeamHeader({
           />
         </a>
 
-        {/* Кнопка пуш-уведомлений — анонимный (public) поток для родителей */}
-        <PushOptInButton publicMode age={age} />
+        {/* Push UI временно скрыт — на iOS Safari Web Push нестабилен без
+            установленного PWA, пользователи жалуются на не доходящие уведомления.
+            Backend (notifCron + matchNotifications + db) живой, можно вернуть
+            убрав `false &&` ниже когда iOS-issue решим (либо если переходим
+            на сторонний push-сервис). */}
+        {false && <PushOptInButton publicMode age={age} />}
 
         {/* Справа — клуб (название + тир + щит) */}
         <button
@@ -118,9 +122,9 @@ export default function PublicTeamHeader({
           >
             <span className="public-header__myteam-tier">{tierForAge(t)}</span>
             <span className="public-header__myteam-year">{displayAge(t)}</span>
-            {/* Per-team колокольчик: подписан ли пользователь на пуши этой команды.
-                Клик не переключает таб — внутри stopPropagation(). */}
-            <PushBellTab age={t} />
+            {/* Per-team колокольчик скрыт вместе с PushOptInButton выше.
+                Раскомментировать когда push-доставка будет стабильной. */}
+            {false && <PushBellTab age={t} />}
             {/* Крестик показываем только для НЕ-primary (первой выбранной команды нельзя удалить — это «своя» команда родителя). */}
             {String(t) !== String(primaryTeam) && (
               <span

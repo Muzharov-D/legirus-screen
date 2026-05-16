@@ -334,7 +334,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
             rel="noopener noreferrer"
           >
             <UiIcon name="map" size={20} className="mds-cta-icon" />
-            <span>Маршрут в Яндекс.Картах</span>
+            <span>Открыть в Яндекс.Картах</span>
           </a>
         )}
 
