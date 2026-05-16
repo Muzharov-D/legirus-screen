@@ -11,6 +11,7 @@ import { tierForAge, leaguePosClass, clubPosClass, displayAge } from '../utils/a
 import { useMyTeams, switchActive, removeTeam } from '../utils/myTeams';
 import AddTeamSheet from './AddTeamSheet';
 import PushOptInButton from './PushOptInButton';
+import PushBellTab from './PushBellTab';
 import './PublicTeamHeader.css';
 
 const TG_AVANDATA = 'https://t.me/AvanData';
@@ -115,6 +116,9 @@ export default function PublicTeamHeader({
           >
             <span className="public-header__myteam-tier">{tierForAge(t)}</span>
             <span className="public-header__myteam-year">{displayAge(t)}</span>
+            {/* Per-team колокольчик: подписан ли пользователь на пуши этой команды.
+                Клик не переключает таб — внутри stopPropagation(). */}
+            <PushBellTab age={t} />
             {/* Крестик показываем только для НЕ-primary (первой выбранной команды нельзя удалить — это «своя» команда родителя). */}
             {String(t) !== String(primaryTeam) && (
               <span
