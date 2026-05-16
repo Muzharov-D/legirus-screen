@@ -9,12 +9,24 @@
 // чтобы можно было различать «нет ключа», «ключ битый», «вне окна»,
 // «rate limit» и сетевую ошибку.
 
-const API_KEY = process.env.OPENWEATHER_API_KEY || '';
+// .trim() защищает от лишних пробелов / переносов строк, попавших при
+// копировании ключа в Render env vars (видели invalid_api_key из-за этого).
+const API_KEY = (process.env.OPENWEATHER_API_KEY || '').trim();
 const TTL_MS = 30 * 60 * 1000; // 30 мин
 const cache = new Map(); // key → { data, expiresAt }
 
 export function isWeatherConfigured() {
   return !!API_KEY;
+}
+
+// Для диагностики — показывает загружен ли ключ и его длину
+// (без значения, для безопасности). Используется /api/public/weather-debug.
+export function getWeatherDebugInfo() {
+  return {
+    keyLoaded: !!API_KEY,
+    keyLength: API_KEY.length,
+    keyPrefix: API_KEY ? API_KEY.slice(0, 4) + '...' : null,
+  };
 }
 
 // Получить прогноз на конкретный момент времени по координатам.

@@ -8,7 +8,7 @@ import { loadVenues, buildVEvent, buildVCalendar } from '../services/icsBuilder.
 import { loadAllStandings, buildClubRanking } from '../services/clubRanking.js';
 import { getPublicKey, saveSubscription, removeSubscription, sendToSubscription } from '../services/pushService.js';
 import { isPgEnabled, query } from '../db/pool.js';
-import { getWeather } from '../services/weatherService.js';
+import { getWeather, getWeatherDebugInfo } from '../services/weatherService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -166,6 +166,11 @@ router.get('/match/:age/:matchId.ics', async (req, res) => {
 // Погода на момент матча через OpenWeatherMap (5-day forecast, 3h slots).
 // Frontend дёргает: /api/public/weather?lat=59.93&lng=30.31&at=2026-05-20T11:00:00Z
 // Кеш 30 мин на бэке (in-memory). Если ключа нет в env — 503.
+// Диагностика: загружен ли ключ OpenWeatherMap. Только мета-инфа, без значения.
+router.get('/weather-debug', (_req, res) => {
+  res.json(getWeatherDebugInfo());
+});
+
 router.get('/weather', async (req, res) => {
   try {
     const lat = parseFloat(req.query.lat);
