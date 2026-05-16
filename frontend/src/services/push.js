@@ -171,6 +171,35 @@ export async function requestAndSubscribePublic(ageGroup) {
   return subscription.toJSON();
 }
 
+// Частичный unsubscribe: убрать одну возрастную группу из подписки.
+// Backend вернёт fullyUnsubscribed=true если массив стал пустым — тогда
+// чистим browser-side subscription + localStorage.
+export async function unsubscribePublicAge(ageGroup) {
+  if (!pushSupported()) return { ok: false };
+  const reg = await navigator.serviceWorker.getRegistration('/');
+  if (!reg) return { ok: false };
+  const sub = await reg.pushManager.getSubscription();
+  if (!sub) {
+    try { localStorage.removeItem(LS_KEY); } catch {}
+    return { ok: true, fullyUnsubscribed: true };
+  }
+  let resp = { ok: true, fullyUnsubscribed: false, teamIds: [] };
+  try {
+    const r = await fetch(`${PUBLIC_API}/unsubscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: sub.endpoint, ageGroup }),
+    });
+    resp = await r.json();
+  } catch (_) {}
+  if (resp.fullyUnsubscribed) {
+    await sub.unsubscribe();
+    try { localStorage.removeItem(LS_KEY); } catch {}
+  }
+  return resp;
+}
+
+// Полный unsubscribe — снести подписку целиком.
 export async function unsubscribePublic() {
   if (!pushSupported()) return false;
   const reg = await navigator.serviceWorker.getRegistration('/');
@@ -190,6 +219,27 @@ export async function unsubscribePublic() {
   await sub.unsubscribe();
   try { localStorage.removeItem(LS_KEY); } catch {}
   return true;
+}
+
+// Подписан ли пользователь конкретно на эту возрастную группу
+// (есть active browser sub + ageGroup в teamIds на backend).
+// Возвращает { subscribed: bool, teamIds: string[] }.
+export async function isSubscribedToAgePublic(ageGroup) {
+  if (!pushSupported()) return { subscribed: false, teamIds: [] };
+  try {
+    const reg = await navigator.serviceWorker.getRegistration('/');
+    if (!reg) return { subscribed: false, teamIds: [] };
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return { subscribed: false, teamIds: [] };
+    const r = await fetch(`${PUBLIC_API}/preferences?endpoint=${encodeURIComponent(sub.endpoint)}`);
+    if (!r.ok) return { subscribed: false, teamIds: [] };
+    const data = await r.json();
+    const teamIds = data.teamIds || [];
+    const targetTeamId = `legirus-${ageGroup}`;
+    return { subscribed: teamIds.includes(targetTeamId), teamIds };
+  } catch (_) {
+    return { subscribed: false, teamIds: [] };
+  }
 }
 
 export async function fetchPushPreferencesPublic(endpoint) {

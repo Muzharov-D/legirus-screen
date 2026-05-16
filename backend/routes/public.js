@@ -193,16 +193,36 @@ router.get('/push/public-key', (_req, res) => {
 
 router.post('/push/subscribe', async (req, res) => {
   try {
+    if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
     const { ageGroup, ...subscription } = req.body || {};
     if (!subscription?.endpoint) return res.status(400).json({ error: 'subscription.endpoint обязателен' });
     const teamId = ageGroup ? `legirus-${ageGroup}` : null;
+
+    // saveSubscription пишет/апдейтит row по endpoint. После этого ДОБАВИМ
+    // teamId в массив team_ids (если ещё нет).
     const entry = await saveSubscription({
       userId: null,
-      teamId,
+      teamId, // legacy single team — last clicked wins (нужно для head_coach логики cron'а)
       role: null,
       subscription,
     });
-    res.json({ ok: true, endpoint: entry.subscription.endpoint, teamId });
+
+    let teamIds = [];
+    if (teamId) {
+      const r = await query(
+        `UPDATE push_subscriptions
+            SET team_ids = CASE
+              WHEN team_ids @> jsonb_build_array($1::text) THEN team_ids
+              ELSE COALESCE(team_ids, '[]'::jsonb) || jsonb_build_array($1::text)
+            END,
+            updated_at = NOW()
+          WHERE endpoint = $2
+          RETURNING team_ids`,
+        [teamId, subscription.endpoint]);
+      teamIds = r.rows[0]?.team_ids || [];
+    }
+
+    res.json({ ok: true, endpoint: entry.subscription.endpoint, teamId, teamIds });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -211,8 +231,36 @@ router.post('/push/subscribe', async (req, res) => {
 router.post('/push/unsubscribe', async (req, res) => {
   try {
     const endpoint = req.body?.endpoint;
-    const removed = await removeSubscription(endpoint);
-    res.json({ ok: removed });
+    const ageGroup = req.body?.ageGroup;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint обязателен' });
+    if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
+
+    // Полный unsubscribe (нет ageGroup) — удаляем весь row.
+    if (!ageGroup) {
+      const removed = await removeSubscription(endpoint);
+      return res.json({ ok: removed, fullyUnsubscribed: removed });
+    }
+
+    // Частичный — убираем один teamId из team_ids. Если массив пустой и legacy
+    // team_id тоже совпадает с удаляемым — DELETE целиком (нет смысла держать
+    // пустой row).
+    const teamId = `legirus-${ageGroup}`;
+    const r = await query(
+      `UPDATE push_subscriptions
+          SET team_ids = COALESCE(team_ids, '[]'::jsonb) - $1::text,
+              updated_at = NOW()
+        WHERE endpoint = $2
+        RETURNING team_ids, team_id`,
+      [teamId, endpoint]);
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Подписка не найдена' });
+
+    const remaining = r.rows[0].team_ids || [];
+    const legacy = r.rows[0].team_id;
+    if (remaining.length === 0 && (!legacy || legacy === teamId)) {
+      const removed = await removeSubscription(endpoint);
+      return res.json({ ok: true, fullyUnsubscribed: removed, teamIds: [] });
+    }
+    res.json({ ok: true, fullyUnsubscribed: false, teamIds: remaining });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -224,13 +272,18 @@ router.get('/push/preferences', async (req, res) => {
     if (!endpoint) return res.status(400).json({ error: 'endpoint обязателен' });
     if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
     const r = await query(
-      `SELECT prefs, team_id FROM push_subscriptions WHERE endpoint = $1`,
+      `SELECT prefs, team_id, team_ids FROM push_subscriptions WHERE endpoint = $1`,
       [endpoint]);
     if (r.rowCount === 0) return res.status(404).json({ error: 'Подписка не найдена' });
     const stored = r.rows[0].prefs || {};
     const prefs = {};
     for (const k of TOGGLEABLE_KINDS_PUBLIC) prefs[k] = stored[k] !== false;
-    res.json({ kinds: TOGGLEABLE_KINDS_PUBLIC, prefs, teamId: r.rows[0].team_id });
+    res.json({
+      kinds: TOGGLEABLE_KINDS_PUBLIC,
+      prefs,
+      teamId: r.rows[0].team_id,
+      teamIds: r.rows[0].team_ids || [],
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

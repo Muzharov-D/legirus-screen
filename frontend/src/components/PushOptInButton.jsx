@@ -10,6 +10,8 @@ import {
   checkExistingSubscription,
   requestAndSubscribePublic,
   unsubscribePublic,
+  unsubscribePublicAge,
+  isSubscribedToAgePublic,
 } from '../services/push';
 import PushPreferencesPanel from './PushPreferencesPanel';
 import './PushOptInButton.css';
@@ -27,8 +29,14 @@ export default function PushOptInButton({ publicMode = false, age = null } = {})
   useEffect(() => {
     setSupported(pushSupported());
     if (!pushSupported()) return;
-    checkExistingSubscription().then((sub) => setSubscribed(!!sub));
-  }, []);
+    // В public-mode подписка per-age: проверяем что age есть в teamIds на бэке.
+    // Иначе (coach UI) — просто наличие browser-subscription.
+    if (publicMode && age) {
+      isSubscribedToAgePublic(age).then((res) => setSubscribed(!!res.subscribed));
+    } else {
+      checkExistingSubscription().then((sub) => setSubscribed(!!sub));
+    }
+  }, [publicMode, age]);
 
   if (!supported) return null;
 
@@ -37,7 +45,13 @@ export default function PushOptInButton({ publicMode = false, age = null } = {})
     setBusy(true);
     try {
       if (subscribed) {
-        await (publicMode ? unsubscribePublic() : unsubscribe());
+        // В public-mode убираем только текущую команду (мульти-тим подписка).
+        // В coach UI — полный unsubscribe.
+        if (publicMode && age) {
+          await unsubscribePublicAge(age);
+        } else {
+          await (publicMode ? unsubscribePublic() : unsubscribe());
+        }
         setSubscribed(false);
       } else {
         await (publicMode ? requestAndSubscribePublic(age) : requestAndSubscribe());

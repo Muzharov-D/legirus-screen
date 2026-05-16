@@ -43,11 +43,14 @@ function fmtTime(iso) {
 }
 
 async function getSubscribersForTeam(teamId) {
-  // Берём подписчиков команды + head_coach без team_id (главный тренер)
+  // Подписчики этой команды: legacy single team_id ИЛИ multi-team team_ids[]
+  // ИЛИ head_coach без team_id (видит все команды).
   const r = await query(
     `SELECT user_id, team_id, role, endpoint, p256dh, auth
      FROM push_subscriptions
-     WHERE team_id = $1 OR (team_id IS NULL AND role = 'head_coach')`,
+     WHERE team_id = $1
+        OR team_ids @> jsonb_build_array($1::text)
+        OR (team_id IS NULL AND role = 'head_coach')`,
     [teamId]);
   return r.rows.map((row) => ({
     userId: row.user_id,

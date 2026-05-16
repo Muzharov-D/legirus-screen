@@ -58,10 +58,16 @@ function nextDeliverableTime() {
 // === DB helpers ===
 
 async function getSubscribersForTeam(teamId) {
+  // Подписчик попадает в адресатов если:
+  //   - team_id (legacy single-team) совпадает
+  //   - ИЛИ teamId есть в массиве team_ids (multi-team)
+  //   - ИЛИ это head_coach без team_id (видит всё)
   const r = await query(
-    `SELECT user_id, team_id, role, endpoint, p256dh, auth, prefs
+    `SELECT user_id, team_id, team_ids, role, endpoint, p256dh, auth, prefs
      FROM push_subscriptions
-     WHERE team_id = $1 OR (team_id IS NULL AND role = 'head_coach')`,
+     WHERE team_id = $1
+        OR team_ids @> jsonb_build_array($1::text)
+        OR (team_id IS NULL AND role = 'head_coach')`,
     [teamId]);
   return r.rows.map((row) => ({
     userId: row.user_id, teamId: row.team_id, role: row.role,
