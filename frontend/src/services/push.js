@@ -257,3 +257,16 @@ export async function setPushPreferencePublic(endpoint, kind, enabled) {
   if (!r.ok) throw new Error('Ошибка сохранения: ' + r.status);
   return r.json();
 }
+
+// Тестовое push — даём пользователю удостовериться что всё работает.
+// Возвращает { ok: true, sent: 1 } если ок, или статус 410 если endpoint протух.
+export async function sendTestPushPublic(endpoint) {
+  const r = await fetch(`${PUBLIC_API}/test`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ endpoint }),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || ('Ошибка ' + r.status));
+  return data;
+}

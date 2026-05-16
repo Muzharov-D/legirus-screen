@@ -8,6 +8,7 @@ import {
   setPushPreference,
   fetchPushPreferencesPublic,
   setPushPreferencePublic,
+  sendTestPushPublic,
 } from '../services/push';
 import './PushPreferencesPanel.css';
 
@@ -83,6 +84,22 @@ export default function PushPreferencesPanel({ onClose, publicMode = false }) {
     }
   }
 
+  const [testing, setTesting] = useState(false);
+  const [testMsg, setTestMsg] = useState(null);
+  async function sendTest() {
+    if (!endpoint || !publicMode) return;
+    setTesting(true);
+    setTestMsg(null);
+    try {
+      await sendTestPushPublic(endpoint);
+      setTestMsg('Тест отправлен — должно прийти за пару секунд');
+    } catch (e) {
+      setTestMsg('Не получилось: ' + (e.message || 'неизвестная ошибка'));
+    } finally {
+      setTesting(false);
+    }
+  }
+
   return (
     <div className="push-prefs-backdrop" onClick={onClose}>
       <div className="push-prefs-sheet" onClick={(e) => e.stopPropagation()}>
@@ -95,6 +112,20 @@ export default function PushPreferencesPanel({ onClose, publicMode = false }) {
 
         {!loading && !err && kinds.length === 0 && (
           <div className="push-prefs-status">Нет доступных типов уведомлений.</div>
+        )}
+
+        {!loading && !err && publicMode && (
+          <div className="push-prefs-test">
+            <button
+              type="button"
+              className="push-prefs-test-btn"
+              onClick={sendTest}
+              disabled={testing || !endpoint}
+            >
+              {testing ? 'Отправляю…' : '🔔 Прислать тестовое уведомление'}
+            </button>
+            {testMsg && <div className="push-prefs-test-msg">{testMsg}</div>}
+          </div>
         )}
 
         {!loading && !err && kinds.length > 0 && (

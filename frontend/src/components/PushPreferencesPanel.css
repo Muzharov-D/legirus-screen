@@ -60,6 +60,30 @@
 }
 .push-prefs-err { color: #f87171; }
 
+.push-prefs-test {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+.push-prefs-test-btn {
+  padding: 9px 14px;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.push-prefs-test-btn:disabled { opacity: 0.6; cursor: default; }
+.push-prefs-test-msg {
+  font-size: 12px;
+  color: #94a3c8;
+  text-align: center;
+}
+
 .push-prefs-list {
   list-style: none;
   padding: 0;

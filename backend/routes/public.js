@@ -6,7 +6,7 @@ import { loadCalendar, loadStandings } from '../services/dataRepo.js';
 import { listTrainings } from '../services/trainingsRepo.js';
 import { loadVenues, buildVEvent, buildVCalendar } from '../services/icsBuilder.js';
 import { loadAllStandings, buildClubRanking } from '../services/clubRanking.js';
-import { getPublicKey, saveSubscription, removeSubscription } from '../services/pushService.js';
+import { getPublicKey, saveSubscription, removeSubscription, sendToSubscription } from '../services/pushService.js';
 import { isPgEnabled, query } from '../db/pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -284,6 +284,44 @@ router.get('/push/preferences', async (req, res) => {
       teamId: r.rows[0].team_id,
       teamIds: r.rows[0].team_ids || [],
     });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Тестовый push — пользователь жмёт «прислать тестовое уведомление», чтобы
+// убедиться что подписка живая (SW активен, permission выдан, FCM/APNs работают).
+// Anti-abuse: лимит 5/час на endpoint через простой in-memory счётчик не делаем —
+// rate-limit per endpoint уже есть на уровне notif_recipient_log.
+router.post('/push/test', async (req, res) => {
+  try {
+    const endpoint = req.body?.endpoint;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint обязателен' });
+    if (!isPgEnabled()) return res.status(503).json({ error: 'Сервис временно недоступен' });
+    const r = await query(
+      `SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE endpoint = $1`,
+      [endpoint]);
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Подписка не найдена' });
+    const sub = {
+      endpoint: r.rows[0].endpoint,
+      keys: { p256dh: r.rows[0].p256dh, auth: r.rows[0].auth },
+    };
+    try {
+      await sendToSubscription(sub, {
+        title: 'ФК Легирус · тест',
+        body: 'Это тестовое уведомление. Подписка работает.',
+        url: '/',
+        tag: 'test-push',
+      });
+      return res.json({ ok: true, sent: 1 });
+    } catch (e) {
+      // 404/410 — endpoint протух, чистим
+      if (e.statusCode === 404 || e.statusCode === 410) {
+        await query(`DELETE FROM push_subscriptions WHERE endpoint = $1`, [endpoint]);
+        return res.status(410).json({ error: 'Подписка протухла — пересоздайте' });
+      }
+      throw e;
+    }
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

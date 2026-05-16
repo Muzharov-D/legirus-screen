@@ -22,6 +22,12 @@ if ('serviceWorker' in navigator) {
       .then((reg) => {
         // Проверяем обновления при каждой загрузке страницы (cheap)
         try { reg.update(); } catch (_) {}
+        // Дополнительно — каждый раз когда вкладка снова видима (returned to PWA).
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            try { reg.update(); } catch (_) {}
+          }
+        });
         // Если нашёлся новый installing SW — слушаем его статус
         reg.addEventListener('updatefound', () => {
           const installing = reg.installing;
@@ -43,14 +49,22 @@ if ('serviceWorker' in navigator) {
       if (data.type === 'push') {
         showInPageNotification(data);
       } else if (data.type === 'sw-updated') {
-        // SW обновился — мягкий тост с предложением перезагрузить.
-        // Не делаем авто-reload: можно уронить состояние формы пользователя.
-        showUpdateToast();
+        // SW активировался — показываем кратко тост и автоматически перезагружаем
+        // через 2 секунды (даём пользователю заметить, что обновление произошло).
+        showUpdateToast({ autoReloadInMs: 2000 });
       }
     });
 
-    // Когда SW сменил controller (новая версия активирована) — НЕ перезагружаем
-    // автоматически, ждём подтверждения пользователя через toast выше.
+    // Когда SW сменил controller (новая версия активирована, .claim() прошёл) —
+    // АВТО-перезагрузка ровно один раз. Это страховка на случай, если
+    // 'sw-updated' postMessage не дошёл до listener'а из-за race condition.
+    let reloadedByController = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (reloadedByController) return;
+      reloadedByController = true;
+      // Небольшая задержка, чтобы тост успел отрисоваться, если он есть.
+      setTimeout(() => window.location.reload(), 300);
+    });
   });
 }
 
@@ -81,20 +95,24 @@ function showInPageNotification({ title, body, url }) {
   setTimeout(() => { card.style.transition = 'opacity 300ms'; card.style.opacity = '0'; setTimeout(() => card.remove(), 300); }, 8000);
 }
 
-// Toast при обнаружении новой версии SW. Кликом перезагружаем — пользователь решает когда.
-function showUpdateToast() {
+// Toast при активации новой версии SW. Опционально — auto-reload через autoReloadInMs.
+function showUpdateToast({ autoReloadInMs = 0 } = {}) {
   if (document.getElementById('avandata-update-toast')) return;
   const card = document.createElement('div');
   card.id = 'avandata-update-toast';
   card.style.cssText = [
     'position:fixed', 'bottom:20px', 'left:50%', 'transform:translateX(-50%)',
-    'z-index:99999', 'background:#0d1424', 'border:1px solid #ef4444',
+    'z-index:99999', 'background:#0d1424', 'border:1px solid #dc2626',
     'border-radius:12px', 'box-shadow:0 8px 32px rgba(0,0,0,0.5)',
     'color:#f1f5fb', 'padding:12px 18px', 'font-family:system-ui,sans-serif',
     'font-size:14px', 'cursor:pointer', 'display:flex',
     'align-items:center', 'gap:10px'
   ].join(';');
-  card.innerHTML = '<span>🔄 Доступна новая версия. <b style="color:#fca5a5">Обновить</b></span>';
+  const action = autoReloadInMs > 0 ? 'обновляю…' : 'Обновить';
+  card.innerHTML = '<span>🔄 Новая версия установлена. <b style="color:#fca5a5">' + action + '</b></span>';
   card.onclick = () => window.location.reload();
   document.body.appendChild(card);
+  if (autoReloadInMs > 0) {
+    setTimeout(() => window.location.reload(), autoReloadInMs);
+  }
 }

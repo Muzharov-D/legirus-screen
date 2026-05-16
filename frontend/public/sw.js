@@ -12,7 +12,7 @@
 //
 // Версионирование: ровно одна строка ниже. Меняй её в каждом коммите, который меняет
 // поведение SW (новые роуты для prefetch, изменения стратегий и т.п.).
-const CACHE_VERSION = 'v5-2026-05-16';
+const CACHE_VERSION = 'v6-2026-05-16-r2';
 const STATIC_CACHE = `legirus-static-${CACHE_VERSION}`;
 const API_CACHE = `legirus-api-${CACHE_VERSION}`;
 
