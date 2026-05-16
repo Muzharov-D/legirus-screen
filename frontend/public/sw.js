@@ -12,7 +12,10 @@
 //
 // Версионирование: ровно одна строка ниже. Меняй её в каждом коммите, который меняет
 // поведение SW (новые роуты для prefetch, изменения стратегий и т.п.).
-const CACHE_VERSION = 'v7-2026-05-16-r3';
+// При деплое новой версии — обновить ОБА: CACHE_VERSION здесь
+// и EXPECTED_SW_VERSION в frontend/src/main.jsx.
+// Иначе self-heal механизм не сработает корректно.
+const CACHE_VERSION = 'v8-2026-05-16-self-heal';
 const STATIC_CACHE = `legirus-static-${CACHE_VERSION}`;
 const API_CACHE = `legirus-api-${CACHE_VERSION}`;
 
@@ -235,5 +238,17 @@ self.addEventListener('message', (event) => {
   if (!event.data) return;
   if (event.data.type === 'skip-waiting') {
     self.skipWaiting();
+  } else if (event.data.type === 'get-version') {
+    // Self-heal механизм: страница пингует SW и сверяет версию с
+    // EXPECTED_SW_VERSION (в main.jsx). Если SW старый (без этого handler'а) —
+    // ответа не будет, JS триггернет unregister + reload.
+    // Отвечаем через MessageChannel port (event.ports[0]) если он передан,
+    // иначе через event.source (postMessage от клиента).
+    const payload = { type: 'sw-version', version: CACHE_VERSION };
+    if (event.ports && event.ports[0]) {
+      try { event.ports[0].postMessage(payload); } catch (_) {}
+    } else if (event.source) {
+      try { event.source.postMessage(payload); } catch (_) {}
+    }
   }
 });

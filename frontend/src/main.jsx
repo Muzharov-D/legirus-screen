@@ -14,6 +14,50 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>
 );
 
+// SELF-HEAL для застрявших PWA. Должно совпадать с CACHE_VERSION в /sw.js.
+// При деплое новой версии обновлять BOTH: эта константа + sw.js CACHE_VERSION.
+// Если несовпадает (или SW не отвечает на ping — значит pre-self-heal версия) —
+// JS принудительно делает unregister + reload, чтобы получить свежий код.
+// Анти-петля: не чаще 1 раза в 10 минут.
+const EXPECTED_SW_VERSION = 'v8-2026-05-16-self-heal';
+
+function askSWVersion() {
+  return new Promise((resolve) => {
+    if (!navigator.serviceWorker?.controller) return resolve(null);
+    const ch = new MessageChannel();
+    const timer = setTimeout(() => resolve(null), 2000);
+    ch.port1.onmessage = (e) => {
+      clearTimeout(timer);
+      resolve(e.data?.version || null);
+    };
+    try {
+      navigator.serviceWorker.controller.postMessage({ type: 'get-version' }, [ch.port2]);
+    } catch (_) {
+      clearTimeout(timer);
+      resolve(null);
+    }
+  });
+}
+
+async function selfHealIfStale() {
+  if (!navigator.serviceWorker?.controller) return; // нет SW — нечего лечить
+  const LAST_HEAL_KEY = 'avandata.sw.last-heal';
+  const now = Date.now();
+  const last = Number(localStorage.getItem(LAST_HEAL_KEY) || 0);
+  if (now - last < 10 * 60 * 1000) return; // anti-loop: не чаще 1р/10мин
+
+  const swVersion = await askSWVersion();
+  if (swVersion === EXPECTED_SW_VERSION) return; // всё ок
+
+  console.log('[sw] self-heal: expected', EXPECTED_SW_VERSION, 'got', swVersion || 'no-response');
+  localStorage.setItem(LAST_HEAL_KEY, String(now));
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg) await reg.unregister();
+  } catch (_) {}
+  window.location.reload();
+}
+
 // Регистрируем service worker для PWA: push + offline-first cache.
 // SW логика — см. /public/sw.js.
 if ('serviceWorker' in navigator) {
@@ -68,6 +112,12 @@ if ('serviceWorker' in navigator) {
       // Небольшая задержка, чтобы тост успел отрисоваться, если он есть.
       setTimeout(() => window.location.reload(), 300);
     });
+
+    // Self-heal: через 3 сек после загрузки проверяем что SW текущей версии.
+    // Если нет — выкидываем его и перезагружаем страницу.
+    // Это спасает от ситуации «застрявший SW не обновляется» — даёт пользователю
+    // авто-восстановление без ручного «закрой/открой PWA».
+    setTimeout(selfHealIfStale, 3000);
   });
 }
 
