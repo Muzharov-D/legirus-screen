@@ -16,6 +16,7 @@ import OfflineBanner from '../components/OfflineBanner';
 import UiIcon from '../components/UiIcon';
 import Skeleton from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
+import HeroNextMatch from '../components/HeroNextMatch';
 import { tierForAge } from '../utils/ageRating';
 import { shieldFor, isLegirus } from '../utils/legirus';
 import { fmtRelative } from '../utils/dates';
@@ -234,6 +235,13 @@ export default function PublicTeamSchedule() {
   }
 
   const ourMatches = (cal?.matches || []).filter((m) => m.isOurMatch);
+  // Ближайший наш матч в будущем (для Hero-блока)
+  const nextMatch = useMemo(() => {
+    const now = Date.now();
+    return ourMatches
+      .filter((m) => m.date && new Date(m.date).getTime() > now && !m.isPast)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))[0] || null;
+  }, [ourMatches]);
 
   // Тренировки разрешены только в фильтре 'upcoming' (тренер в прошлом — приватная инфа)
   const trainingsAvailable = filter === 'upcoming' && trainings.length > 0;
@@ -409,6 +417,14 @@ export default function PublicTeamSchedule() {
           <div className="public-page__empty public-page__empty--error">
             Не удалось загрузить расписание: {error}
           </div>
+        )}
+
+        {!loading && !error && nextMatch && (
+          <HeroNextMatch
+            match={nextMatch}
+            venue={findVenue(nextMatch.venue)}
+            onOpen={setOpenMatch}
+          />
         )}
 
         {!loading && !error && (

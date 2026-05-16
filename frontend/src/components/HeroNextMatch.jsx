@@ -1,0 +1,122 @@
+// Hero-блок «Ближайший матч» — самое первое что видит родитель на главной.
+// Показывает: тур / соперник / дата человеко-понятно / тикающий countdown /
+// CTA «Маршрут» (открывает Я.Карты на venue).
+//
+// Если ближайшего матча нет (или все прошедшие) — компонент не рендерится.
+
+import { useEffect, useMemo, useState } from 'react';
+import { fmtRelative, fmtCountdown } from '../utils/dates';
+import { shieldFor, isLegirus } from '../utils/legirus';
+import UiIcon from './UiIcon';
+import './HeroNextMatch.css';
+
+function buildYandexUrl(venue, coords) {
+  if (coords?.lat && coords?.lng) {
+    return `https://yandex.ru/maps/?rtext=~${coords.lat}%2C${coords.lng}&rtt=auto`;
+  }
+  if (venue) return `https://yandex.ru/maps/?text=${encodeURIComponent(venue)}`;
+  return null;
+}
+
+function shortTeamName(name) {
+  if (!name) return '—';
+  return String(name)
+    .replace(/^(ГБОУ|ГБУ|МБОУ|МАОУ|ГКУ|МКУ|ГКОУ)\s+(ДО\s+|ДОД\s+|ДОУ\s+)?/i, '')
+    .replace(/\s*\((ЦФКСиЗ ВО|ГБУ ДО)[^)]*\)\s*/i, '')
+    .replace(/\bрайона\b/gi, 'р-на')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ').slice(0, 3).join(' ');
+}
+
+export default function HeroNextMatch({ match, venue, onOpen }) {
+  // Live countdown — тикает каждую секунду пока матч в будущем (< 24h),
+  // иначе обновляется реже (для матчей через 3+ дня live-цифры лишние).
+  const [now, setNow] = useState(() => new Date());
+  const matchDate = useMemo(() => (match?.date ? new Date(match.date) : null), [match?.date]);
+  const msUntil = matchDate ? matchDate.getTime() - now.getTime() : Infinity;
+  const tickFast = msUntil > 0 && msUntil < 24 * 3600 * 1000;
+
+  useEffect(() => {
+    if (!match) return;
+    const interval = tickFast ? 1000 : 60_000;
+    const t = setInterval(() => setNow(new Date()), interval);
+    return () => clearInterval(t);
+  }, [match, tickFast]);
+
+  if (!match || !matchDate) return null;
+
+  const homeIsUs = isLegirus(match.home);
+  const opp = homeIsUs ? match.away : match.home;
+  const oppShield = homeIsUs ? match.awayShield : match.homeShield;
+  const placeLabel = homeIsUs ? 'Дома' : 'В гостях';
+
+  const countdownStr = fmtCountdown(matchDate, now);
+  const yaUrl = buildYandexUrl(match.venue, venue?.coords);
+
+  return (
+    <div
+      className="hero-next"
+      onClick={() => onOpen && onOpen(match)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onOpen && onOpen(match); } }}
+    >
+      <div className="hero-next__topline">
+        <span className="hero-next__chip">
+          <UiIcon name={match.tournament === 'cup' ? 'trophy' : 'ball'} size={11} />
+          {match.tournament === 'cup' ? 'Кубок' : 'Лига'}
+          {match.round ? ` · ${match.round}` : ''}
+        </span>
+        <span className="hero-next__when">{fmtRelative(matchDate, now)}</span>
+      </div>
+
+      <div className="hero-next__matchup">
+        <div className="hero-next__us">
+          <img
+            src="/icons/legirus.png"
+            alt="ФК Легирус"
+            className="hero-next__shield"
+            onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+          />
+          <span className="hero-next__us-name">Легирус</span>
+        </div>
+        <div className="hero-next__vs">vs</div>
+        <div className="hero-next__opp">
+          <span className="hero-next__opp-name">{shortTeamName(opp)}</span>
+          <img
+            src={shieldFor(opp, oppShield)}
+            alt=""
+            className="hero-next__shield"
+            onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+          />
+        </div>
+      </div>
+
+      {countdownStr && (
+        <div className="hero-next__countdown" aria-label="До начала матча">
+          <span className="hero-next__countdown-label">До начала</span>
+          <span className="hero-next__countdown-time">{countdownStr}</span>
+        </div>
+      )}
+
+      <div className="hero-next__bottomline">
+        <span className="hero-next__where">
+          <UiIcon name="pin" size={12} />
+          {match.venue || 'Стадион уточняется'} · {placeLabel}
+        </span>
+        {yaUrl && (
+          <a
+            className="hero-next__route"
+            href={yaUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <UiIcon name="map" size={12} /> Маршрут
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
