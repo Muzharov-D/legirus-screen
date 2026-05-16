@@ -7,6 +7,7 @@ import { shieldFor, isLegirus } from '../utils/legirus';
 import UiIcon from './UiIcon';
 import MatchStatsBlock from './MatchStatsBlock';
 import MatchLineupsBlock from './MatchLineupsBlock';
+import MatchWeather from './MatchWeather';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
@@ -289,6 +290,16 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
                 })}
             </div>
           </div>
+        )}
+
+        {/* Погода на момент матча (OpenWeatherMap) — для будущих матчей,
+            у которых есть координаты venue. Через бэк /api/public/weather. */}
+        {tab === 'overview' && !past && venue?.coords?.lat && venue?.coords?.lng && (
+          <MatchWeather
+            lat={venue.coords.lat}
+            lng={venue.coords.lng}
+            atIso={match.date}
+          />
         )}
 
         {/* Стадион, маршрут в карты и .ics — показываем только на табе «Обзор»,

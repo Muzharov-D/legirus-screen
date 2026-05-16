@@ -8,6 +8,7 @@ import { loadVenues, buildVEvent, buildVCalendar } from '../services/icsBuilder.
 import { loadAllStandings, buildClubRanking } from '../services/clubRanking.js';
 import { getPublicKey, saveSubscription, removeSubscription, sendToSubscription } from '../services/pushService.js';
 import { isPgEnabled, query } from '../db/pool.js';
+import { getWeather } from '../services/weatherService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -160,6 +161,26 @@ router.get('/match/:age/:matchId.ics', async (req, res) => {
     res.setHeader('Content-Disposition', 'attachment; filename="match-' + req.params.matchId + '.ics"');
     res.send(ics);
   } catch (e) { res.status(500).type('text/plain').send(e.message); }
+});
+
+// Погода на момент матча через OpenWeatherMap (5-day forecast, 3h slots).
+// Frontend дёргает: /api/public/weather?lat=59.93&lng=30.31&at=2026-05-20T11:00:00Z
+// Кеш 30 мин на бэке (in-memory). Если ключа нет в env — 503.
+router.get('/weather', async (req, res) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+    const at = req.query.at || null;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return res.status(400).json({ error: 'lat и lng обязательны (число)' });
+    }
+    const data = await getWeather(lat, lng, at);
+    if (!data) return res.status(404).json({ error: 'Прогноз недоступен (вне окна 5 дней или нет ключа)' });
+    cdnCache(res, 1800, 3600); // 30 мин edge cache, ещё час SWR
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ============================================================================
