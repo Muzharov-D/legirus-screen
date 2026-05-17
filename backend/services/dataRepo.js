@@ -165,23 +165,30 @@ export async function loadMatch(matchId) {
   // score: null если матч не сыгран (оба значения null), иначе {home, away}
   const score = head.score_home != null ? { home: head.score_home, away: head.score_away } : null;
 
-  // formation / formationImage хранятся в JSON-файле матча (backend/data/matches/*.json)
-  // и НЕ мигрировались в PG (нет колонок в схеме). Без этого «Состав на поле»
-  // рендерится пустым полем — фотки с оценками не показываются.
-  // Подмешиваем из файла, если он есть. PG-данные имеют приоритет, JSON — fallback.
-  let fileExtras = {};
-  try {
-    const file = legacy.loadMatch(head.id);
-    if (file) {
-      fileExtras = {
-        formation: file.formation || null,
-        formationImage: file.formationImage || null,
-        formationImageFull: file.formationImageFull || null,
-        // ratings.json или другие field-картинки если есть
-        radarImages: file.radarImages || null,
-      };
-    }
-  } catch (_) { /* нет файла — игнорим, рендерим пустую формацию */ }
+  // formation / formationImage: приоритет meta JSONB (после backfill),
+  // fallback на JSON-файл (для матчей, которые ещё не мигрировались).
+  // Backfill запускается на старте сервера через formationBackfill.js
+  const meta = head.meta || {};
+  let formationExtras = {
+    formation: meta.formation || null,
+    formationImage: meta.formationImage || null,
+    formationImageFull: meta.formationImageFull || null,
+    radarImages: meta.radarImages || null,
+  };
+  // Fallback на файл если meta пустой
+  if (!formationExtras.formation) {
+    try {
+      const file = legacy.loadMatch(head.id);
+      if (file) {
+        formationExtras = {
+          formation: file.formation || null,
+          formationImage: file.formationImage || null,
+          formationImageFull: file.formationImageFull || null,
+          radarImages: file.radarImages || null,
+        };
+      }
+    } catch (_) { /* нет файла — рендерим пустую формацию */ }
+  }
 
   // Подмешиваем shield URL для отображения логотипа соперника на странице матча
   // (раньше там был хардкод буквы «П»).
@@ -207,7 +214,7 @@ export async function loadMatch(matchId) {
     teamAvgRatings: head.teamAvgRatings,
     players: players.rows,
     meta: head.meta,
-    ...fileExtras,
+    ...formationExtras,
   };
 }
 

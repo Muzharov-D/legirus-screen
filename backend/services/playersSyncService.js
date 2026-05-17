@@ -84,6 +84,31 @@ function ffspbPlayerToOur(p, teamId) {
   };
 }
 
+// Прежде чем создавать новый ffspb-XXX, проверяем что нет ли уже legacy
+// игрока (id вида p\d+-name) с тем же team + number. Если есть — обновляем
+// его (фото/имя), но id оставляем legacy. Это избегает дублей и сохраняет
+// связи в match_players (которые ссылаются на legacy id).
+async function findExistingLegacyPlayer(teamId, number, lastName) {
+  if (number != null) {
+    const r = await query(
+      `SELECT id FROM players
+        WHERE team_id = $1 AND number = $2 AND id NOT LIKE 'ffspb-%'
+        LIMIT 1`,
+      [teamId, number]);
+    if (r.rows[0]) return r.rows[0].id;
+  }
+  // Если номера нет — ищем по фамилии
+  if (lastName) {
+    const r = await query(
+      `SELECT id FROM players
+        WHERE team_id = $1 AND lower(last_name) = lower($2) AND id NOT LIKE 'ffspb-%'
+        LIMIT 1`,
+      [teamId, lastName]);
+    if (r.rows[0]) return r.rows[0].id;
+  }
+  return null;
+}
+
 export async function syncPlayersForAge(age, cfg = null) {
   if (!isFfspbConfigured()) return { skipped: 'FFSPB_API_KEY not set' };
   if (!isPgEnabled())       return { skipped: 'PG not configured' };
@@ -100,11 +125,33 @@ export async function syncPlayersForAge(age, cfg = null) {
   const players = await listAll('/players', { team: `/api/teams/${ffspbTeamId}` });
   const teamId = `legirus-${age}`;
   let upserted = 0;
+  let mergedIntoLegacy = 0;
   let skipped = 0;
   for (const p of players) {
     const row = ffspbPlayerToOur(p, teamId);
     if (!row) { skipped++; continue; }
     if (!row.fullName) { skipped++; continue; }
+
+    // Idempotent merge: если есть legacy дубль — обновляем его, а не создаём
+    // ffspb-XXX. Это разруливает 2x игроков с одним номером после миграции.
+    const legacyId = await findExistingLegacyPlayer(teamId, row.number, row.lastName);
+    if (legacyId) {
+      await query(
+        `UPDATE players SET
+           team_id = $2,
+           full_name = $3,
+           first_name = COALESCE($4, first_name),
+           last_name = COALESCE($5, last_name),
+           number = COALESCE($6, number),
+           position = COALESCE($7, position),
+           photo_url = COALESCE($8, photo_url)
+         WHERE id = $1`,
+        [legacyId, row.teamId, row.fullName, row.firstName, row.lastName,
+         row.number, row.position, row.photoUrl]);
+      mergedIntoLegacy++;
+      continue;
+    }
+
     await query(
       `INSERT INTO players (id, team_id, full_name, first_name, last_name, number, position, position_full, photo_url)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -120,7 +167,55 @@ export async function syncPlayersForAge(age, cfg = null) {
        row.number, row.position, row.positionFull, row.photoUrl]);
     upserted++;
   }
-  return { tid, ffspbTeamId, found: players.length, upserted, skipped };
+  return { tid, ffspbTeamId, found: players.length, upserted, mergedIntoLegacy, skipped };
+}
+
+// One-shot чистка существующих ffspb-XXX дублей: для каждой пары
+// (team_id, number) если есть и legacy, и ffspb — удаляем ffspb (а нужные
+// поля переносим в legacy). Идемпотентна — можно запускать многократно.
+export async function dedupePlayersOnce() {
+  if (!isPgEnabled()) return { skipped: 'PG not configured' };
+
+  // Находим пары: legacy + ffspb для одного team+number
+  const dups = await query(`
+    SELECT
+      l.id AS legacy_id, l.photo_url AS legacy_photo, l.last_name AS legacy_lname,
+      f.id AS ffspb_id,  f.photo_url AS ffspb_photo,  f.last_name AS ffspb_lname,
+      l.team_id, l.number
+    FROM players l
+    JOIN players f
+      ON f.team_id = l.team_id
+     AND f.number IS NOT NULL AND l.number = f.number
+     AND f.id LIKE 'ffspb-%' AND l.id NOT LIKE 'ffspb-%'
+  `);
+
+  let merged = 0;
+  let reassignedMatchPlayers = 0;
+  for (const d of dups.rows) {
+    // Переносим photo_url из ffspb в legacy если у legacy пусто (FFSPB-фото
+    // обычно лучше — внешний URL с nagradion).
+    if (!d.legacy_photo && d.ffspb_photo) {
+      await query(`UPDATE players SET photo_url = $1 WHERE id = $2`,
+        [d.ffspb_photo, d.legacy_id]);
+    }
+    // Переназначаем match_players с ffspb на legacy (если матчи импортировались
+    // через FFSPB-flow, они могут ссылаться на ffspb-id)
+    const r = await query(
+      `UPDATE match_players SET player_id = $1
+        WHERE player_id = $2
+          AND NOT EXISTS (
+            SELECT 1 FROM match_players mp2
+            WHERE mp2.match_id = match_players.match_id AND mp2.player_id = $1
+          )`,
+      [d.legacy_id, d.ffspb_id]);
+    reassignedMatchPlayers += r.rowCount || 0;
+    // Удаляем оставшиеся match_players где есть оба (legacy уже есть)
+    await query(`DELETE FROM match_players WHERE player_id = $1`, [d.ffspb_id]);
+    // Удаляем дубль из players
+    await query(`DELETE FROM players WHERE id = $1`, [d.ffspb_id]);
+    merged++;
+  }
+  return { found: dups.rows.length, merged, reassignedMatchPlayers };
 }
 
 export async function syncAllPlayers() {

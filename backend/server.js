@@ -23,7 +23,8 @@ import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
 import { startCupCron } from './services/cupService.js';
 import { startCalendarCron } from './services/calendarService.js';
-import { startPlayersSyncCron } from './services/playersSyncService.js';
+import { startPlayersSyncCron, dedupePlayersOnce } from './services/playersSyncService.js';
+import { backfillFormationToMeta } from './services/formationBackfill.js';
 import { startMatchEventsCron } from './services/matchEventsService.js';
 import { configurePush } from './services/pushService.js';
 import { startNotifCron } from './services/notifCron.js';
@@ -73,9 +74,27 @@ startNotifCron();
 // и cron'ы / dataRepo использовали PG, а не legacy JSON.
 if (process.env.DATABASE_URL) {
   getPool(); // создаёт singleton-пул
-  ping().then((r) => {
-    if (r.ok) console.log('[pg] connected: ' + (r.version || '').split(' ').slice(0, 2).join(' '));
-    else console.error('[pg] ping failed:', r.error);
+  ping().then(async (r) => {
+    if (r.ok) {
+      console.log('[pg] connected: ' + (r.version || '').split(' ').slice(0, 2).join(' '));
+      // Идемпотентные one-shot миграции — гонять при каждом старте безопасно:
+      //   1) Dedup игроков (legacy + ffspb для одного team+number)
+      //   2) Backfill formation в matches.meta JSONB из JSON-файлов
+      try {
+        const dedup = await dedupePlayersOnce();
+        if (dedup.merged > 0) {
+          console.log(`[pg] dedup players: merged=${dedup.merged}, reassigned mp=${dedup.reassignedMatchPlayers}`);
+        }
+      } catch (e) { console.error('[pg] dedup players failed:', e.message); }
+      try {
+        const bf = await backfillFormationToMeta();
+        if (bf.updated > 0) {
+          console.log(`[pg] formation backfill: files=${bf.files}, updated=${bf.updated}, skipped=${bf.skipped}`);
+        }
+      } catch (e) { console.error('[pg] formation backfill failed:', e.message); }
+    } else {
+      console.error('[pg] ping failed:', r.error);
+    }
   });
 } else {
   console.log('[pg] DATABASE_URL не задан — fallback на JSON');

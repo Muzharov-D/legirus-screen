@@ -267,5 +267,7 @@
   .tr-card { grid-template-columns: 1fr; }
   .tr-card__actions { justify-content: flex-start; }
   .tr-row { grid-template-columns: 1fr; }
-  .tr-att__btn { width: 28px; height: 28px; }
+  /* Раньше 28×28 — меньше тач-стандарта (44 HIG / 48dp Material).
+     36×36 умещается: 4 кнопки + 3 gap = 156px при ширине ряда ≥220. */
+  .tr-att__btn { width: 36px; height: 36px; font-size: 14px; }
 }
