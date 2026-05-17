@@ -9,6 +9,19 @@ export function setToken(t) {
   else localStorage.removeItem(TOKEN_KEY);
 }
 
+// Таймаут на любой fetch в 15 секунд. Без него мобильный браузер на нестабильной
+// сети может ждать ответа бесконечно — пользователь видит «Проверка…» и не понимает
+// что произошло. С AbortController fetch аккуратно reject'ится и UI показывает
+// человекочитаемое сообщение.
+const FETCH_TIMEOUT_MS = 15_000;
+
+function fetchWithTimeout(url, opts = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...opts, signal: controller.signal })
+    .finally(() => clearTimeout(timer));
+}
+
 async function fetchJson(path, opts = {}) {
   const token = getToken();
   const headers = { ...(opts.headers || {}) };
@@ -21,7 +34,15 @@ async function fetchJson(path, opts = {}) {
     headers['Content-Type'] = headers['Content-Type'] || 'application/json';
   }
 
-  const res = await fetch(`${PREFIX}${path}`, { ...opts, headers, body });
+  let res;
+  try {
+    res = await fetchWithTimeout(`${PREFIX}${path}`, { ...opts, headers, body });
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      throw new Error('Превышено время ожидания. Проверьте интернет-соединение.');
+    }
+    throw new Error('Не удалось связаться с сервером. Проверьте интернет.');
+  }
 
   if (res.status === 401) {
     setToken(null);
@@ -46,11 +67,19 @@ export const apiFetch = (path, opts) => fetchJson(path, opts);
 
 // Auth
 export async function login(username, password) {
-  const res = await fetch(`${PREFIX}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
-  });
+  let res;
+  try {
+    res = await fetchWithTimeout(`${PREFIX}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      throw new Error('Превышено время ожидания входа. Проверьте интернет-соединение.');
+    }
+    throw new Error('Не удалось связаться с сервером. Проверьте интернет.');
+  }
   const text = await res.text().catch(() => '');
   if (!res.ok) {
     let msg = `Ошибка входа (${res.status})`;
