@@ -10,6 +10,7 @@ import PlayerPhoto from '../components/PlayerPhoto';
 import RatingPill from '../components/RatingPill';
 import RatingCard from '../components/RatingCard';
 import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
+import { shieldFor } from '../utils/legirus';
 import './MatchDetail.css';
 
 const SECTION_MAPS = [
@@ -129,7 +130,14 @@ export default function MatchDetail() {
       {/* HERO: счёт и команды */}
       <div className="match-detail__hero">
         <div className="match-detail__team match-detail__team--home">
-          <img src="/assets/logos/legirus.png" alt="" className="match-detail__team-logo-img" />
+          <img
+            src={shieldFor(match.homeTeam?.name, match.homeTeam?.shield)}
+            alt={match.homeTeam?.name || ''}
+            className="match-detail__team-logo-img"
+            onError={(e) => {
+              e.currentTarget.outerHTML = `<div class="match-detail__team-logo team-logo--home">${(match.homeTeam?.name || '?').charAt(0)}</div>`;
+            }}
+          />
           <div className="match-detail__team-name">{match.homeTeam?.name}</div>
         </div>
         <div className="match-detail__score-block">
@@ -140,7 +148,21 @@ export default function MatchDetail() {
           <div className="match-detail__status">МАТЧ РАЗОБРАН</div>
         </div>
         <div className="match-detail__team match-detail__team--away">
-          <div className="match-detail__team-logo team-logo--away">П</div>
+          {match.awayTeam?.shield ? (
+            <img
+              src={match.awayTeam.shield}
+              alt={match.awayTeam.name || ''}
+              className="match-detail__team-logo-img"
+              onError={(e) => {
+                // Fallback на инициал клуба если щит не загрузился
+                e.currentTarget.outerHTML = `<div class="match-detail__team-logo team-logo--away">${(match.awayTeam?.name || '?').charAt(0)}</div>`;
+              }}
+            />
+          ) : (
+            <div className="match-detail__team-logo team-logo--away">
+              {(match.awayTeam?.name || '?').charAt(0)}
+            </div>
+          )}
           <div className="match-detail__team-name">{match.awayTeam?.name}</div>
         </div>
       </div>

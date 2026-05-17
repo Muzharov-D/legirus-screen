@@ -4,8 +4,51 @@
 // Все функции возвращают данные в той же структуре что и до Sprint 3,
 // чтобы фронт не пришлось менять.
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { isPgEnabled, query } from '../db/pool.js';
 import * as legacy from './dataLoader.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Кешированная мапа «имя клуба → URL щита» из club-shields.json.
+// Файл правится руками очень редко, так что подгружаем один раз при старте.
+let _shieldsByName = null;
+function getClubShields() {
+  if (_shieldsByName) return _shieldsByName;
+  const map = new Map();
+  try {
+    const p = path.resolve(__dirname, '..', 'data', 'club-shields.json');
+    if (fs.existsSync(p)) {
+      const raw = JSON.parse(fs.readFileSync(p, 'utf-8'));
+      for (const c of (raw.clubs || [])) {
+        if (c.name && c.shield) {
+          map.set(nrm(c.name), c.shield);
+        }
+      }
+    }
+  } catch (e) { console.error('[shields] load failed:', e.message); }
+  _shieldsByName = map;
+  return map;
+}
+function nrm(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+// Резолв щита по имени клуба. Сначала точное совпадение, потом startsWith
+// (для имён вида «Пороховчанин 2010» при наличии «Пороховчанин-Тосно» в config).
+function resolveShield(teamName) {
+  if (!teamName) return null;
+  const shields = getClubShields();
+  const key = nrm(teamName);
+  if (shields.has(key)) return shields.get(key);
+  // Match by substring: "Пороховчанин 2010" → "Пороховчанин-Тосно" если 2 слова совпали
+  for (const [name, url] of shields) {
+    const first = name.split(/[\s-]/)[0];
+    if (first.length >= 4 && key.includes(first)) return url;
+  }
+  return null;
+}
 
 // === TEAMS ===
 // Возвращает форму teams.json: { club: {...}, teams: [...] }.
@@ -140,11 +183,21 @@ export async function loadMatch(matchId) {
     }
   } catch (_) { /* нет файла — игнорим, рендерим пустую формацию */ }
 
+  // Подмешиваем shield URL для отображения логотипа соперника на странице матча
+  // (раньше там был хардкод буквы «П»).
   return {
     id: head.id,
     teamId: head.teamId,
-    homeTeam: { id: head.home_team_id, name: head.home_team_name },
-    awayTeam: { id: head.away_team_id, name: head.away_team_name },
+    homeTeam: {
+      id: head.home_team_id,
+      name: head.home_team_name,
+      shield: resolveShield(head.home_team_name),
+    },
+    awayTeam: {
+      id: head.away_team_id,
+      name: head.away_team_name,
+      shield: resolveShield(head.away_team_name),
+    },
     date: head.date,
     season: head.season,
     tournament: head.tournament,
