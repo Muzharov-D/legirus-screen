@@ -2,8 +2,12 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="alternate icon" href="/icons/favicon.ico" />
+    <!-- favicon: даём прямые PNG разных размеров. SVG-обёртка вокруг base64-PNG
+         не рендерится в Chrome как favicon — был сломан в табе на десктопе. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/icons/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="manifest" href="/icons/site.webmanifest" />
     <meta name="theme-color" content="#1a0606" />
