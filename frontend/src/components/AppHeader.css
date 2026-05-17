@@ -119,10 +119,8 @@
   box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.4);
 }
 
-.app-header__team-select option {
-  color: #07071c;
-  background: #fff;
-}
+/* Опции <option> наследуют тёмную тему из index.css (глобальное правило
+   select/option). Локальный белый override убран — текст был не виден. */
 
 .app-header__btn {
   background: rgba(255, 255, 255, 0.06);

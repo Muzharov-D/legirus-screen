@@ -63,3 +63,27 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* СТРОГО: во всех dropdown'ах фон ТЁМНЫЙ, текст БЕЛЫЙ.
+   Раньше браузер рисовал option с белым фоном и почти-белым текстом —
+   ничего не было видно (особенно в селекторе команды в шапке тренера).
+   Применяем глобально, чтобы любой новый <select> наследовал тему без
+   копипасты. */
+select,
+select option {
+  background-color: #14143c;
+  color: #fff;
+  font-family: inherit;
+}
+select option:checked,
+select option:hover,
+select option:focus {
+  background-color: #22d3ee;
+  color: #07071c;
+  font-weight: 600;
+}
+/* color-scheme сообщает браузеру что элемент тёмный — он подбирает
+   соответствующие нативные стили (стрелка, скроллбар в dropdown). */
+select {
+  color-scheme: dark;
+}
