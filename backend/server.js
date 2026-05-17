@@ -25,6 +25,7 @@ import { startCupCron } from './services/cupService.js';
 import { startCalendarCron } from './services/calendarService.js';
 import { startPlayersSyncCron, dedupePlayersOnce } from './services/playersSyncService.js';
 import { backfillFormationToMeta } from './services/formationBackfill.js';
+import { backfillLegacyPlayers } from './services/playersBackfill.js';
 import { startMatchEventsCron } from './services/matchEventsService.js';
 import { configurePush } from './services/pushService.js';
 import { startNotifCron } from './services/notifCron.js';
@@ -78,8 +79,18 @@ if (process.env.DATABASE_URL) {
     if (r.ok) {
       console.log('[pg] connected: ' + (r.version || '').split(' ').slice(0, 2).join(' '));
       // Идемпотентные one-shot миграции — гонять при каждом старте безопасно:
-      //   1) Dedup игроков (legacy + ffspb для одного team+number)
-      //   2) Backfill formation в matches.meta JSONB из JSON-файлов
+      //   1) Backfill legacy игроков из players.json (восстанавливает русские
+      //      имена и filename-фото для p\d+-XXX игроков, если PG имел только ffspb)
+      //   2) Dedup игроков (legacy + ffspb для одного team+number)
+      //   3) Backfill formation в matches.meta JSONB из JSON-файлов
+      // Порядок важен: сначала восстанавливаем legacy, потом dedup переносит
+      // фото из ffspb-дублей в legacy и удаляет ffspb.
+      try {
+        const pbf = await backfillLegacyPlayers();
+        if ((pbf.inserted || 0) + (pbf.updated || 0) > 0) {
+          console.log(`[pg] players backfill: found=${pbf.found}, inserted=${pbf.inserted}, updated=${pbf.updated}`);
+        }
+      } catch (e) { console.error('[pg] players backfill failed:', e.message); }
       try {
         const dedup = await dedupePlayersOnce();
         if (dedup.merged > 0) {
