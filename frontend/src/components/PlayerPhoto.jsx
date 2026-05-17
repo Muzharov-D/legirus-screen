@@ -4,15 +4,17 @@ import './PlayerPhoto.css';
 
 export default function PlayerPhoto({ player, size = 64, className = '' }) {
   const [errored, setErrored] = useState(false);
-  const photoFile = player?.photo || player?.photoUrl || (player?.id ? `${player.id}.png` : null);
-  // Поддерживаем оба формата:
-  //  — короткое имя файла из /public/assets/players/ (p17-turapin.png)
-  //  — абсолютный URL из player-photos.json (https://img.nagradion.ru/...)
-  // Раньше всегда префиксили /assets/players/ — URL-ы превращались в /assets/players/https://...
-  // и фейлились onError → fallback на инициалы.
-  const src = photoFile
-    ? (/^https?:\/\//i.test(photoFile) ? photoFile : `/assets/players/${photoFile}`)
-    : null;
+  // Поддерживаем три варианта источника фото:
+  //  1) player.photo / photoUrl = абсолютный URL (https://img.nagradion.ru/...) → берём как есть
+  //  2) player.photo / photoUrl = имя файла (p17-turapin.png) → префиксим /assets/players/
+  //  3) ничего нет, но есть id → пробуем /assets/players/{id}.png
+  const rawPhoto = (typeof player?.photo === 'string' && player.photo) ||
+                   (typeof player?.photoUrl === 'string' && player.photoUrl) ||
+                   (player?.id ? `${player.id}.png` : null);
+  let src = null;
+  if (typeof rawPhoto === 'string' && rawPhoto.length > 0) {
+    src = /^https?:\/\//i.test(rawPhoto) ? rawPhoto : `/assets/players/${rawPhoto}`;
+  }
   const initials = getInitials(player?.firstName, player?.lastName);
   const style = { width: size, height: size };
 
