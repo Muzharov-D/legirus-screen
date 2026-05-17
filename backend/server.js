@@ -23,7 +23,7 @@ import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
 import { startCupCron } from './services/cupService.js';
 import { startCalendarCron } from './services/calendarService.js';
-import { startPlayersSyncCron, dedupePlayersOnce } from './services/playersSyncService.js';
+import { startPlayersSyncCron, dedupePlayersOnce, migratePlayerPhotoUrls } from './services/playersSyncService.js';
 import { backfillFormationToMeta } from './services/formationBackfill.js';
 import { backfillLegacyPlayers } from './services/playersBackfill.js';
 import { startMatchEventsCron } from './services/matchEventsService.js';
@@ -91,6 +91,12 @@ if (process.env.DATABASE_URL) {
           console.log(`[pg] players backfill: found=${pbf.found}, inserted=${pbf.inserted}, updated=${pbf.updated}`);
         }
       } catch (e) { console.error('[pg] players backfill failed:', e.message); }
+      try {
+        const mig = await migratePlayerPhotoUrls();
+        if (mig.updated > 0) {
+          console.log(`[pg] photo URLs normalized: ${mig.updated} players got nagradion prefix`);
+        }
+      } catch (e) { console.error('[pg] photo URL migrate failed:', e.message); }
       try {
         const dedup = await dedupePlayersOnce();
         if (dedup.merged > 0) {

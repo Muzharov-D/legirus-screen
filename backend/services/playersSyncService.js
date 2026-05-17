@@ -60,6 +60,23 @@ function extractPlayerId(p) {
   return null;
 }
 
+// FFSPB API часто отдаёт photo как bare filename ("person833120034.jpg") —
+// это файл на nagradion.ru CDN. Превращаем в абсолютный URL чтобы фронт
+// мог рендерить <img src> напрямую (раньше склеивалось как
+// /assets/players/person... → 404 → инициалы).
+const NAGRADION_BASE = 'https://img.nagradion.ru/images/normal/m/';
+function normalizePhoto(raw) {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  // Уже абсолютный URL — оставляем
+  if (/^https?:\/\//i.test(s)) return s;
+  // Bare filename вида person\d+\.(jpg|png) — префиксим nagradion CDN
+  if (/^person\d+\.(jpg|jpeg|png|webp)$/i.test(s)) return NAGRADION_BASE + s;
+  // Иначе считаем что это локальное имя файла (legacy p17-turapin.png)
+  return s;
+}
+
 function ffspbPlayerToOur(p, teamId) {
   const playerId = extractPlayerId(p);
   if (!playerId) return null; // нет id — пропускаем
@@ -70,7 +87,7 @@ function ffspbPlayerToOur(p, teamId) {
   const number = Number.parseInt(numberRaw, 10);
   const position = pe(p, 'Амплуа');
   const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
-  const photoUrl = p.photo || profile.photo || null;
+  const photoUrl = normalizePhoto(p.photo || profile.photo || null);
   return {
     id: `ffspb-${playerId}`,
     teamId,
@@ -168,6 +185,19 @@ export async function syncPlayersForAge(age, cfg = null) {
     upserted++;
   }
   return { tid, ffspbTeamId, found: players.length, upserted, mergedIntoLegacy, skipped };
+}
+
+// One-shot миграция existing photo_url'ов: bare nagradion-filenames
+// ("person123.jpg") префиксим до полного URL. Идемпотентно — UPDATE
+// затрагивает только строки где старое значение точно bare filename.
+export async function migratePlayerPhotoUrls() {
+  if (!isPgEnabled()) return { skipped: 'PG not configured' };
+  const r = await query(`
+    UPDATE players
+       SET photo_url = $1 || photo_url
+     WHERE photo_url ~* '^person[0-9]+\\.(jpg|jpeg|png|webp)$'
+  `, [NAGRADION_BASE]);
+  return { updated: r.rowCount || 0 };
 }
 
 // One-shot чистка существующих ffspb-XXX дублей: для каждой пары
