@@ -431,6 +431,12 @@
   .splits-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .player-splits-table table,
   .splits-table table { min-width: 480px; font-size: 11px; }
+  /* Fitness 5 столбцов не лезут на телефон (5 × 22px значение + 60px ячейка
+     даёт переполнение даже на 414px). Перестраиваем по 3 на узких экранах. */
+  .player-detail__fitness-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+}
+@media (max-width: 360px) {
+  .player-detail__fitness-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {

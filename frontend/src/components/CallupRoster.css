@@ -280,3 +280,14 @@
   font-size: 12px;
   margin-bottom: 10px;
 }
+
+/* Mobile: 5 stat-плиток в одну строку на 320-380px без переноса.
+   Раньше b 18px + uppercase label 10px вызывали wrap/overflow внутри ячейки. */
+@media (max-width: 480px) {
+  .cr-summary { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .cr-stat { padding: 6px 2px; }
+  .cr-stat b { font-size: 15px; }
+  .cr-stat span { font-size: 9px; letter-spacing: 0.3px; }
+  /* Кнопки удаления — увеличить hit area до тач-стандарта */
+  .cr-remove { width: 36px; height: 36px; }
+}

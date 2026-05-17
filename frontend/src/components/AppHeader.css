@@ -209,6 +209,11 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
     display: none;
     z-index: 50;
+    /* Меню накапливает ~7 элементов (team/password/push/lang/refresh/user/logout).
+       На iPhone SE в landscape без max-height + overflow панель перекрывала всё. */
+    max-height: calc(100vh - 56px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .app-header--menu-open .app-header__right { display: flex; }
 
