@@ -59,6 +59,17 @@ router.get('/players', async (req, res) => {
       return res.json({ players });
     }
 
+    // Игрок видит ТОЛЬКО себя — никаких других игроков команды.
+    // Регрессия была после feat(sprint-1) cross-team fix: список фильтровался
+    // по teamId, не по playerId. Возврат к поведению MVP.
+    if (req.user?.role === 'player') {
+      const ownId = req.user?.playerId;
+      if (!ownId) return res.json({ players: [] });
+      const me = (all.players || []).find((p) => p.id === ownId);
+      return res.json({ players: me ? [me] : [] });
+    }
+
+    // team_coach — видит свою команду
     const ownTeamId = req.user?.teamId;
     if (!ownTeamId) return res.json({ players: [] });
     const players = (all.players || []).filter((p) => inTeam(p, ownTeamId));
@@ -156,17 +167,15 @@ router.get('/match/:matchId', async (req, res) => {
     }
 
     if (req.user?.role === 'player') {
+      // Игрок видит командную статистику (счёт, teamSummaryStats,
+      // teamAvgRatings, formation, events) + ТОЛЬКО СВОИ player-данные.
+      // Регрессия после 7ec9486 (cross-team fix): возвращались все игроки
+      // только с обрезанными splits/radar — нужно было полностью скрыть других.
       const ownId = req.user.playerId;
-
-      const sanitize = (p) => {
-        if (p.id === ownId) return p;
-        const { splits, radar, maps, ...publicFields } = p;
-        return publicFields;
-      };
-
+      const owned = (match.players || []).find((p) => p.id === ownId);
       const filtered = {
         ...match,
-        players: (match.players || []).map(sanitize),
+        players: owned ? [owned] : [],
         _filteredFor: ownId,
       };
       return res.json(filtered);

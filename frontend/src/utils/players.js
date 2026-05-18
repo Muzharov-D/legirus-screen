@@ -61,3 +61,31 @@ export function getInitials(first, last) {
   const l = (last || '').charAt(0).toUpperCase();
   return `${f}${l}`;
 }
+
+// «Фамилия И.» — короткое имя для UI где не помещается полное.
+// Закусилов А., Татарченко Г., Воронков В.
+// Если нет lastName — fallback на полное имя или ''.
+export function shortName(first, last) {
+  const ln = (last || '').trim();
+  const fn = (first || '').trim();
+  if (!ln && !fn) return '';
+  if (!ln) return fn;
+  const initial = fn.charAt(0).toUpperCase();
+  return initial ? `${ln} ${initial}.` : ln;
+}
+
+// shortName из готового player-объекта или fullName-строки.
+// Удобно вызывать на готовом player без необходимости разносить first/last.
+export function shortNameFromPlayer(player) {
+  if (!player) return '';
+  if (player.lastName || player.firstName) {
+    return shortName(player.firstName, player.lastName);
+  }
+  // Fallback: парсим fullName «Артём Закусилов» → «Закусилов А.»
+  const parts = String(player.fullName || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return parts[0];
+  const fn = parts[0];
+  const ln = parts.slice(1).join(' ');
+  return shortName(fn, ln);
+}

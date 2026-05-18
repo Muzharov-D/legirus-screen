@@ -9,6 +9,7 @@ import PlayerPhoto from '../components/PlayerPhoto';
 import CupBracket from '../components/CupBracket';
 import MyCallups from '../components/MyCallups';
 import { ratingColor, ratingTextColor } from '../utils/colors';
+import { shortNameFromPlayer } from '../utils/players';
 import './ClubPage.css';
 
 function num(v) {
@@ -343,7 +344,7 @@ export default function ClubPage() {
                       <div className="club-top-row__rank">{i + 1}</div>
                       <PlayerPhoto player={row.player} size={36} />
                       <div className="club-top-row__info">
-                        <div className="club-top-row__name">{row.player.fullName}</div>
+                        <div className="club-top-row__name">{shortNameFromPlayer(row.player)}</div>
                         <div className="club-top-row__pos">
                           №{row.player.number} · {row.player.position || row.player.positionFull}
                         </div>

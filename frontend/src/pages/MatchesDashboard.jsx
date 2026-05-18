@@ -6,6 +6,7 @@ import MatchList from '../components/MatchList';
 import PdfUploadDialog from '../components/PdfUploadDialog';
 import PlayerPhoto from '../components/PlayerPhoto';
 import { ratingColor, ratingTextColor } from '../utils/colors';
+import { shortNameFromPlayer } from '../utils/players';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
 import { useTournament } from '../contexts/TournamentContext';
@@ -229,7 +230,7 @@ export default function MatchesDashboard() {
                     >
                       <div className="topr-card__rank">#{i + 1}</div>
                       <PlayerPhoto player={player} size={64} />
-                      <div className="topr-card__name">{player.fullName}</div>
+                      <div className="topr-card__name">{shortNameFromPlayer(player)}</div>
                       <div className="topr-card__pos">
                         №{player.number} · {player.positionFull || player.position}
                       </div>

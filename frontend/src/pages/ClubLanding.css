@@ -94,6 +94,17 @@
   box-shadow: 0 12px 28px rgba(34, 211, 238, 0.35);
 }
 
+/* Карточка игрока — зелёный (амбер) оттенок, чтобы отличить от тренера/родителя */
+.clublanding__card--player {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.18) 0%, rgba(0, 0, 0, 0.5) 100%);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+.clublanding__card--player:hover {
+  border-color: #22c55e;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.32) 0%, rgba(0, 0, 0, 0.6) 100%);
+  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.35);
+}
+
 .clublanding__card-icon {
   font-size: 36px;
   line-height: 1;
@@ -121,6 +132,9 @@
 }
 .clublanding__card--parent .clublanding__card-cta {
   color: #67e8f9;
+}
+.clublanding__card--player .clublanding__card-cta {
+  color: #86efac;
 }
 
 .clublanding__hint {

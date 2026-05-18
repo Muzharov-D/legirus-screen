@@ -11,6 +11,7 @@ import RatingPill from '../components/RatingPill';
 import RatingCard from '../components/RatingCard';
 import SoccerFieldImageMap from '../components/SoccerFieldImageMap';
 import { shieldFor } from '../utils/legirus';
+import { shortNameFromPlayer } from '../utils/players';
 import './MatchDetail.css';
 
 const SECTION_MAPS = [
@@ -236,7 +237,7 @@ export default function MatchDetail() {
               <div className="best-player__body">
                 <PlayerPhoto player={motm} size={80} />
                 <div className="best-player__info">
-                  <div className="best-player__name">{motm.fullName}</div>
+                  <div className="best-player__name">{shortNameFromPlayer(motm)}</div>
                   <div className="best-player__pos">№{motm.number} · {motm.positionFull}</div>
                 </div>
                 <RatingPill value={motm.ratings?.overall} size="xl" />
@@ -296,7 +297,7 @@ export default function MatchDetail() {
                 <div key={p.id} className="top-scorers__row" onClick={() => navigate(`/players/${p.id}`)}>
                   <PlayerPhoto player={p} size={36} />
                   <div className="top-scorers__info">
-                    <div className="top-scorers__name">{p.fullName}</div>
+                    <div className="top-scorers__name">{shortNameFromPlayer(p)}</div>
                     <div className="top-scorers__pos">{p.positionFull}</div>
                   </div>
                   <RatingPill value={p.ratings.overall} size="sm" />

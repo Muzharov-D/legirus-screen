@@ -6,6 +6,7 @@ import MatchList from '../components/MatchList';
 import RatingCard from '../components/RatingCard';
 import PlayerPhoto from '../components/PlayerPhoto';
 import RatingPill from '../components/RatingPill';
+import { shortNameFromPlayer } from '../utils/players';
 import { ratingColor } from '../utils/colors';
 import { leadersByLine } from '../utils/lines';
 import { useNavigate } from 'react-router-dom';
@@ -160,7 +161,7 @@ export default function ClubOverview() {
               <div className="best-player__body">
                 <PlayerPhoto player={motm} size={84} />
                 <div className="best-player__info">
-                  <div className="best-player__name">{motm.fullName}</div>
+                  <div className="best-player__name">{shortNameFromPlayer(motm)}</div>
                   <div className="best-player__pos">№{motm.number} · {motm.positionFull}</div>
                   <div className="best-player__stats">
                     <span>Голы: <b>{num(motm.stats?.attack4?.goal) ?? 0}</b></span>

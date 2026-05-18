@@ -7,6 +7,7 @@ import RatingPill from '../components/RatingPill';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
 import { ratingColor } from '../utils/colors';
+import { shortNameFromPlayer } from '../utils/players';
 import './PlayersRating.css';
 
 // Definition of metrics shown in the chip-selector.
@@ -172,7 +173,7 @@ export default function PlayersRating() {
                 <PlayerPhoto player={player} size={36} />
               </span>
               <span className="col-name">
-                <div className="players-rating__name">{player.fullName}</div>
+                <div className="players-rating__name">{shortNameFromPlayer(player)}</div>
                 <div className="players-rating__num">№{player.number}</div>
               </span>
               <span className="col-pos">{player.positionFull || player.position || '—'}</span>

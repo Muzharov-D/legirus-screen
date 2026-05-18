@@ -1,5 +1,7 @@
 // Корневая страница на legirus.sportdata.tech (клубный домен) для неавторизованных.
-// Две большие кнопки: «Я тренер» → /login, «Я родитель» → mobile.*
+// Три большие кнопки: «Я тренер» / «Я игрок» → /login, «Я родитель» → mobile.*
+// Тренер и игрок логинятся одной формой, role различается на бэке (users.role),
+// и в Login.jsx после успешного входа делается redirect по роли.
 //
 // Если пользователь уже залогинен — редирект на /club (управление клубом).
 // Маршрутизация происходит в App.jsx через RootRoute → проверяет hostname и user.
@@ -37,6 +39,13 @@ export default function ClubLanding() {
             <div className="clublanding__card-icon" aria-hidden>👤</div>
             <div className="clublanding__card-title">Я тренер</div>
             <div className="clublanding__card-desc">Управление командами,<br />тренировки, вызовы</div>
+            <div className="clublanding__card-cta">Войти →</div>
+          </Link>
+
+          <Link to="/login" className="clublanding__card clublanding__card--player">
+            <div className="clublanding__card-icon" aria-hidden>⚽</div>
+            <div className="clublanding__card-title">Я игрок</div>
+            <div className="clublanding__card-desc">Личная статистика,<br />свои матчи и тренировки</div>
             <div className="clublanding__card-cta">Войти →</div>
           </Link>
 

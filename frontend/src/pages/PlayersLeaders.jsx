@@ -6,6 +6,7 @@ import PlayerPhoto from '../components/PlayerPhoto';
 import RatingPill from '../components/RatingPill';
 import { useAuth } from '../contexts/AuthContext';
 import { useTeam } from '../contexts/TeamContext';
+import { shortNameFromPlayer } from '../utils/players';
 import './PlayersLeaders.css';
 import './PlayersRating.css';
 
@@ -68,7 +69,7 @@ export default function PlayersLeaders() {
           <div className="players-leaders__top-body">
             <PlayerPhoto player={overall} size={120} />
             <div className="players-leaders__top-info">
-              <div className="players-leaders__top-name">{overall.fullName}</div>
+              <div className="players-leaders__top-name">{shortNameFromPlayer(overall)}</div>
               <div className="players-leaders__top-pos">№{overall.number} · {overall.positionFull}</div>
               <div className="players-leaders__top-stats">
                 <span>Удары: <b>{overall.stats?.attack4?.shot?.value ?? '—'}</b></span>
