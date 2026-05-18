@@ -49,18 +49,23 @@ export async function backfillLegacyPlayers() {
     const existing = await query(`SELECT id FROM players WHERE id = $1`, [row.id]);
     const isNew = existing.rows.length === 0;
 
+    // FORCE-OVERWRITE: players.json — source of truth для legacy игроков.
+    // В прошлой версии стоял COALESCE — если EXCLUDED.first_name='Кузьма' но
+    // backfill «не доезжал» (быстрый рестарт / ошибка catch), в PG оставались
+    // null значения и фронт показывал «М» вместо «Макаров К.». Теперь
+    // переписываем все основные поля безусловно — JSON всегда выигрывает.
     await query(
       `INSERT INTO players (id, team_id, full_name, first_name, last_name, number, position, position_full, photo_url)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (id) DO UPDATE SET
          team_id = EXCLUDED.team_id,
          full_name = EXCLUDED.full_name,
-         first_name = COALESCE(EXCLUDED.first_name, players.first_name),
-         last_name = COALESCE(EXCLUDED.last_name, players.last_name),
+         first_name = EXCLUDED.first_name,
+         last_name = EXCLUDED.last_name,
          number = COALESCE(EXCLUDED.number, players.number),
          position = COALESCE(EXCLUDED.position, players.position),
          position_full = COALESCE(EXCLUDED.position_full, players.position_full),
-         photo_url = COALESCE(EXCLUDED.photo_url, players.photo_url)`,
+         photo_url = EXCLUDED.photo_url`,
       [row.id, row.team_id, row.full_name, row.first_name, row.last_name,
        row.number, row.position, row.position_full, row.photo_url]);
 
