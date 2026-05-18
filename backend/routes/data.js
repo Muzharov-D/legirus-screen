@@ -21,6 +21,15 @@ import { refreshCalendarAge, refreshCalendarAll } from '../services/calendarServ
 
 const router = express.Router();
 
+// Browser-side cache (private — НЕ CDN, чтобы не утекли данные между
+// юзерами с разными ролями). Для GET'ов с большим JSON и медленной
+// PG-выборкой (match/:id, matches, players, standings) браузер
+// переиспользует ответ в течение TTL — мгновенная навигация назад/вперёд.
+// stale-while-revalidate даёт фоновую ревалидацию без блокировки.
+function browserCache(res, ttlSec = 30, swrSec = 120) {
+  res.setHeader('Cache-Control', `private, max-age=${ttlSec}, stale-while-revalidate=${swrSec}`);
+}
+
 // Команды клуба. head_coach видит весь список, остальные — только свою.
 router.get('/teams', async (req, res) => {
   try {
@@ -68,6 +77,7 @@ router.get('/players', async (req, res) => {
     const ownTeamId = req.user?.teamId;
     if (!ownTeamId) return res.json({ players: [] });
     const players = (all.players || []).filter((p) => inTeam(p, ownTeamId));
+    browserCache(res, 30, 120);
     res.json({ players });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -144,6 +154,7 @@ router.get('/matches', async (req, res) => {
     }
 
     const enriched = await Promise.all(matches.map(enrichMatch));
+    browserCache(res, 30, 120);
     res.json({ matches: enriched });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -178,9 +189,11 @@ router.get('/match/:matchId', async (req, res) => {
         players: (match.players || []).map(sanitize),
         _filteredFor: ownId,
       };
+      browserCache(res, 30, 120);
       return res.json(filtered);
     }
 
+    browserCache(res, 30, 120);
     res.json(match);
   } catch (e) {
     res.status(404).json({ error: `Матч ${req.params.matchId} не найден` });
@@ -235,6 +248,7 @@ router.get('/standings/:ageGroup', async (req, res) => {
   try {
     const data = await loadStandings(req.params.ageGroup);
     if (!data) return res.status(404).json({ error: `Таблица для возраста ${req.params.ageGroup} ещё не загружена` });
+    browserCache(res, 60, 300);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });

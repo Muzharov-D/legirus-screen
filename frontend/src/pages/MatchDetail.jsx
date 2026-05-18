@@ -92,12 +92,18 @@ export default function MatchDetail() {
   useEffect(() => {
     if (!seasonMatches.length) { setAllMatchData([]); return; }
     let cancelled = false;
-    Promise.all(seasonMatches.map((m) => fetchMatch(m.id).catch(() => null)))
-      .then((results) => {
-        if (cancelled) return;
-        setAllMatchData(results.filter(Boolean));
-      });
-    return () => { cancelled = true; };
+    // Defer на 1.5 сек — даём первой отрисовке (счёт/формация/командные ratings)
+    // завершиться без блокировки сеть N параллельными fetch'ами. Без этого
+    // браузер на /matches/:id «висел» 13+ сек пока грузил все матчи сезона
+    // для блока «vs средний по сезону» — а его юзер видит только при скролле.
+    const handle = setTimeout(() => {
+      Promise.all(seasonMatches.map((m) => fetchMatch(m.id).catch(() => null)))
+        .then((results) => {
+          if (cancelled) return;
+          setAllMatchData(results.filter(Boolean));
+        });
+    }, 1500);
+    return () => { cancelled = true; clearTimeout(handle); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seasonIdsKey]);
 
