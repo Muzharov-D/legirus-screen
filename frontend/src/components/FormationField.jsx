@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ratingColor, ratingTextColor } from '../utils/colors';
-import { findPlayerByShortName, findPlayerByNumber } from '../utils/players';
+import { findPlayerByShortName, findPlayerByNumber, shortNameFromPlayer } from '../utils/players';
 import PlayerPhoto from './PlayerPhoto';
 import './FormationField.css';
 
@@ -181,11 +181,16 @@ export default function FormationField({
           <div className="formation__subs-row">
             {subs.map((s, i) => {
               const player = resolvePlayer(s);
+              // «Кузьма Макаров» → «Макаров К.» — иначе на узкой карточке
+              // запасного полное имя обрезается ellipsis'ом до «Кузь...».
+              // Если игрок не нашёлся в team list — fallback на оригинальный
+              // shortName из formation data.
+              const displayName = player ? shortNameFromPlayer(player) : s.shortName;
               return (
                 <div key={i} className="formation__sub" onClick={() => go(s)}>
                   <PlayerPhoto player={player || { firstName: '?', lastName: s.shortName?.split(' ').pop() || '?' }} size={42} />
                   <div className="formation__sub-meta">
-                    <div className="formation__sub-name">#{s.number} {s.shortName}</div>
+                    <div className="formation__sub-name">#{s.number} {displayName}</div>
                     <span
                       className="formation__rating formation__rating--sm"
                       style={{ background: ratingColor(s.rating), color: ratingTextColor(s.rating) }}
