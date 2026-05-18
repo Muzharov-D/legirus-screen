@@ -231,7 +231,7 @@ export default function MatchDetail() {
         </div>
 
         <div className="match-detail__right">
-          {motm && (
+          {motm && motm.ratings?.overall != null && (
             <div className="card best-player" onClick={() => navigate(`/players/${motm.id}`)}>
               <div className="page-section-title">Игрок матча</div>
               <div className="best-player__body">
@@ -340,7 +340,7 @@ function PlayerBreakdown({ title, rows, navigate }) {
           <span className="player-breakdown__rank">{i + 1}</span>
           <PlayerPhoto player={player} size={36} />
           <div className="player-breakdown__info">
-            <div className="player-breakdown__name">{player.lastName} {player.firstName?.[0]}.</div>
+            <div className="player-breakdown__name">{shortNameFromPlayer(player)}</div>
             <div className="player-breakdown__pos">№{player.number} · {player.position}</div>
           </div>
           <span className="player-breakdown__val">{value}</span>

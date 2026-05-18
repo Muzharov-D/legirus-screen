@@ -154,8 +154,10 @@ export default function ClubOverview() {
             )}
           </div>
 
-          {/* Лучший игрок */}
-          {motm && (
+          {/* Лучший игрок — рендерим только если у него реально есть рейтинг.
+              Без проверки bestPlayer() возвращал первого игрока даже когда у
+              всех rating=null → карточка показывала «—/100». */}
+          {motm && motm.ratings?.overall != null && (
             <div className="card best-player" onClick={() => navigate(`/players/${motm.id}`)}>
               <div className="best-player__head">Лучший игрок матча</div>
               <div className="best-player__body">

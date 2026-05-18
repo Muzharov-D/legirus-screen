@@ -317,12 +317,21 @@ export default function PlayerDetail() {
           ))}
         </div>
 
-        <PizzaChart
-          subjectName={`${player.fullName} · ${player.positionFull || ''} · ${player.minutes ?? '?'} мин`}
-          subjectMeta={`Цифры — реальные значения, длина слайса — percentile vs ${PIZZA_VS_LABEL} (${peers.length} чел.)`}
-          vsLabel={PIZZA_VS_LABEL}
-          slices={pizzaSlices}
-        />
+        {peers.length < 2 ? (
+          // Если в матче меньше 2 игроков — percentile бессмысленен.
+          // Не показываем диаграмму, объясняем причину.
+          <div className="empty-state">
+            Недостаточно данных для сравнения с командой (нужны рейтинги
+            хотя бы 2 игроков матча).
+          </div>
+        ) : (
+          <PizzaChart
+            subjectName={`${player.fullName} · ${player.positionFull || ''} · ${player.minutes ?? '?'} мин`}
+            subjectMeta={`Цифры — реальные значения, длина слайса — percentile vs ${PIZZA_VS_LABEL} (${peers.length} чел.)`}
+            vsLabel={PIZZA_VS_LABEL}
+            slices={pizzaSlices}
+          />
+        )}
       </div>
 
       {/* RATINGS vs TEAM AVG — оставил, нагляднее по 4 общим осям */}

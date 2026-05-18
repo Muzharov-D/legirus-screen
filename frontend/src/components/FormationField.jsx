@@ -69,8 +69,10 @@ export default function FormationField({
   imageFullSrc,
 }) {
   const navigate = useNavigate();
-  const starters = formation?.starters || [];
-  const subs = formation?.substitutes || [];
+  // Defensive: backend может вернуть formation.starters не массивом если данные битые.
+  // Без этого .forEach в buildLayout кидает TypeError и роняет всю MatchDetail.
+  const starters = Array.isArray(formation?.starters) ? formation.starters : [];
+  const subs = Array.isArray(formation?.substitutes) ? formation.substitutes : [];
 
   if (starters.length === 0 && imageSrc) {
     return (

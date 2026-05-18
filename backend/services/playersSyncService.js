@@ -267,24 +267,48 @@ export async function autoLinkPlayerUsers() {
      WHERE role = 'player' AND player_id IS NULL AND team_id IS NOT NULL
   `);
   let linked = 0;
+  let ambiguous = 0;
   for (const u of users.rows) {
-    // Берём последнее слово в full_name как фамилию (обычно «Имя Фамилия»)
     const parts = String(u.full_name || '').trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) continue;
+    // full_name обычно «Имя Фамилия». Если 2+ слов — берём первое как имя,
+    // последнее как фамилию. Если одно слово — считаем фамилией.
     const lastName = parts[parts.length - 1];
-    const r = await query(
-      `SELECT id FROM players
-        WHERE team_id = $1 AND lower(last_name) = lower($2)
-              AND id NOT LIKE 'ffspb-%'
-        LIMIT 1`,
-      [u.team_id, lastName]);
-    if (r.rows[0]) {
-      await query(`UPDATE users SET player_id = $1 WHERE id = $2`,
-        [r.rows[0].id, u.id]);
+    const firstName = parts.length >= 2 ? parts[0] : null;
+
+    // Сначала пытаемся найти по фамилии + имени (точное совпадение).
+    // Если несколько игроков с одинаковой фамилией в команде (бывает) —
+    // имя дискриминирует. Если по first+last не нашлось — fallback на
+    // фамилию, но только если она уникальна в команде.
+    let target = null;
+    if (firstName) {
+      const r = await query(
+        `SELECT id FROM players
+          WHERE team_id = $1
+            AND lower(last_name) = lower($2)
+            AND lower(first_name) = lower($3)
+            AND id NOT LIKE 'ffspb-%'
+          LIMIT 2`,
+        [u.team_id, lastName, firstName]);
+      if (r.rows.length === 1) target = r.rows[0].id;
+    }
+    if (!target) {
+      const r = await query(
+        `SELECT id FROM players
+          WHERE team_id = $1
+            AND lower(last_name) = lower($2)
+            AND id NOT LIKE 'ffspb-%'
+          LIMIT 2`,
+        [u.team_id, lastName]);
+      if (r.rows.length === 1) target = r.rows[0].id;
+      else if (r.rows.length > 1) { ambiguous++; continue; }
+    }
+    if (target) {
+      await query(`UPDATE users SET player_id = $1 WHERE id = $2`, [target, u.id]);
       linked++;
     }
   }
-  return { found: users.rows.length, linked };
+  return { found: users.rows.length, linked, ambiguous };
 }
 
 export async function syncAllPlayers() {
