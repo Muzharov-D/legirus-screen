@@ -221,6 +221,7 @@ export async function dedupePlayersOnce() {
 
   let merged = 0;
   let reassignedMatchPlayers = 0;
+  let reassignedUsers = 0;
   for (const d of dups.rows) {
     // Переносим photo_url из ffspb в legacy если у legacy пусто (FFSPB-фото
     // обычно лучше — внешний URL с nagradion).
@@ -228,8 +229,7 @@ export async function dedupePlayersOnce() {
       await query(`UPDATE players SET photo_url = $1 WHERE id = $2`,
         [d.ffspb_photo, d.legacy_id]);
     }
-    // Переназначаем match_players с ffspb на legacy (если матчи импортировались
-    // через FFSPB-flow, они могут ссылаться на ffspb-id)
+    // Переназначаем match_players с ffspb на legacy
     const r = await query(
       `UPDATE match_players SET player_id = $1
         WHERE player_id = $2
@@ -239,13 +239,52 @@ export async function dedupePlayersOnce() {
           )`,
       [d.legacy_id, d.ffspb_id]);
     reassignedMatchPlayers += r.rowCount || 0;
-    // Удаляем оставшиеся match_players где есть оба (legacy уже есть)
     await query(`DELETE FROM match_players WHERE player_id = $1`, [d.ffspb_id]);
-    // Удаляем дубль из players
+    // КРИТИЧНО: переназначаем users.player_id с ffspb на legacy. Без этого
+    // юзер-игрок остаётся привязан к удалённому ffspb-id, его /api/auth/me
+    // отдаёт повисший playerId → фронт грузит /players/ffspb-XXX → 404 →
+    // «нет данных». Прошлая итерация dedup забыла это сделать.
+    const ru = await query(
+      `UPDATE users SET player_id = $1 WHERE player_id = $2`,
+      [d.legacy_id, d.ffspb_id]);
+    reassignedUsers += ru.rowCount || 0;
+    // Удаляем дубль из players (FK на users.player_id уже не указывает на него)
     await query(`DELETE FROM players WHERE id = $1`, [d.ffspb_id]);
     merged++;
   }
-  return { found: dups.rows.length, merged, reassignedMatchPlayers };
+  return { found: dups.rows.length, merged, reassignedMatchPlayers, reassignedUsers };
+}
+
+// Авто-привязка пользователей-игроков к legacy player по фамилии + команде.
+// Случай: user.role='player', user.player_id IS NULL → ищем игрока с такой же
+// фамилией (из user.full_name) в user.team_id и привязываем. Идемпотентно —
+// затрагивает только незаполненные.
+export async function autoLinkPlayerUsers() {
+  if (!isPgEnabled()) return { skipped: 'PG not configured' };
+  const users = await query(`
+    SELECT id, full_name, team_id
+      FROM users
+     WHERE role = 'player' AND player_id IS NULL AND team_id IS NOT NULL
+  `);
+  let linked = 0;
+  for (const u of users.rows) {
+    // Берём последнее слово в full_name как фамилию (обычно «Имя Фамилия»)
+    const parts = String(u.full_name || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) continue;
+    const lastName = parts[parts.length - 1];
+    const r = await query(
+      `SELECT id FROM players
+        WHERE team_id = $1 AND lower(last_name) = lower($2)
+              AND id NOT LIKE 'ffspb-%'
+        LIMIT 1`,
+      [u.team_id, lastName]);
+    if (r.rows[0]) {
+      await query(`UPDATE users SET player_id = $1 WHERE id = $2`,
+        [r.rows[0].id, u.id]);
+      linked++;
+    }
+  }
+  return { found: users.rows.length, linked };
 }
 
 export async function syncAllPlayers() {

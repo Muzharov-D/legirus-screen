@@ -23,7 +23,7 @@ import { ensureMatchesDir } from './services/dataLoader.js';
 import { startStandingsCron } from './services/standingsService.js';
 import { startCupCron } from './services/cupService.js';
 import { startCalendarCron } from './services/calendarService.js';
-import { startPlayersSyncCron, dedupePlayersOnce, migratePlayerPhotoUrls } from './services/playersSyncService.js';
+import { startPlayersSyncCron, dedupePlayersOnce, migratePlayerPhotoUrls, autoLinkPlayerUsers } from './services/playersSyncService.js';
 import { backfillFormationToMeta } from './services/formationBackfill.js';
 import { backfillLegacyPlayers } from './services/playersBackfill.js';
 import { startMatchEventsCron } from './services/matchEventsService.js';
@@ -100,9 +100,15 @@ if (process.env.DATABASE_URL) {
       try {
         const dedup = await dedupePlayersOnce();
         if (dedup.merged > 0) {
-          console.log(`[pg] dedup players: merged=${dedup.merged}, reassigned mp=${dedup.reassignedMatchPlayers}`);
+          console.log(`[pg] dedup players: merged=${dedup.merged}, reassigned mp=${dedup.reassignedMatchPlayers}, users=${dedup.reassignedUsers || 0}`);
         }
       } catch (e) { console.error('[pg] dedup players failed:', e.message); }
+      try {
+        const link = await autoLinkPlayerUsers();
+        if (link.linked > 0) {
+          console.log(`[pg] auto-linked player users: ${link.linked}/${link.found} by last_name`);
+        }
+      } catch (e) { console.error('[pg] autoLinkPlayerUsers failed:', e.message); }
       try {
         const bf = await backfillFormationToMeta();
         if (bf.updated > 0) {
