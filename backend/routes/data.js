@@ -59,17 +59,12 @@ router.get('/players', async (req, res) => {
       return res.json({ players });
     }
 
-    // Игрок видит ТОЛЬКО себя — никаких других игроков команды.
-    // Регрессия была после feat(sprint-1) cross-team fix: список фильтровался
-    // по teamId, не по playerId. Возврат к поведению MVP.
-    if (req.user?.role === 'player') {
-      const ownId = req.user?.playerId;
-      if (!ownId) return res.json({ players: [] });
-      const me = (all.players || []).find((p) => p.id === ownId);
-      return res.json({ players: me ? [me] : [] });
-    }
-
-    // team_coach — видит свою команду
+    // Игрок и team_coach видят свою команду. Player не получает доступ к
+    // топам/сравнениям других (route guards /players, /players/rating,
+    // /analytics блокируют это на фронте), но team-данные нужны для
+    // FormationField (фото, имена, рейтинги соседей на поле), ростера
+    // команды и percentile в PizzaChart. Рейтинг — субъективная вещь,
+    // эти данные о команде игроку показать можно.
     const ownTeamId = req.user?.teamId;
     if (!ownTeamId) return res.json({ players: [] });
     const players = (all.players || []).filter((p) => inTeam(p, ownTeamId));
