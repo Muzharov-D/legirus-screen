@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import PlayerPhoto from './PlayerPhoto';
+import { shortNameFromPlayer } from '../utils/players';
 import './LeaderMetricCard.css';
 
 export default function LeaderMetricCard({ label, value, suffix = '', player, locked = false }) {
@@ -21,7 +22,7 @@ export default function LeaderMetricCard({ label, value, suffix = '', player, lo
           <>
             <PlayerPhoto player={player} size={48} />
             <div className="leader-card__info">
-              <div className="leader-card__name">{player.fullName || player.shortName}</div>
+              <div className="leader-card__name">{shortNameFromPlayer(player) || player.shortName}</div>
               <div className="leader-card__pos">№{player.number} · {player.positionFull || player.position}</div>
             </div>
           </>
