@@ -7,9 +7,14 @@ export default function SidebarNav() {
   const { pathname } = useLocation();
   const { user, isPlayer, isCoach } = useAuth();
 
+  // Аналитика и список Игроков — только тренеру (игроку нечего смотреть
+  // в командных топах, MOTM и pivot-аналитике, по контракту он видит
+  // только себя).
   const navItems = [
     { id: 'club',      label: 'Мой КЛУБ',  path: '/club',      icon: '🏆' },
-    { id: 'analytics', label: 'Аналитика', path: '/analytics', icon: '◉' },
+    isCoach
+      ? { id: 'analytics', label: 'Аналитика', path: '/analytics', icon: '◉' }
+      : null,
     { id: 'matches',   label: 'Матч',      path: '/matches',   icon: '⚽' },
     { id: 'calendar',  label: 'Календарь', path: '/calendar',  icon: '📅' },
     isCoach

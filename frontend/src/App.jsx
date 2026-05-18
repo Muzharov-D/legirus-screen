@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { TeamProvider } from './contexts/TeamContext';
 import { TournamentProvider } from './contexts/TournamentContext';
@@ -46,6 +46,32 @@ function RootRoute() {
   return <PublicLanding />;
 }
 
+// Guard: страница доступна только тренерам. Игроков редиректит на свой
+// профиль (если есть playerId) или на /club.
+// Используется для ClubOverview, ComparisonView, PlayersLeaders,
+// PlayersRating — там показываются данные ДРУГИХ игроков (топы,
+// рейтинги, MOTM), что нарушает контракт «игрок видит только себя».
+function CoachOnly({ children }) {
+  const { isCoach, isPlayer, user } = useAuth();
+  if (isCoach) return children;
+  if (isPlayer && user?.playerId) {
+    return <Navigate to={`/players/${user.playerId}`} replace />;
+  }
+  return <Navigate to="/club" replace />;
+}
+
+// Player-detail guard: игрок может смотреть только свой профиль.
+// Бэк уже отдаёт 403 на чужого, но фронт прыгает на свою страницу,
+// чтобы не показывать ошибку.
+function OwnPlayerOnly({ children }) {
+  const { isPlayer, user } = useAuth();
+  const { playerId: routePlayerId } = useParams();
+  if (isPlayer && user?.playerId && routePlayerId !== user.playerId) {
+    return <Navigate to={`/players/${user.playerId}`} replace />;
+  }
+  return children;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -68,15 +94,20 @@ export default function App() {
               <Route path="/public/team/:age" element={<PublicTeamSchedule />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                 <Route path="/club" element={<ClubPage />} />
-                <Route path="/analytics" element={<ClubOverview />} />
-                <Route path="/analytics/team" element={<ComparisonView />} />
+                {/* Командная аналитика и сравнение — coach-only.
+                    Игрок видит только себя по контракту, не должен иметь
+                    доступ к MOTM/топам/рейтингам других игроков. */}
+                <Route path="/analytics" element={<CoachOnly><ClubOverview /></CoachOnly>} />
+                <Route path="/analytics/team" element={<CoachOnly><ComparisonView /></CoachOnly>} />
                 <Route path="/matches" element={<MatchesDashboard />} />
                 <Route path="/matches/:matchId" element={<MatchDetail />} />
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/trainings" element={<TrainingsPage />} />
-                <Route path="/players" element={<PlayersLeaders />} />
-                <Route path="/players/rating" element={<PlayersRating />} />
-                <Route path="/players/:playerId" element={<PlayerDetail />} />
+                {/* Топы и рейтинги команды — coach-only. */}
+                <Route path="/players" element={<CoachOnly><PlayersLeaders /></CoachOnly>} />
+                <Route path="/players/rating" element={<CoachOnly><PlayersRating /></CoachOnly>} />
+                {/* Профиль игрока: тренер — любого, игрок — только себя. */}
+                <Route path="/players/:playerId" element={<OwnPlayerOnly><PlayerDetail /></OwnPlayerOnly>} />
                 <Route path="*" element={<Navigate to="/club" replace />} />
               </Route>
             </Routes>
