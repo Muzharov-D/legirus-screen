@@ -167,15 +167,20 @@ router.get('/match/:matchId', async (req, res) => {
     }
 
     if (req.user?.role === 'player') {
-      // Игрок видит командную статистику (счёт, teamSummaryStats,
-      // teamAvgRatings, formation, events) + ТОЛЬКО СВОИ player-данные.
-      // Регрессия после 7ec9486 (cross-team fix): возвращались все игроки
-      // только с обрезанными splits/radar — нужно было полностью скрыть других.
+      // Игрок видит всех игроков команды (нужно для PizzaChart percentile
+      // — «vs игроки команды»), но у чужих обрезаем приватные поля:
+      // splits / radar / maps. Свои собственные данные — полностью.
+      // Без этого pizza-chart считал percentile vs 1 человека (= он сам)
+      // и был бессмысленным.
       const ownId = req.user.playerId;
-      const owned = (match.players || []).find((p) => p.id === ownId);
+      const sanitize = (p) => {
+        if (p.id === ownId) return p;
+        const { splits, radar, maps, ...publicFields } = p;
+        return publicFields;
+      };
       const filtered = {
         ...match,
-        players: owned ? [owned] : [],
+        players: (match.players || []).map(sanitize),
         _filteredFor: ownId,
       };
       return res.json(filtered);
