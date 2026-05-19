@@ -16,6 +16,7 @@ import PlayerDetail from './pages/PlayerDetail';
 import CalendarPage from './pages/CalendarPage';
 import TrainingsPage from './pages/TrainingsPage';
 import PublicTeamSchedule from './pages/PublicTeamSchedule';
+import LeagueFixture from './pages/LeagueFixture';
 import PublicLanding from './pages/PublicLanding';
 import ClubLanding from './pages/ClubLanding';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -92,6 +93,7 @@ export default function App() {
               <Route path="/" element={<RootRoute />} />
               <Route path="/public" element={<PublicLanding />} />
               <Route path="/public/team/:age" element={<PublicTeamSchedule />} />
+              <Route path="/public/team/:age/league" element={<LeagueFixture />} />
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                 <Route path="/club" element={<ClubPage />} />
                 {/* Командная аналитика и сравнение — coach-only.

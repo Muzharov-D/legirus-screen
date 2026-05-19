@@ -767,3 +767,32 @@
   .public-page__wave { height: 60px; margin: 6px 0 10px; }
   .public-page__wave--bottom { margin: 12px 0 0; }
 }
+
+/* Кнопка перехода в полный календарь лиги — под OpponentPreview */
+.public-page__league-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 4px 0 14px;
+  padding: 12px 14px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 10px;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, transform 120ms;
+}
+.public-page__league-btn:hover {
+  background: rgba(220, 38, 38, 0.14);
+  border-color: rgba(220, 38, 38, 0.4);
+}
+.public-page__league-btn:active { transform: scale(0.99); }
+.public-page__league-btn-arrow {
+  margin-left: auto;
+  color: #fca5a5;
+  font-weight: 700;
+}

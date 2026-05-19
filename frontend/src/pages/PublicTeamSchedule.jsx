@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useAutoRefresh, bustCache } from '../hooks/useAutoRefresh';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
 import TrainingDetailSheet from '../components/TrainingDetailSheet';
 import CalendarSubscribeModal from '../components/CalendarSubscribeModal';
@@ -17,6 +17,7 @@ import UiIcon from '../components/UiIcon';
 import Skeleton from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import HeroNextMatch from '../components/HeroNextMatch';
+import OpponentPreview from '../components/OpponentPreview';
 import PullToRefresh from '../components/PullToRefresh';
 import { toast } from '../components/Toast';
 import { tierForAge } from '../utils/ageRating';
@@ -82,6 +83,7 @@ function nrmName(s) {
 
 export default function PublicTeamSchedule() {
   const { age } = useParams();
+  const navigate = useNavigate();
   const [cal, setCal] = useState(null);
   const [standings, setStandings] = useState(null);
   const [venues, setVenues] = useState([]);
@@ -440,6 +442,26 @@ export default function PublicTeamSchedule() {
             venue={findVenue(nextMatch.venue)}
             onOpen={setOpenMatch}
           />
+        )}
+        {!loading && !error && nextMatch && (
+          <OpponentPreview
+            nextMatch={nextMatch}
+            allMatches={cal?.matches || []}
+            standings={standings}
+          />
+        )}
+
+        {!loading && !error && (cal?.matches || []).length > 0 && (
+          <button
+            type="button"
+            className="public-page__league-btn"
+            onClick={() => navigate(`/public/team/${age}/league`)}
+            title="Открыть полный календарь лиги"
+          >
+            <UiIcon name="trophy" size={14} />
+            <span>Все матчи лиги</span>
+            <span className="public-page__league-btn-arrow">→</span>
+          </button>
         )}
 
         {!loading && !error && (
