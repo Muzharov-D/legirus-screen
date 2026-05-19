@@ -63,18 +63,21 @@ function mskDayDiff(date, now) {
   return Math.round((toMskMidnight(date) - toMskMidnight(now)) / dayMs);
 }
 
-// «До матча 03:14:22» — живой обратный отсчёт. Возвращает строку или null если уже начался.
+// «До матча 3 дн. 14:22» — живой обратный отсчёт. Возвращает строку или null если уже начался.
+// Секунды убраны: мобильный браузер часто throttle'ит setInterval(1s)
+// (особенно в фоне или при низком заряде), из-за чего секунды
+// «прыгали» неравномерно. Минутный шаг — плавный и достаточный
+// для родителя.
 export function fmtCountdown(input, now = new Date()) {
   const d = toDate(input);
   if (!d) return null;
   const ms = d.getTime() - now.getTime();
   if (ms <= 0) return null;
-  const totalSec = Math.floor(ms / 1000);
-  const days = Math.floor(totalSec / 86400);
-  const hours = Math.floor((totalSec % 86400) / 3600);
-  const mins = Math.floor((totalSec % 3600) / 60);
-  const secs = totalSec % 60;
+  const totalMin = Math.floor(ms / 60000);
+  const days = Math.floor(totalMin / 1440);
+  const hours = Math.floor((totalMin % 1440) / 60);
+  const mins = totalMin % 60;
   const pad = (n) => String(n).padStart(2, '0');
-  if (days > 0) return `${days} дн. ${pad(hours)}:${pad(mins)}:${pad(secs)}`;
-  return `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
+  if (days > 0) return `${days} дн. ${pad(hours)}:${pad(mins)}`;
+  return `${pad(hours)}:${pad(mins)}`;
 }

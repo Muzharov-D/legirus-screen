@@ -23,19 +23,20 @@ function shortTeamName(name) {
 }
 
 export default function HeroNextMatch({ match, venue, onOpen }) {
-  // Live countdown — тикает каждую секунду пока матч в будущем (< 24h),
-  // иначе обновляется реже (для матчей через 3+ дня live-цифры лишние).
+  // Live countdown — обновляется раз в минуту (без секунд).
+  // Раньше тикал каждую секунду в окне 24ч, но мобильный браузер throttle'ит
+  // setInterval(1s) когда вкладка в фоне или экран приглушён → секунды
+  // «прыгали» хаотично, а не убывали ровно. Минутный интервал стабилен,
+  // батарею не сажает, для родителя «3 ч 14 мин» вместо «3:14:22»
+  // совершенно достаточно.
   const [now, setNow] = useState(() => new Date());
   const matchDate = useMemo(() => (match?.date ? new Date(match.date) : null), [match?.date]);
-  const msUntil = matchDate ? matchDate.getTime() - now.getTime() : Infinity;
-  const tickFast = msUntil > 0 && msUntil < 24 * 3600 * 1000;
 
   useEffect(() => {
     if (!match) return;
-    const interval = tickFast ? 1000 : 60_000;
-    const t = setInterval(() => setNow(new Date()), interval);
+    const t = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(t);
-  }, [match, tickFast]);
+  }, [match]);
 
   if (!match || !matchDate) return null;
 
