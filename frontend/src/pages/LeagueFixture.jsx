@@ -9,7 +9,7 @@
 // Клик на матч → MatchDetailSheet (он умеет показывать любой матч,
 // для не-нашего покажет минимум: счёт, дата, стадион).
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAutoRefresh, bustCache } from '../hooks/useAutoRefresh';
 import { useParams, useNavigate } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
@@ -140,6 +140,48 @@ export default function LeagueFixture() {
     [grouped],
   );
 
+  // Актуальный тур: первый по порядку у которого есть хоть один НЕ сыгранный
+  // матч. Если все сыграны (сезон закончен) — последний тур. Используется
+  // для авто-скролла при первой загрузке и для кнопки «К текущему туру».
+  const currentRoundKey = useMemo(() => {
+    if (grouped.length === 0) return null;
+    const withFuture = grouped.find(([, list]) => list.some((m) => !m.isPast));
+    if (withFuture) return withFuture[0];
+    // Все туры прошли — берём последний
+    return grouped[grouped.length - 1][0];
+  }, [grouped]);
+
+  // Ref на текущий тур + auto-scroll при первой загрузке.
+  // Не используем плавный скролл при первой отрисовке — он визуально мигает.
+  // Скроллим инстантно к актуальному туру, дальше user скроллит сам.
+  const currentRef = useRef(null);
+  const scrolledOnceRef = useRef(false);
+  useEffect(() => {
+    if (loading || scrolledOnceRef.current || !currentRoundKey) return;
+    // requestAnimationFrame — даём React закончить рендер списка
+    const id = requestAnimationFrame(() => {
+      if (currentRef.current) {
+        // 'start' с небольшим отступом — чтобы заголовок тура был виден сверху
+        currentRef.current.scrollIntoView({ block: 'start', behavior: 'auto' });
+        // Небольшой подъём, чтобы под header'ом тур не прятался
+        window.scrollBy({ top: -80, behavior: 'auto' });
+        scrolledOnceRef.current = true;
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [loading, currentRoundKey, tournament, filter]);
+
+  // Сброс «скроллил один раз» при смене таба турнира / фильтра —
+  // чтобы при переключении тоже прыгало к актуальному туру.
+  useEffect(() => { scrolledOnceRef.current = false; }, [tournament, filter]);
+
+  function scrollToCurrent() {
+    if (currentRef.current) {
+      currentRef.current.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      setTimeout(() => window.scrollBy({ top: -80, behavior: 'smooth' }), 50);
+    }
+  }
+
   return (
     <div className="league-fixture public-page">
       <OfflineBanner />
@@ -206,9 +248,16 @@ export default function LeagueFixture() {
           ) : (
             <div className="league-fixture__list">
               {grouped.map(([roundKey, list]) => (
-                <div key={roundKey} className="league-fixture__round">
+                <div
+                  key={roundKey}
+                  className={`league-fixture__round ${roundKey === currentRoundKey ? 'is-current' : ''}`}
+                  ref={roundKey === currentRoundKey ? currentRef : null}
+                >
                   <div className="league-fixture__round-head">
                     <span className="league-fixture__round-name">{roundKey}</span>
+                    {roundKey === currentRoundKey && (
+                      <span className="league-fixture__round-badge">сейчас</span>
+                    )}
                     <span className="league-fixture__round-count">{list.length}</span>
                   </div>
                   <div className="league-fixture__round-list">
@@ -270,6 +319,19 @@ export default function LeagueFixture() {
           age={age}
           onClose={() => setOpenMatch(null)}
         />
+      )}
+
+      {/* Плавающая кнопка «К текущему туру» — появляется при списке от 4 туров.
+          Полезна когда юзер ушёл скроллом далеко вперёд/назад от current. */}
+      {!loading && currentRoundKey && grouped.length >= 4 && (
+        <button
+          type="button"
+          className="league-fixture__jump-btn"
+          onClick={scrollToCurrent}
+          aria-label="К текущему туру"
+        >
+          ⚽ К текущему туру
+        </button>
       )}
     </div>
   );
