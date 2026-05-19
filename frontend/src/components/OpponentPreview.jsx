@@ -36,9 +36,18 @@ export default function OpponentPreview({ nextMatch, allMatches, standings }) {
   const opponentName = isLegirus(nextMatch.home) ? nextMatch.away : nextMatch.home;
   if (!opponentName) return null;
 
-  // Все прошлые матчи соперника (где он играл, кроме нашего)
+  // Определяем нашу группу лиги — по любому нашему матчу. Жёстко фильтруем
+  // последние результаты соперника только этой группой (если играл где-то
+  // ещё, например в 3-й лиге раньше — игнорим).
+  const ourGroup = (allMatches || []).find(
+    (m) => m.isOurMatch && m.tournament === 'league' && m.group,
+  )?.group;
+
+  // Все прошлые матчи соперника (где он играл, кроме нашего) — ограничены
+  // нашей группой лиги (или кубок без группы — оставляем).
   const opponentPastMatches = (allMatches || [])
     .filter((m) => m.isPast && m.score && (m.home === opponentName || m.away === opponentName))
+    .filter((m) => !ourGroup || m.tournament === 'cup' || m.group === ourGroup)
     .sort((a, b) => new Date(b.date) - new Date(a.date)); // последние первыми
 
   // Последние 5 результатов (новые слева чтобы читать в правильном порядке)

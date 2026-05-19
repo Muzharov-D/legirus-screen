@@ -84,12 +84,24 @@ export default function LeagueFixture() {
     return null;
   }
 
-  // Фильтруем по турниру + статусу и группируем по round
+  // Определяем «нашу» группу в лиге динамически — по любому нашему матчу.
+  // Легирус играет только в своей группе (например «Вторая лига»). Жёстко
+  // отсеиваем чужие группы (Третья лига и т.п.) — пользователь не хочет
+  // видеть матчи команд из других дивизионов.
+  const ourGroup = useMemo(() => {
+    const our = (cal?.matches || []).find((m) => m.isOurMatch && m.tournament === 'league' && m.group);
+    return our ? our.group : null;
+  }, [cal]);
+
+  // Фильтруем по турниру + статусу + нашей группе, группируем по round
   const grouped = useMemo(() => {
     const matches = (cal?.matches || []).filter((m) => {
       if (m.tournament && m.tournament !== tournament) return false;
       if (filter === 'past' && !m.isPast) return false;
       if (filter === 'upcoming' && m.isPast) return false;
+      // Для лиги — только наша группа (отсеиваем 3-ю лигу и др. дивизионы).
+      // Для кубка group=null чаще всего — кубок все стадии в одном дереве.
+      if (tournament === 'league' && ourGroup && m.group && m.group !== ourGroup) return false;
       return true;
     });
     const byRound = new Map();
