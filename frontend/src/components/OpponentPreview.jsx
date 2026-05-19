@@ -36,18 +36,25 @@ export default function OpponentPreview({ nextMatch, allMatches, standings }) {
   const opponentName = isLegirus(nextMatch.home) ? nextMatch.away : nextMatch.home;
   if (!opponentName) return null;
 
-  // Определяем нашу группу лиги — по любому нашему матчу. Жёстко фильтруем
-  // последние результаты соперника только этой группой (если играл где-то
-  // ещё, например в 3-й лиге раньше — игнорим).
-  const ourGroup = (allMatches || []).find(
-    (m) => m.isOurMatch && m.tournament === 'league' && m.group,
-  )?.group;
+  // Команды нашей подгруппы из standings (надёжнее чем m.group — 2-я лига
+  // часто бьётся на подгруппы А/Б с одинаковым названием group).
+  const leagueTeamNames = new Set(
+    (standings?.table || [])
+      .map((r) => String(r.team || '').toLowerCase().trim())
+      .filter(Boolean),
+  );
 
-  // Все прошлые матчи соперника (где он играл, кроме нашего) — ограничены
-  // нашей группой лиги (или кубок без группы — оставляем).
+  // Все прошлые матчи соперника (где он играл, кроме нашего).
+  // Лиговые матчи — только в нашей подгруппе. Кубок — без ограничения.
   const opponentPastMatches = (allMatches || [])
     .filter((m) => m.isPast && m.score && (m.home === opponentName || m.away === opponentName))
-    .filter((m) => !ourGroup || m.tournament === 'cup' || m.group === ourGroup)
+    .filter((m) => {
+      if (m.tournament === 'cup') return true;
+      if (leagueTeamNames.size === 0) return true; // нет standings — не фильтруем
+      const h = String(m.home || '').toLowerCase().trim();
+      const a = String(m.away || '').toLowerCase().trim();
+      return leagueTeamNames.has(h) && leagueTeamNames.has(a);
+    })
     .sort((a, b) => new Date(b.date) - new Date(a.date)); // последние первыми
 
   // Последние 5 результатов (новые слева чтобы читать в правильном порядке)

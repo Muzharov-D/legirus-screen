@@ -55,17 +55,21 @@ export default function LeagueFixture() {
   const [tournament, setTournament] = useState('league'); // league | cup
   const [filter, setFilter] = useState('all'); // all | past | upcoming
 
+  const [standings, setStandings] = useState(null);
+
   const load = () => {
     setLoading(true);
     setError(null);
     Promise.all([
       fetch(bustCache(`${PREFIX}/calendar/${age}`)).then((r) => r.ok ? r.json() : null),
       fetch(bustCache(`${PREFIX}/venues`)).then((r) => r.ok ? r.json() : { venues: [] }),
+      fetch(bustCache(`${PREFIX}/standings/${age}`)).then((r) => r.ok ? r.json() : null),
     ])
-      .then(([cd, vd]) => {
+      .then(([cd, vd, sd]) => {
         if (!cd) { setError('Календарь недоступен'); setLoading(false); return; }
         setCal(cd);
         setVenues(vd?.venues || []);
+        setStandings(sd);
         setLoading(false);
       })
       .catch((e) => { setError(e.message); setLoading(false); });
@@ -84,24 +88,29 @@ export default function LeagueFixture() {
     return null;
   }
 
-  // Определяем «нашу» группу в лиге динамически — по любому нашему матчу.
-  // Легирус играет только в своей группе (например «Вторая лига»). Жёстко
-  // отсеиваем чужие группы (Третья лига и т.п.) — пользователь не хочет
-  // видеть матчи команд из других дивизионов.
-  const ourGroup = useMemo(() => {
-    const our = (cal?.matches || []).find((m) => m.isOurMatch && m.tournament === 'league' && m.group);
-    return our ? our.group : null;
-  }, [cal]);
+  // Список команд нашей подгруппы — из standings (бэк уже отдаёт только нашу
+  // подгруппу 10 команд, отфильтрованную по конфигу ourClubMatcher). Это
+  // НАДЁЖНЕЕ чем фильтр по m.group, потому что 2-я лига часто разбита на
+  // подгруппы 2010 А/Б с одинаковым именем «Вторая лига» — по тексту
+  // group их не различить, по списку команд — да.
+  const leagueTeamNames = useMemo(() => {
+    const list = standings?.table || [];
+    return new Set(list.map((r) => String(r.team || '').toLowerCase().trim()).filter(Boolean));
+  }, [standings]);
 
-  // Фильтруем по турниру + статусу + нашей группе, группируем по round
+  // Фильтруем по турниру + статусу + нашей подгруппе, группируем по round
   const grouped = useMemo(() => {
     const matches = (cal?.matches || []).filter((m) => {
       if (m.tournament && m.tournament !== tournament) return false;
       if (filter === 'past' && !m.isPast) return false;
       if (filter === 'upcoming' && m.isPast) return false;
-      // Для лиги — только наша группа (отсеиваем 3-ю лигу и др. дивизионы).
-      // Для кубка group=null чаще всего — кубок все стадии в одном дереве.
-      if (tournament === 'league' && ourGroup && m.group && m.group !== ourGroup) return false;
+      // Для лиги — обе команды должны быть в standings.table (наша подгруппа).
+      // Для кубка — без ограничения (одна сетка всех команд).
+      if (tournament === 'league' && leagueTeamNames.size > 0) {
+        const h = String(m.home || '').toLowerCase().trim();
+        const a = String(m.away || '').toLowerCase().trim();
+        if (!leagueTeamNames.has(h) || !leagueTeamNames.has(a)) return false;
+      }
       return true;
     });
     const byRound = new Map();
