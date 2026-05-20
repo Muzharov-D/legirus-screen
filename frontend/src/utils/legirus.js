@@ -19,3 +19,18 @@ export function isLegirus(name) {
 export function shieldFor(teamName, fallbackUrl) {
   return isLegirus(teamName) ? LEGIRUS_LOGO : (fallbackUrl || '');
 }
+
+// Нормализация имени команды для СРАВНЕНИЯ (не для отображения).
+// FFSPB непоследователен: одна и та же команда в разных местах называется
+// «Легирус (ЦФКСиЗ ВО)» / «ФК Легирус (ЦФКСиЗ ВО)», «СШОР Кировского
+// района» / «ГБУ ДО СШОР Кировского района». Срезаем ТОЛЬКО юр-формы
+// (ФК, ГБУ ДО, ГБОУ…) — НЕ трогаем СШОР/СШ, это содержательная часть
+// названия. lowercase + схлопываем пробелы — для матчинга
+// calendar ↔ standings.
+export function normalizeTeamName(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/^(фк|гбу\s+до|гбоу|мбоу|маоу|гку|мку|гкоу|ано|оо|роо)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}

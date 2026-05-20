@@ -17,7 +17,7 @@ import OfflineBanner from '../components/OfflineBanner';
 import UiIcon from '../components/UiIcon';
 import Skeleton from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
-import { shieldFor, isLegirus } from '../utils/legirus';
+import { shieldFor, isLegirus, normalizeTeamName } from '../utils/legirus';
 import { fmtRelative } from '../utils/dates';
 import './LeagueFixture.css';
 import './PublicTeamSchedule.css';
@@ -95,7 +95,7 @@ export default function LeagueFixture() {
   // group их не различить, по списку команд — да.
   const leagueTeamNames = useMemo(() => {
     const list = standings?.table || [];
-    return new Set(list.map((r) => String(r.team || '').toLowerCase().trim()).filter(Boolean));
+    return new Set(list.map((r) => normalizeTeamName(r.team)).filter(Boolean));
   }, [standings]);
 
   // Фильтруем по турниру + статусу + нашей подгруппе, группируем по round
@@ -105,10 +105,13 @@ export default function LeagueFixture() {
       if (filter === 'past' && !m.isPast) return false;
       if (filter === 'upcoming' && m.isPast) return false;
       // Для лиги — обе команды должны быть в standings.table (наша подгруппа).
+      // Имена нормализуем — FFSPB пишет «ФК Легирус» / «Легирус» вразнобой,
+      // standings без префикса. Наш матч (isOurMatch) пропускаем всегда —
+      // соперник там точно из нашей подгруппы.
       // Для кубка — без ограничения (одна сетка всех команд).
-      if (tournament === 'league' && leagueTeamNames.size > 0) {
-        const h = String(m.home || '').toLowerCase().trim();
-        const a = String(m.away || '').toLowerCase().trim();
+      if (tournament === 'league' && leagueTeamNames.size > 0 && !m.isOurMatch) {
+        const h = normalizeTeamName(m.home);
+        const a = normalizeTeamName(m.away);
         if (!leagueTeamNames.has(h) || !leagueTeamNames.has(a)) return false;
       }
       return true;

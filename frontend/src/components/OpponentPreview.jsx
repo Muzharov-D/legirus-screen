@@ -6,7 +6,7 @@
 //   - Среднее голов забивает/пропускает
 //   - История vs Легирус (если играли в этом сезоне)
 
-import { isLegirus, shieldFor } from '../utils/legirus';
+import { isLegirus, shieldFor, normalizeTeamName } from '../utils/legirus';
 import './OpponentPreview.css';
 
 function shortTeamName(name) {
@@ -19,10 +19,12 @@ function shortTeamName(name) {
     .split(' ').slice(0, 3).join(' ');
 }
 
-// Из счёта одного матча со стороны указанной команды → W/L/D
-function resultFor(match, teamName) {
+// Из счёта одного матча со стороны указанной команды → W/L/D.
+// teamNorm — уже нормализованное имя (normalizeTeamName), сравниваем
+// нормализованные, потому что FFSPB пишет префиксы вразнобой.
+function resultFor(match, teamNorm) {
   if (!match.score) return null;
-  const isHome = match.home === teamName;
+  const isHome = normalizeTeamName(match.home) === teamNorm;
   const own = isHome ? match.score.home : match.score.away;
   const opp = isHome ? match.score.away : match.score.home;
   if (own == null || opp == null) return null;
@@ -36,38 +38,38 @@ export default function OpponentPreview({ nextMatch, allMatches, standings }) {
   const opponentName = isLegirus(nextMatch.home) ? nextMatch.away : nextMatch.home;
   if (!opponentName) return null;
 
-  // Команды нашей подгруппы из standings (надёжнее чем m.group — 2-я лига
-  // часто бьётся на подгруппы А/Б с одинаковым названием group).
+  // Команды нашей подгруппы из standings. Имена нормализуем — FFSPB
+  // непоследователен в префиксах («ФК Легирус» / «Легирус»).
   const leagueTeamNames = new Set(
-    (standings?.table || [])
-      .map((r) => String(r.team || '').toLowerCase().trim())
-      .filter(Boolean),
+    (standings?.table || []).map((r) => normalizeTeamName(r.team)).filter(Boolean),
   );
+  const oppNorm = normalizeTeamName(opponentName);
 
   // Все прошлые матчи соперника (где он играл, кроме нашего).
   // Лиговые матчи — только в нашей подгруппе. Кубок — без ограничения.
   const opponentPastMatches = (allMatches || [])
-    .filter((m) => m.isPast && m.score && (m.home === opponentName || m.away === opponentName))
+    .filter((m) => m.isPast && m.score &&
+      (normalizeTeamName(m.home) === oppNorm || normalizeTeamName(m.away) === oppNorm))
     .filter((m) => {
       if (m.tournament === 'cup') return true;
       if (leagueTeamNames.size === 0) return true; // нет standings — не фильтруем
-      const h = String(m.home || '').toLowerCase().trim();
-      const a = String(m.away || '').toLowerCase().trim();
+      const h = normalizeTeamName(m.home);
+      const a = normalizeTeamName(m.away);
       return leagueTeamNames.has(h) && leagueTeamNames.has(a);
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date)); // последние первыми
 
   // Последние 5 результатов (новые слева чтобы читать в правильном порядке)
   const last5 = opponentPastMatches.slice(0, 5).reverse().map((m) => ({
-    result: resultFor(m, opponentName),
+    result: resultFor(m, oppNorm),
     score: m.score,
-    isHome: m.home === opponentName,
+    isHome: normalizeTeamName(m.home) === oppNorm,
   })).filter((r) => r.result);
 
   // Средние голы за последние 5 матчей
   let scored = 0, conceded = 0, n = 0;
   for (const m of opponentPastMatches.slice(0, 5)) {
-    const isHome = m.home === opponentName;
+    const isHome = normalizeTeamName(m.home) === oppNorm;
     const own = isHome ? m.score?.home : m.score?.away;
     const opp = isHome ? m.score?.away : m.score?.home;
     if (own != null && opp != null) { scored += own; conceded += opp; n++; }
@@ -75,16 +77,15 @@ export default function OpponentPreview({ nextMatch, allMatches, standings }) {
   const avgScored = n > 0 ? (scored / n).toFixed(1) : '—';
   const avgConceded = n > 0 ? (conceded / n).toFixed(1) : '—';
 
-  // Позиция в таблице
+  // Позиция в таблице — матчим по нормализованному имени
   const standingsRow = (standings?.table || []).find(
-    (r) => r.team === opponentName ||
-           String(r.team || '').toLowerCase() === String(opponentName).toLowerCase(),
+    (r) => normalizeTeamName(r.team) === oppNorm,
   );
 
   // История vs Легирус (наши прошлые матчи с этим соперником)
   const vsLegirus = (allMatches || [])
     .filter((m) => m.isPast && m.score && m.isOurMatch &&
-                   (m.home === opponentName || m.away === opponentName));
+                   (normalizeTeamName(m.home) === oppNorm || normalizeTeamName(m.away) === oppNorm));
 
   // Шлём, только если есть хоть какая-то полезная инфа
   if (!standingsRow && last5.length === 0 && vsLegirus.length === 0) return null;
@@ -151,7 +152,7 @@ export default function OpponentPreview({ nextMatch, allMatches, standings }) {
           <div className="opp-preview__history-label">В этом сезоне с Легирусом</div>
           <div className="opp-preview__history-row">
             {vsLegirus.map((m, i) => {
-              const isHome = m.home === opponentName;
+              const isHome = normalizeTeamName(m.home) === oppNorm;
               const oppScore = isHome ? m.score.home : m.score.away;
               const ourScore = isHome ? m.score.away : m.score.home;
               const win = ourScore > oppScore;
