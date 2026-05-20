@@ -8,7 +8,7 @@ import UiIcon from './UiIcon';
 import MatchStatsBlock from './MatchStatsBlock';
 import MatchLineupsBlock from './MatchLineupsBlock';
 import MatchWeather from './MatchWeather';
-import { buildRouteUrl, buildMapViewUrl, buildStaticMapUrl, hasCoords } from '../utils/map';
+import { buildMapViewUrl, buildStaticMapUrl, hasCoords, openYandexRoute } from '../utils/map';
 import './MatchDetailSheet.css';
 
 function shortName(name) {
@@ -96,7 +96,7 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
 
   const past = match.isPast;
   const tournamentLabel = match.tournament === 'cup' ? 'Кубок' : 'Лига';
-  const yaUrl = buildRouteUrl(venue);
+  const canRoute = hasCoords(venue);
 
   // Single-event ICS для скачивания (только если есть matchId и age)
   const apiBase = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
@@ -333,16 +333,15 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
           </a>
         )}
 
-        {tab === 'overview' && yaUrl && !past && (
-          <a
+        {tab === 'overview' && canRoute && !past && (
+          <button
+            type="button"
             className="mds-cta"
-            href={yaUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={() => openYandexRoute(venue)}
           >
             <UiIcon name="map" size={20} className="mds-cta-icon" />
-            <span>Открыть в Яндекс.Картах</span>
-          </a>
+            <span>Маршрут в Яндекс.Картах</span>
+          </button>
         )}
 
         {tab === 'overview' && icsUrl && !past && (

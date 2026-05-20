@@ -155,10 +155,12 @@
   background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
   color: #fff;
   border-radius: 10px;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
   transition: transform 100ms, box-shadow 160ms;
   margin-top: 2px;

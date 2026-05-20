@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fmtRelative, fmtCountdown } from '../utils/dates';
 import { shieldFor, isLegirus } from '../utils/legirus';
-import { buildRouteUrl } from '../utils/map';
+import { hasCoords, openYandexRoute } from '../utils/map';
 import UiIcon from './UiIcon';
 import './HeroNextMatch.css';
 
@@ -48,7 +48,7 @@ export default function HeroNextMatch({ match, venue, onOpen }) {
   const countdownStr = fmtCountdown(matchDate, now);
   // Маршрут — ТОЛЬКО при наличии координат. Без text-fallback, иначе уедет
   // не к тому стадиону (одних «Локомотивов» в России 7+).
-  const yaUrl = buildRouteUrl(venue);
+  const canRoute = hasCoords(venue);
 
   return (
     <div
@@ -100,16 +100,14 @@ export default function HeroNextMatch({ match, venue, onOpen }) {
         <UiIcon name="pin" size={12} />
         <span className="hero-next__where-text">{match.venue || 'Стадион уточняется'} · {placeLabel}</span>
       </span>
-      {yaUrl && (
-        <a
+      {canRoute && (
+        <button
+          type="button"
           className="hero-next__route"
-          href={yaUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); openYandexRoute(venue); }}
         >
-          <UiIcon name="map" size={16} /> Открыть в Я.Картах
-        </a>
+          <UiIcon name="map" size={16} /> Маршрут в Я.Картах
+        </button>
       )}
     </div>
   );
