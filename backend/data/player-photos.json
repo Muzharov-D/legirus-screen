@@ -1,0 +1,280 @@
+{
+  "byAge": {
+    "2013": [
+      {
+        "name": "Арнаут Себастьян",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1157672816.jpg"
+      },
+      {
+        "name": "Ашлапов Даниил",
+        "photo": "https://img.nagradion.ru/images/normal/m/person805598377.jpg"
+      },
+      {
+        "name": "Бабенко Роман",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1163912668.jpg"
+      },
+      {
+        "name": "Бандиков Михаил",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1211638524.jpg"
+      },
+      {
+        "name": "Васильев Матвей",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1345463991.jpg"
+      },
+      {
+        "name": "Грициненко Никита",
+        "photo": "https://img.nagradion.ru/images/normal/m/person511491016.jpg"
+      },
+      {
+        "name": "Дуброва Александр",
+        "photo": "https://img.nagradion.ru/images/normal/m/person837451135.jpg"
+      },
+      {
+        "name": "Иванов Роман",
+        "photo": "https://img.nagradion.ru/images/normal/m/person887577569.jpg"
+      },
+      {
+        "name": "Казанков Федор",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1975532126.jpg"
+      },
+      {
+        "name": "Качанов Роман",
+        "photo": "https://img.nagradion.ru/images/normal/m/person397879081.jpg"
+      },
+      {
+        "name": "Кладько Богдан",
+        "photo": "https://img.nagradion.ru/images/normal/m/person320123847.jpg"
+      },
+      {
+        "name": "Красовский Всеволод",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1308639381.jpg"
+      },
+      {
+        "name": "Ланда Григорий",
+        "photo": "https://img.nagradion.ru/images/normal/m/person368654760.jpg"
+      },
+      {
+        "name": "Луговой Максим",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1372918820.jpg"
+      },
+      {
+        "name": "Мамлеев Тимур",
+        "photo": "https://img.nagradion.ru/images/normal/m/person786701442.jpg"
+      },
+      {
+        "name": "Пекшин Никита",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1199018387.jpg"
+      },
+      {
+        "name": "Распереза Артём",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1958385102.jpg"
+      },
+      {
+        "name": "Румянцев Макар",
+        "photo": "https://img.nagradion.ru/images/normal/m/person350843685.jpg"
+      },
+      {
+        "name": "Рылин Федор",
+        "photo": "https://img.nagradion.ru/images/normal/m/person342663379.jpg"
+      },
+      {
+        "name": "Салтыков Максим",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1004952286.jpg"
+      },
+      {
+        "name": "Самсонов Сергей",
+        "photo": "https://img.nagradion.ru/images/normal/m/person2065890831.jpg"
+      },
+      {
+        "name": "Силецкий Максим",
+        "photo": "https://img.nagradion.ru/images/normal/m/person262313640.jpg"
+      },
+      {
+        "name": "Чужков Григорий",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1322461282.jpg"
+      },
+      {
+        "name": "Шенер Марк",
+        "photo": "https://img.nagradion.ru/images/normal/m/person208672156.jpg"
+      }
+    ],
+    "2012": [
+      {
+        "name": "Абдуллах Дамир",
+        "photo": "https://img.nagradion.ru/images/normal/m/person589118175.jpg"
+      },
+      {
+        "name": "Бахвалов Игорь",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1691845712.jpg"
+      },
+      {
+        "name": "Брацихин Артём",
+        "photo": "https://img.nagradion.ru/images/normal/m/person2096918330.jpg"
+      },
+      {
+        "name": "Верещак Егор",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1472068715.jpg"
+      },
+      {
+        "name": "Гаврилов Алексей",
+        "photo": "https://img.nagradion.ru/images/normal/m/person655211523.jpg"
+      },
+      {
+        "name": "Дутко Михаил",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1916883891.jpg"
+      },
+      {
+        "name": "Ежиков Владислав",
+        "photo": "https://img.nagradion.ru/images/normal/m/person685715060.jpg"
+      },
+      {
+        "name": "Задорин Матвей",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1549369428.jpg"
+      },
+      {
+        "name": "Качанов Анатолий",
+        "photo": "https://img.nagradion.ru/images/normal/m/person289112809.jpg"
+      },
+      {
+        "name": "Ким Михаил",
+        "photo": "https://img.nagradion.ru/images/normal/m/person223705211.jpg"
+      },
+      {
+        "name": "Князев Яромир",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1256380745.jpg"
+      },
+      {
+        "name": "Ковалев Артемий",
+        "photo": "https://img.nagradion.ru/images/normal/m/person347846521.jpg"
+      },
+      {
+        "name": "Колляков Артём",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1654239449.jpg"
+      },
+      {
+        "name": "Кривов Денис",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1749968774.jpg"
+      },
+      {
+        "name": "Меркулов Максим",
+        "photo": "https://img.nagradion.ru/images/normal/m/person173537944.jpg"
+      },
+      {
+        "name": "Панченко Иван",
+        "photo": "https://img.nagradion.ru/images/normal/m/person543613177.jpg"
+      },
+      {
+        "name": "Погудин Владимир",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1170467732.jpg"
+      },
+      {
+        "name": "Сидоренков Матвей",
+        "photo": "https://img.nagradion.ru/images/normal/m/person421865783.jpg"
+      },
+      {
+        "name": "Скапишев Михаил",
+        "photo": "https://img.nagradion.ru/images/normal/m/person780161809.jpg"
+      },
+      {
+        "name": "Скачков Максим",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1475457832.jpg"
+      },
+      {
+        "name": "Хачеян Артем",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1879801728.jpg"
+      },
+      {
+        "name": "Чистов Филипп",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1562084121.jpg"
+      },
+      {
+        "name": "Шаров Владимир",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1830919311.jpg"
+      },
+      {
+        "name": "Горячилов Михаил",
+        "photo": "https://img.nagradion.ru/images/normal/m/person1579845570.jpg"
+      }
+    ],
+    "2011": [
+      {
+        "name": "Аруссон Никита",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1678802239.jpg"
+      },
+      {
+        "name": "Васильев Олег",
+        "photo": "https://img.nagradion.ru/images/normal/m/player238557326.jpg"
+      },
+      {
+        "name": "Волков Артемий",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1040120371.jpg"
+      },
+      {
+        "name": "Володин Артем",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1578163866.jpg"
+      },
+      {
+        "name": "Даценко Дмитрий",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1514028886.jpg"
+      },
+      {
+        "name": "Дмитриев Матвей",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1706218845.jpg"
+      },
+      {
+        "name": "Ёздемир Эрдем",
+        "photo": "https://img.nagradion.ru/images/normal/m/player329635235.jpg"
+      },
+      {
+        "name": "Ермолаев Дмитрий",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1044576985.jpg"
+      },
+      {
+        "name": "Ефимов Даниил",
+        "photo": "https://img.nagradion.ru/images/normal/m/player314339882.jpg"
+      },
+      {
+        "name": "Зоренко Иван",
+        "photo": "https://img.nagradion.ru/images/normal/m/player219266094.jpg"
+      },
+      {
+        "name": "Карасев Александр",
+        "photo": "https://img.nagradion.ru/images/normal/m/player898070026.jpg"
+      },
+      {
+        "name": "Кичигин Федор",
+        "photo": "https://img.nagradion.ru/images/normal/m/person332345007.jpg"
+      },
+      {
+        "name": "Ли Артем",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1277650441.jpg"
+      },
+      {
+        "name": "Макуха Иван",
+        "photo": "https://img.nagradion.ru/images/normal/m/player531475734.jpg"
+      },
+      {
+        "name": "Николаев Вячеслав",
+        "photo": "https://img.nagradion.ru/images/normal/m/player582538906.jpg"
+      },
+      {
+        "name": "Сахаров Иван",
+        "photo": "https://img.nagradion.ru/images/normal/m/player451803851.jpg"
+      },
+      {
+        "name": "Семин Сергей",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1720912322.jpg"
+      },
+      {
+        "name": "Сунцов Александр",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1622980186.jpg"
+      },
+      {
+        "name": "Цветков Владислав",
+        "photo": "https://img.nagradion.ru/images/normal/m/player1041283758.jpg"
+      }
+    ]
+  },
+  "updatedAt": "2026-05-05",
+  "note": "Заявки 2013/2012/2011. Для 2010 не предоставлено. Мерджить в players.json при ближайшем seed."
+}
