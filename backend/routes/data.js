@@ -15,9 +15,6 @@ import {
 } from '../services/dataRepo.js';
 import { query, isPgEnabled } from '../db/pool.js';
 import { notifyCoachComment } from '../services/matchNotifications.js';
-import { refreshAge, refreshAll } from '../services/standingsService.js';
-import { refreshCupAge, refreshCupAll } from '../services/cupService.js';
-import { refreshCalendarAge, refreshCalendarAll } from '../services/calendarService.js';
 
 const router = express.Router();
 
@@ -263,31 +260,6 @@ router.get('/standings', async (_req, res) => {
   }
 });
 
-// Ручное переобновление таблицы (только для тренеров) — полезно после правки конфига
-router.post('/standings/:ageGroup/refresh', async (req, res) => {
-  try {
-    if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
-      return res.status(403).json({ error: 'Доступ только для тренеров' });
-    }
-    const data = await refreshAge(req.params.ageGroup);
-    res.json({ ok: true, ageGroup: req.params.ageGroup, teams: data.table.length });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-router.post('/standings/refresh', async (req, res) => {
-  try {
-    if (req.user?.role !== 'head_coach') {
-      return res.status(403).json({ error: 'Доступ только для главного тренера' });
-    }
-    const results = await refreshAll();
-    res.json({ ok: true, results });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 // Кубковая сетка возрастной группы
 router.get('/cup/:ageGroup', async (req, res) => {
   try {
@@ -307,30 +279,6 @@ router.get('/cup', async (_req, res) => {
   }
 });
 
-router.post('/cup/:ageGroup/refresh', async (req, res) => {
-  try {
-    if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
-      return res.status(403).json({ error: 'Доступ только для тренеров' });
-    }
-    const data = await refreshCupAge(req.params.ageGroup);
-    res.json({ ok: true, ageGroup: req.params.ageGroup, rounds: data.rounds.length, parseHint: data.parseHint });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-router.post('/cup/refresh', async (req, res) => {
-  try {
-    if (req.user?.role !== 'head_coach') {
-      return res.status(403).json({ error: 'Доступ только для главного тренера' });
-    }
-    const results = await refreshCupAll();
-    res.json({ ok: true, results });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 // Календарь сезона возрастной группы
 router.get('/calendar/:ageGroup', async (req, res) => {
   try {
@@ -345,30 +293,6 @@ router.get('/calendar/:ageGroup', async (req, res) => {
 router.get('/calendar', async (_req, res) => {
   try {
     res.json({ ageGroups: await listCalendar() });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-router.post('/calendar/:ageGroup/refresh', async (req, res) => {
-  try {
-    if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
-      return res.status(403).json({ error: 'Доступ только для тренеров' });
-    }
-    const data = await refreshCalendarAge(req.params.ageGroup);
-    res.json({ ok: true, ageGroup: req.params.ageGroup, matches: data.matches.length, hint: data.parserHint });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-router.post('/calendar/refresh', async (req, res) => {
-  try {
-    if (req.user?.role !== 'head_coach') {
-      return res.status(403).json({ error: 'Доступ только для главного тренера' });
-    }
-    const results = await refreshCalendarAll();
-    res.json({ ok: true, results });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
