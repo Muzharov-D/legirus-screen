@@ -256,9 +256,9 @@ const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
 export function startStandingsCron() {
   if (timer) return;
   // Первый прогон с задержкой 5 секунд после старта (чтобы сервер успел подняться)
-  setTimeout(() => { refreshAll().catch(() => {}); }, 5000);
+  setTimeout(() => { refreshAll().catch((e) => console.error('[standings] initial tick failed:', e.message)); }, 5000);
   // Далее каждые 30 минут
-  timer = setInterval(() => { refreshAll().catch(() => {}); }, REFRESH_INTERVAL_MS);
+  timer = setInterval(() => { refreshAll().catch((e) => console.error('[standings] tick failed:', e.message)); }, REFRESH_INTERVAL_MS);
   console.log('[standings] cron запущен: первый прогон через 5 сек, далее каждые 30 мин');
 }
 

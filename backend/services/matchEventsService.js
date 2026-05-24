@@ -351,12 +351,12 @@ export function startMatchEventsCron() {
   if (timer) return;
   // Первый прогон через 25 секунд после старта (после calendar+standings+players-sync)
   setTimeout(() => syncRecentEvents().catch((e) => console.error('[match-events] tick failed:', e.message)), 25_000);
-  timer = setInterval(() => syncRecentEvents().catch(() => {}), REFRESH_INTERVAL_MS);
+  timer = setInterval(() => syncRecentEvents().catch((e) => console.error('[match-events] tick failed:', e.message)), REFRESH_INTERVAL_MS);
   console.log('[match-events] cron started, every 30 min');
 
   // Pre-match lineups — каждые 5 минут.
   setTimeout(() => syncUpcomingLineups().catch((e) => console.error('[match-lineups] tick failed:', e.message)), 35_000);
-  lineupsTimer = setInterval(() => syncUpcomingLineups().catch(() => {}), LINEUPS_INTERVAL_MS);
+  lineupsTimer = setInterval(() => syncUpcomingLineups().catch((e) => console.error('[match-lineups] tick failed:', e.message)), LINEUPS_INTERVAL_MS);
   console.log('[match-lineups] cron started, every 5 min');
 }
 export function stopMatchEventsCron() {

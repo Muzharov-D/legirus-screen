@@ -28,6 +28,17 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
 });
 
+// Удаление multer temp-файла с логом при ошибке (без unlink-callback всё
+// падает молча и /tmp может расти бесконечно).
+function cleanupUpload(filePath) {
+  if (!filePath) return;
+  fs.unlink(filePath, (err) => {
+    if (err && err.code !== 'ENOENT') {
+      console.error('[upload] cleanup failed:', filePath, err.message);
+    }
+  });
+}
+
 router.post('/', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Файл не передан (поле file)' });
@@ -36,11 +47,11 @@ router.post('/', upload.single('file'), async (req, res) => {
     // привязкой, для head_coach допустима любая команда.
     const teamId = req.body.teamId || req.user?.teamId || null;
     if (!teamId) {
-      fs.unlink(req.file.path, () => {});
+      cleanupUpload(req.file.path);
       return res.status(400).json({ error: 'teamId обязателен' });
     }
     if (req.user?.role === 'team_coach' && req.user.teamId !== teamId) {
-      fs.unlink(req.file.path, () => {});
+      cleanupUpload(req.file.path);
       return res.status(403).json({ error: 'Можно загружать только для своей команды' });
     }
 
@@ -48,7 +59,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     const tournament = ['league', 'cup'].includes(tournamentRaw) ? tournamentRaw : 'league';
 
     const result = await processPdf(req.file.path, { teamId, tournament });
-    fs.unlink(req.file.path, () => {});
+    cleanupUpload(req.file.path);
 
     // Push-уведомление о новом разборе матча — fire-and-forget, не должно ломать ответ.
     try {
@@ -68,7 +79,7 @@ router.post('/', upload.single('file'), async (req, res) => {
 
     res.json(result);
   } catch (e) {
-    if (req.file?.path) fs.unlink(req.file.path, () => {});
+    cleanupUpload(req.file?.path);
     res.status(500).json({ error: e.message });
   }
 });

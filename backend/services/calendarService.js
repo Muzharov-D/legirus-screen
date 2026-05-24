@@ -369,8 +369,8 @@ let timer = null;
 const CALENDAR_CRON_MINUTES = 30;
 export function startCalendarCron() {
   if (timer) return;
-  setTimeout(() => refreshCalendarAll().catch(() => {}), 8000);
-  timer = setInterval(() => refreshCalendarAll().catch(() => {}), CALENDAR_CRON_MINUTES * 60 * 1000);
+  setTimeout(() => refreshCalendarAll().catch((e) => console.error('[calendar] initial tick failed:', e.message)), 8000);
+  timer = setInterval(() => refreshCalendarAll().catch((e) => console.error('[calendar] tick failed:', e.message)), CALENDAR_CRON_MINUTES * 60 * 1000);
   console.log('[calendar] cron started, refresh every ' + CALENDAR_CRON_MINUTES + ' min');
 }
 export function stopCalendarCron() { if (timer) clearInterval(timer); timer = null; }

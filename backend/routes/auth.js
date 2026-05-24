@@ -45,7 +45,8 @@ router.post('/login', loginLimiter, async (req, res) => {
     });
   } catch (e) {
     console.error('[auth/login] crash:', e);
-    res.status(500).json({ error: 'Login crash: ' + (e?.message || String(e)) });
+    // Не утекаем error.message клиенту — там могут быть детали схемы/PG.
+    res.status(500).json({ error: 'Ошибка входа. Попробуйте позже.' });
   }
 });
 

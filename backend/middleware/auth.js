@@ -1,10 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { findUserById } from '../services/userStore.js';
 
-const SECRET = process.env.JWT_SECRET || 'dev-secret-change-me-in-prod';
-
-if (process.env.NODE_ENV === 'production' && SECRET === 'dev-secret-change-me-in-prod') {
-  console.error('FATAL: JWT_SECRET не задан в продакшне.');
+// JWT_SECRET строго обязателен. Раньше требовался только если
+// NODE_ENV=production — если Render забывал выставить NODE_ENV, прод
+// бутался с публично известным dev-key. Теперь либо есть секрет, либо
+// сервер не стартует, безотносительно env.
+const SECRET = process.env.JWT_SECRET;
+if (!SECRET || SECRET === 'dev-secret-change-me-in-prod') {
+  console.error('FATAL: JWT_SECRET не задан или равен dev-default — сервер не стартует.');
   process.exit(1);
 }
 

@@ -341,7 +341,7 @@ export function startPlayersSyncCron() {
   if (timer) return;
   // Первый прогон через 15 сек после старта (после standings/cup которые запускаются раньше)
   setTimeout(() => syncAllPlayers().catch((e) => console.error('[players-sync] tick failed:', e.message)), 15_000);
-  timer = setInterval(() => syncAllPlayers().catch(() => {}), TWELVE_HOURS_MS);
+  timer = setInterval(() => syncAllPlayers().catch((e) => console.error('[players-sync] tick failed:', e.message)), TWELVE_HOURS_MS);
   console.log('[players-sync] cron started, every 12h');
 }
 export function stopPlayersSyncCron() { if (timer) clearInterval(timer); timer = null; }

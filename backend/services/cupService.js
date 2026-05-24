@@ -363,8 +363,8 @@ const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
 
 export function startCupCron() {
   if (timer) return;
-  setTimeout(() => { refreshCupAll().catch(() => {}); }, 7000); // через 7 сек после старта (после standings)
-  timer = setInterval(() => { refreshCupAll().catch(() => {}); }, REFRESH_INTERVAL_MS);
+  setTimeout(() => { refreshCupAll().catch((e) => console.error('[cup] initial tick failed:', e.message)); }, 7000); // через 7 сек после старта (после standings)
+  timer = setInterval(() => { refreshCupAll().catch((e) => console.error('[cup] tick failed:', e.message)); }, REFRESH_INTERVAL_MS);
   console.log('[cup] cron запущен: первый прогон через 7 сек, далее каждые 30 мин');
 }
 
