@@ -26,6 +26,10 @@ const WINDOWS = [
 
 const TICK_MIN = 30;       // как часто запускать
 const WINDOW_MIN = 30;     // ширина окна (поймать матч в [W-30m, W+30m])
+const RETENTION_DAYS = 14; // ретеншн notif_recipient_log (rate-limit окно 24h, держим запас на дебаг)
+const RETENTION_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+let lastRetentionAt = 0;
 
 function fmtMatchTitle(home, away, ourMatcher = 'Легирус') {
   const isHomeOurs = (home || '').toLowerCase().includes(ourMatcher.toLowerCase());
@@ -155,9 +159,23 @@ async function tickKickoffs() {
   return { matches: r.rows.length, fired };
 }
 
+async function maybeRunRetention() {
+  if (Date.now() - lastRetentionAt < RETENTION_INTERVAL_MS) return;
+  lastRetentionAt = Date.now();
+  try {
+    const r = await query(
+      `DELETE FROM notif_recipient_log WHERE sent_at < NOW() - ($1::int * INTERVAL '1 day')`,
+      [RETENTION_DAYS]);
+    if (r.rowCount > 0) console.log(`[notif] retention: removed ${r.rowCount} notif_recipient_log rows older than ${RETENTION_DAYS}d`);
+  } catch (e) {
+    console.error('[notif] retention failed:', e.message);
+  }
+}
+
 export async function tickNotifications() {
   if (!isPgEnabled()) return;
   await configurePush();
+  await maybeRunRetention();
   for (const w of WINDOWS) {
     try {
       const r = await processWindow(w);
