@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pizza Chart POC · Legirus</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px;
+    background: rgb(7, 7, 28);
+    color: #fff;
+    font-family: -apple-system, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  h1 { font-size: 16px; font-weight: 600; margin: 0; color: #94a3c8; text-transform: uppercase; letter-spacing: 1px; }
+  .pizza-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .pizza-title {
+    text-align: center;
+    line-height: 1.3;
+  }
+  .pizza-title .name { font-size: 18px; font-weight: 700; color: #fff; }
+  .pizza-title .meta { font-size: 12px; color: #94a3c8; }
+  .pizza-svg { display: block; }
+  .pizza-slice { transition: opacity 0.15s; }
+  .pizza-slice:hover { opacity: 0.85; cursor: default; }
+  .pizza-label { font-size: 9px; font-weight: 600; fill: #fff; pointer-events: none; }
+  .pizza-label-bg { fill: rgba(0,0,0,0.55); }
+  .pizza-axis-label {
+    font-size: 8.5px;
+    font-weight: 600;
+    fill: #cbd5e1;
+    pointer-events: none;
+  }
+  .pizza-center {
+    font-size: 16px;
+    font-weight: 800;
+    fill: #fff;
+    text-anchor: middle;
+  }
+  .pizza-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: #cbd5e1;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .pizza-legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .three { display: grid; gap: 32px; grid-template-columns: 1fr; }
+  @media (min-width: 1100px) {
+    .three { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>POC — Pizza Chart (профиль игрока)</h1>
+
+<div id="root"></div>
+
+<script>
+// ──────────────────────────────────────────────────────────────
+// Pizza chart renderer — pure SVG, без зависимостей.
+// ──────────────────────────────────────────────────────────────
+
+function polar(cx, cy, r, angle) {
+  return {
+    x: cx + r * Math.cos(angle),
+    y: cy + r * Math.sin(angle),
+  };
+}
+
+function slicePath(cx, cy, innerR, outerR, startAngle, endAngle) {
+  const p1 = polar(cx, cy, innerR, startAngle);
+  const p2 = polar(cx, cy, outerR, startAngle);
+  const p3 = polar(cx, cy, outerR, endAngle);
+  const p4 = polar(cx, cy, innerR, endAngle);
+  const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+  return [
+    `M ${p1.x} ${p1.y}`,
+    `L ${p2.x} ${p2.y}`,
+    `A ${outerR} ${outerR} 0 ${largeArc} 1 ${p3.x} ${p3.y}`,
+    `L ${p4.x} ${p4.y}`,
+    `A ${innerR} ${innerR} 0 ${largeArc} 0 ${p1.x} ${p1.y}`,
+    'Z',
+  ].join(' ');
+}
+
+// Wrap label text вокруг внешнего радиуса.
+function placeAxisLabel(cx, cy, r, angle, text) {
+  const p = polar(cx, cy, r, angle);
+  // Поворачиваем текст так, чтобы он читался при любом положении на круге.
+  let rotation = (angle * 180) / Math.PI + 90;
+  let anchor = 'middle';
+  if (rotation > 90 && rotation < 270) {
+    rotation -= 180;
+  }
+  return { x: p.x, y: p.y, rotation, anchor };
+}
+
+const GROUP_COLORS = {
+  attack:    { fill: '#dc2626', label: 'Атака' },     // Легирус-red
+  defence:   { fill: '#ffffff', label: 'Оборона' },   // белый
+  fitness:   { fill: '#7c2d12', label: 'Фитнес' },    // тёмно-красный (brand-tone)
+};
+
+// На каждый слайс: { axis, value (0-100 percentile), group }
+function PizzaChart({ title, subtitle, slices }) {
+  const size = 520;
+  const cx = size / 2;
+  const cy = size / 2;
+  const innerR = 50;
+  const outerMax = size / 2 - 70; // padding под лейблы
+  const N = slices.length;
+  const angleStep = (2 * Math.PI) / N;
+  const padAngle = 0.012;
+
+  const root = document.createElement('div');
+  root.className = 'pizza-wrap';
+  root.innerHTML = `
+    <div class="pizza-title">
+      <div class="name">${title}</div>
+      <div class="meta">${subtitle}</div>
+    </div>
+    <svg class="pizza-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <!-- background concentric guides -->
+      <g stroke="rgba(255,255,255,0.06)" fill="none" stroke-dasharray="2 3">
+        ${[0.25, 0.5, 0.75, 1.0].map(f => {
+          const r = innerR + (outerMax - innerR) * f;
+          return `<circle cx="${cx}" cy="${cy}" r="${r}" />`;
+        }).join('')}
+      </g>
+
+      ${slices.map((s, i) => {
+        const startA = i * angleStep - Math.PI / 2 + padAngle / 2;
+        const endA = (i + 1) * angleStep - Math.PI / 2 - padAngle / 2;
+        const r = innerR + (outerMax - innerR) * (Math.max(0, Math.min(100, s.value)) / 100);
+        const color = GROUP_COLORS[s.group]?.fill || '#888';
+        const path = slicePath(cx, cy, innerR, r, startA, endA);
+
+        // Label position — на середине слайса, у внешнего края
+        const midA = (startA + endA) / 2;
+        const labelPos = polar(cx, cy, r - 14, midA);
+
+        // Axis label — снаружи
+        const axisPos = placeAxisLabel(cx, cy, outerMax + 18, midA, s.axis);
+
+        return `
+          <path class="pizza-slice" d="${path}" fill="${color}" stroke="rgba(7,7,28,0.8)" stroke-width="1" opacity="0.92" />
+          <text class="pizza-label" x="${labelPos.x}" y="${labelPos.y + 3}" text-anchor="middle" fill="${s.group === 'defence' ? '#0d1424' : '#fff'}">${Math.round(s.value)}</text>
+          <text class="pizza-axis-label" x="${axisPos.x}" y="${axisPos.y}"
+                text-anchor="${axisPos.anchor}"
+                transform="rotate(${axisPos.rotation} ${axisPos.x} ${axisPos.y})">${s.axis}</text>
+        `;
+      }).join('')}
+
+      <!-- center disc -->
+      <circle cx="${cx}" cy="${cy}" r="${innerR - 4}" fill="rgb(7,7,28)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
+      <text class="pizza-center" x="${cx}" y="${cy + 5}">ЛФК</text>
+    </svg>
+
+    <div class="pizza-legend">
+      <span><span class="pizza-legend-dot" style="background: ${GROUP_COLORS.attack.fill};"></span>${GROUP_COLORS.attack.label}</span>
+      <span><span class="pizza-legend-dot" style="background: ${GROUP_COLORS.defence.fill};"></span>${GROUP_COLORS.defence.label}</span>
+      <span><span class="pizza-legend-dot" style="background: ${GROUP_COLORS.fitness.fill};"></span>${GROUP_COLORS.fitness.label}</span>
+    </div>
+  `;
+  return root;
+}
+
+// ──────────────────────────────────────────────────────────────
+// Демо-данные — реальные метрики из stats структуры,
+// percentile проставлены руками для демо.
+// ──────────────────────────────────────────────────────────────
+
+const slicesFull = [
+  // ATTACK
+  { axis: 'xG / 90',                 value: 68, group: 'attack' },
+  { axis: 'xA / 90',                 value: 52, group: 'attack' },
+  { axis: 'Голевые передачи',        value: 71, group: 'attack' },
+  { axis: 'Удары / 90',              value: 84, group: 'attack' },
+  { axis: 'Удары в створ %',         value: 62, group: 'attack' },
+  { axis: 'Дриблинг / 90',           value: 47, group: 'attack' },
+  { axis: 'Входы в штрафную',        value: 73, group: 'attack' },
+  { axis: 'Прогрессивные передачи',  value: 58, group: 'attack' },
+  // DEFENCE
+  { axis: 'Отборы / 90',             value: 33, group: 'defence' },
+  { axis: 'Перехваты / 90',          value: 41, group: 'defence' },
+  { axis: 'Выиграно единоборств %',  value: 56, group: 'defence' },
+  { axis: 'Воздушные дуэли %',       value: 24, group: 'defence' },
+  { axis: 'Прессинг / 90',           value: 67, group: 'defence' },
+  { axis: 'Блок-удары',              value: 21, group: 'defence' },
+  // FITNESS
+  { axis: 'Дистанция / матч',        value: 79, group: 'fitness' },
+  { axis: 'Спринты / 90',            value: 64, group: 'fitness' },
+  { axis: 'Дистанция спринтов',      value: 70, group: 'fitness' },
+  { axis: 'Интенсивный бег',         value: 55, group: 'fitness' },
+  { axis: 'Средняя скорость',        value: 49, group: 'fitness' },
+];
+
+const root = document.getElementById('root');
+
+root.appendChild(PizzaChart({
+  title: 'А. Дютиль · CF · 1460 мин',
+  subtitle: 'ФК Легирус 2010 · Percentile vs CF лиги · Сезон 2025-26',
+  slices: slicesFull,
+}));
+</script>
+
+</body>
+</html>

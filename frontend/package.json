@@ -14,8 +14,7 @@
     "@vercel/speed-insights": "^1.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^6.26.0",
-    "recharts": "^2.12.7"
+    "react-router-dom": "^6.26.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",

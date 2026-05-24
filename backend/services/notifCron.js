@@ -184,7 +184,27 @@ export async function tickNotifications() {
   }
 }
 
+// Retention для notif_recipient_log — таблица растёт навсегда (~N записей
+// за каждый push). Дедуп ключ scope+scope_id больше 7 дней не нужен —
+// матч уже сыгран, новый push на тот же scope не пошлётся. Чистим раз в
+// сутки, удаляем строки старше 14 дней (двойной запас).
+async function pruneNotifLog() {
+  if (!isPgEnabled()) return;
+  try {
+    const r = await query(
+      `DELETE FROM notif_recipient_log WHERE sent_at < NOW() - INTERVAL '14 days'`,
+    );
+    if (r.rowCount > 0) {
+      console.log(`[notif] pruned ${r.rowCount} old recipient_log rows`);
+    }
+  } catch (e) {
+    console.error('[notif] prune failed:', e.message);
+  }
+}
+const PRUNE_INTERVAL_MS = 24 * 60 * 60_000; // раз в сутки
+
 let timer = null;
+let pruneTimer = null;
 export function startNotifCron() {
   if (timer) return;
   // Первый запуск — через 60 секунд после старта (чтобы PG-pool успел подняться + cron календаря отработал)
@@ -192,5 +212,12 @@ export function startNotifCron() {
   timer = setInterval(() => tickNotifications().catch((e) => console.error('[notif] tick failed:', e.message)),
                        TICK_MIN * 60_000);
   console.log(`[notif] cron started, tick every ${TICK_MIN} min`);
+
+  // Чистка логов: первая через 5 мин после старта, далее раз в сутки
+  setTimeout(() => pruneNotifLog(), 5 * 60_000);
+  pruneTimer = setInterval(() => pruneNotifLog(), PRUNE_INTERVAL_MS);
 }
-export function stopNotifCron() { if (timer) clearInterval(timer); timer = null; }
+export function stopNotifCron() {
+  if (timer) clearInterval(timer); timer = null;
+  if (pruneTimer) clearInterval(pruneTimer); pruneTimer = null;
+}
