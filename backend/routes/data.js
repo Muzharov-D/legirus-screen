@@ -15,85 +15,8 @@ import {
 } from '../services/dataRepo.js';
 import { query, isPgEnabled } from '../db/pool.js';
 import { notifyCoachComment } from '../services/matchNotifications.js';
-import { listTournamentTopPlayers, isFfspbConfigured } from '../services/ffspbApi.js';
 
 const router = express.Router();
-
-// TEMP debug — пробуем listMatchEvents с фильтром по tournament + смотрим
-// какие поля у player_sport_stats и какие фильтры принимает /players.
-router.get('/_debug/match-events/:tid', async (req, res) => {
-  if (!['head_coach', 'team_coach'].includes(req.user?.role)) return res.status(403).json({ error: 'coach only' });
-  if (!isFfspbConfigured()) return res.status(503).json({ error: 'FFSPB_API_KEY не задан' });
-  const tid = req.params.tid;
-  const KEY = process.env.FFSPB_API_KEY || '';
-  const tryUrl = async (url) => {
-    try {
-      const r = await fetch(url, { headers: { 'X-AUTH-TOKEN': KEY, 'Accept': 'application/ld+json' } });
-      if (!r.ok) return { ok: false, status: r.status, body: (await r.text()).slice(0, 250) };
-      const j = await r.json();
-      const items = j['hydra:member'] || j.member || [];
-      return { ok: true, count: items.length, totalItems: j['hydra:totalItems'] ?? null, sampleKeys: items[0] ? Object.keys(items[0]) : [], sample: items.slice(0, 2) };
-    } catch (e) { return { ok: false, err: e.message }; }
-  };
-  res.json({
-    eventsByTournament: await tryUrl(`https://stat.ffspb.org/api/match_events?match.tournament=/api/tournaments/${tid}&itemsPerPage=5`),
-    eventsByTournamentId: await tryUrl(`https://stat.ffspb.org/api/match_events?match.tournament_id=${tid}&itemsPerPage=5`),
-    playersByTournament: await tryUrl(`https://stat.ffspb.org/api/players?tournaments.id=${tid}&itemsPerPage=5`),
-    sportStatsDocs: await tryUrl(`https://stat.ffspb.org/api/player_sport_stats?itemsPerPage=3`),
-  });
-});
-
-// TEMP debug — список всех stat-endpoints из FFSPB API docs.
-router.get('/_debug/ffspb-endpoints', async (req, res) => {
-  if (!['head_coach', 'team_coach'].includes(req.user?.role)) return res.status(403).json({ error: 'coach only' });
-  if (!isFfspbConfigured()) return res.status(503).json({ error: 'FFSPB_API_KEY не задан' });
-  try {
-    const r = await fetch('https://stat.ffspb.org/api/docs.json', {
-      headers: { 'X-AUTH-TOKEN': process.env.FFSPB_API_KEY || '' },
-    });
-    const docs = await r.json();
-    // OpenAPI 3 / Hydra-style — у нас интересуют пути и GET-операции
-    const paths = Object.keys(docs.paths || {}).filter(p => /top|stat|score|leader|assist|goal|card|disqual|player|rating/i.test(p));
-    const summary = {};
-    for (const p of paths) {
-      const ops = docs.paths[p];
-      summary[p] = Object.keys(ops).filter(k => !k.startsWith('parameters'));
-    }
-    res.json({ totalPaths: Object.keys(docs.paths || {}).length, filteredPaths: paths.length, summary });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// TEMP debug — изучаем что отдаёт FFSPB /tournament_top_players по разным top_by.
-// Удалить после проектирования финального API лидеров лиги (см. task 10).
-router.get('/_debug/top-players/:tid', async (req, res) => {
-  if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
-    return res.status(403).json({ error: 'coach only' });
-  }
-  if (!isFfspbConfigured()) return res.status(503).json({ error: 'FFSPB_API_KEY не задан' });
-  // ?top_by= один из: goals|assists|minutes|matches|yellow|red|... — пробуем все
-  const trying = req.query.top_by
-    ? [req.query.top_by]
-    : ['goal', 'assist', 'assists', 'yellow', 'red', 'yellowCard', 'redCard', 'card',
-       'minute', 'time', 'played', 'playedTime', 'gamesPlayed', 'goalScored', 'penalty',
-       'best', 'rating', 'mvp'];
-  const out = {};
-  for (const m of trying) {
-    try {
-      const data = await listTournamentTopPlayers(req.params.tid, m);
-      out[m] = {
-        ok: true,
-        count: data.length,
-        keys: data[0] ? Object.keys(data[0]) : [],
-        sample: data.slice(0, 3),
-      };
-    } catch (e) {
-      out[m] = { ok: false, error: e.message.slice(0, 300) };
-    }
-  }
-  res.json(out);
-});
 
 // Browser-side cache (private — НЕ CDN, чтобы не утекли данные между
 // юзерами с разными ролями). Для GET'ов с большим JSON и медленной
