@@ -287,6 +287,9 @@ export async function loadCalendar(ageGroup) {
       -- Имена команд между matches и calendar НЕ совпадают (matches: "Легирус 2010",
       -- calendar: "ФК Легирус (ЦФКСиЗ ВО)"), поэтому матчим по age_group + календарной
       -- дате в МСК (matches иногда хранит 21:00 UTC = 00:00 MSK следующего дня).
+      -- КРИТИЧНО: join только для НАШИХ матчей. Иначе SportVisor-разбор Легируса в
+      -- день X залипал на ВСЕ матчи календаря того дня (включая чужие пары), и
+      -- родитель видел нашу 58%/13ударов/2.5XG в карточке Выборжанин-Самсон.
       SELECT mt.age_group,
              (m.match_date AT TIME ZONE 'Europe/Moscow')::date AS msk_date,
              m.team_summary_stats,
@@ -294,7 +297,8 @@ export async function loadCalendar(ageGroup) {
       FROM matches m
       JOIN teams mt ON mt.id = m.team_id
     ) m
-      ON m.age_group = c.age_group
+      ON c.is_our_match = TRUE
+     AND m.age_group = c.age_group
      AND m.msk_date = (c.match_date AT TIME ZONE 'Europe/Moscow')::date
     WHERE c.club_id = 'legirus' AND c.age_group = $1
     ORDER BY c.match_date NULLS LAST`, [ageGroup]);

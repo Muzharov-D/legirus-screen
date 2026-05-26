@@ -96,14 +96,20 @@ export default function LeagueMatchPreview({ match, allMatches, standings }) {
         || (h === awayStats?.norm && a === homeStats?.norm);
   }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  // Показываем блок ВСЕГДА (даже если у обеих команд нет данных) — пусть
+  // родитель видит хотя бы заголовок и щиты с именами. Иначе в половине
+  // матчей родитель открывает карточку чужого матча и не понимает почему
+  // там пусто.
   const hasAnyContent = (homeRow || awayRow
     || (homeStats?.last5?.length) || (awayStats?.last5?.length)
     || h2h.length > 0);
-  if (!hasAnyContent) return null;
 
   return (
     <div className="lmp">
       <div className="lmp__title">Обзор матча</div>
+      {!hasAnyContent && (
+        <div className="lmp__empty">Истории встреч пока нет — это первый матч этих команд в сезоне.</div>
+      )}
 
       <div className="lmp__teams">
         {[

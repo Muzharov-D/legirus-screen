@@ -72,17 +72,27 @@ export default function MatchDetailSheet({ match, venue, age, onClose, theme = '
   // Android back / swipe-back — закрывает модалку
   useModalBack(onClose, !!match);
 
-  // Сигнал «матч разобран» — есть непустой teamSummaryStats.home
-  const statsHome = match?.teamSummaryStats?.home;
+  // SportVisor-разбор, lineups и коммент тренера — ТОЛЬКО для наших матчей.
+  // У чужих матчей в приложении эти данные не появляются никогда: stats не
+  // парсятся, lineups хоть и синкаются FFSPB-кроном для leaderboard'а, но
+  // показывать их родителю чужого матча смысла нет, а коммент пишет только
+  // наш тренер. Двойная защита: даже если backend по ошибке вернёт чужие
+  // данные (как было с teamSummaryStats до фикса LEFT JOIN в dataRepo.js) —
+  // фронт их не отобразит. Для чужих остаётся одна вкладка «Обзор» с
+  // LeagueMatchPreview (формы команд, позиции, h2h).
+  const isOurs = !!match?.isOurMatch;
+  const statsHome = isOurs ? match?.teamSummaryStats?.home : null;
   const hasStats = !!(statsHome && typeof statsHome === 'object' && Object.keys(statsHome).length > 0);
 
-  // Lineups: либо предматчевые (для предстоящих в окне 6h), либо итоговые (после игры)
-  const lineupsData = match?.lineups;
+  const lineupsData = isOurs ? match?.lineups : null;
   const hasLineups = !!(lineupsData && ((lineupsData.home || []).length > 0 || (lineupsData.away || []).length > 0));
 
-  // Комментарий тренера к матчу (post-match)
-  const coachComment = typeof match?.coachComment === 'string' ? match.coachComment.trim() : '';
+  const coachComment = isOurs && typeof match?.coachComment === 'string' ? match.coachComment.trim() : '';
   const hasCoachComment = coachComment.length > 0;
+
+  // События матча (ход игры) — наоборот, показываем для всех матчей: и для
+  // нашего, и для чужого (events_data синкается FFSPB-кроном для всех past
+  // league-матчей подгруппы, для лидерборда).
 
   const [tab, setTab] = useState('overview');
   // Если активный таб стал недоступен — переключаем на 'overview'.
