@@ -155,10 +155,14 @@ function normalizeLineups(match) {
 }
 
 // Sync events + lineups для одного матча. Один HTTP-запрос — обе колонки.
-// Триггерит push:
+// Триггерит push (если opts.skipNotify не true):
 //   match-events-first — когда events_data впервые становится непустым
 //   match-lineup-published — когда lineups_data впервые непустой
-export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legirus') {
+//
+// skipNotify=true используем для чужих матчей подгруппы (sync для лидеров лиги) —
+// родительская PWA подписана на нашу команду, чужие события её не касаются.
+export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legirus', opts = {}) {
+  const { skipNotify = false } = opts;
   const apiMatch = await apiGetMatch(extMatchId);
   const timeline = buildTimeline(apiMatch);
   const lineups = normalizeLineups(apiMatch);
@@ -182,21 +186,23 @@ export async function fetchAndStoreEvents(extMatchId, ageGroup, clubId = 'legiru
      WHERE club_id = $3 AND age_group = $4 AND ext_match_id = $5`,
     [JSON.stringify(timeline), lineups ? JSON.stringify(lineups) : null, clubId, ageGroup, extMatchId]);
 
-  // Триггеры — после успешного UPDATE. Сами по себе идемпотентны через notif_log dedup.
-  const hasEvents = timeline.length > 0;
-  if (hasEvents && !prev.had_events) {
-    notifyEventsFirst({
-      clubId, ageGroup, extMatchId,
-      homeTeam: prev.home_team, awayTeam: prev.away_team,
-      eventsCount: timeline.length,
-    }).catch((e) => console.error('[notify] events-first failed:', e.message));
-  }
-  if (lineups && !prev.had_lineups) {
-    notifyLineupPublished({
-      clubId, ageGroup, extMatchId,
-      homeTeam: prev.home_team, awayTeam: prev.away_team,
-      matchDate: prev.match_date,
-    }).catch((e) => console.error('[notify] lineup-published failed:', e.message));
+  if (!skipNotify) {
+    // Триггеры — после успешного UPDATE. Сами по себе идемпотентны через notif_log dedup.
+    const hasEvents = timeline.length > 0;
+    if (hasEvents && !prev.had_events) {
+      notifyEventsFirst({
+        clubId, ageGroup, extMatchId,
+        homeTeam: prev.home_team, awayTeam: prev.away_team,
+        eventsCount: timeline.length,
+      }).catch((e) => console.error('[notify] events-first failed:', e.message));
+    }
+    if (lineups && !prev.had_lineups) {
+      notifyLineupPublished({
+        clubId, ageGroup, extMatchId,
+        homeTeam: prev.home_team, awayTeam: prev.away_team,
+        matchDate: prev.match_date,
+      }).catch((e) => console.error('[notify] lineup-published failed:', e.message));
+    }
   }
 
   return { extMatchId, events: timeline.length, lineups: lineups ? (lineups.home.length + lineups.away.length) : 0 };

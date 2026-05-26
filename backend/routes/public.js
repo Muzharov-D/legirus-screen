@@ -10,6 +10,7 @@ import { getPublicKey, saveSubscription, removeSubscription, sendToSubscription 
 import { isPgEnabled, query } from '../db/pool.js';
 import { getWeather } from '../services/weatherService.js';
 import { getTeamRankDelta, getAllStandingsSnapshotsAt, lastMondayMsk23 } from '../services/standingsHistory.js';
+import { getTopScorers } from '../services/leagueLeadersService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,6 +75,19 @@ router.get('/standings/:age([0-9-]+)', async (req, res) => {
     if (!data) return res.status(404).json({ error: 'not found' });
     cdnCache(res, 60, 300);
     res.json(data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Лидеры лиги — пока только metric=goals (бомбардиры). FFSPB не отдаёт готовый
+// топ, поэтому считаем у себя из events_data всех past-матчей подгруппы.
+router.get('/league-leaders/:age([0-9-]+)', async (req, res) => {
+  try {
+    const metric = req.query.metric || 'goals';
+    if (metric !== 'goals') return res.status(400).json({ error: 'metric=goals only (пока)' });
+    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 50);
+    const leaders = await getTopScorers(req.params.age, limit);
+    cdnCache(res, 300, 600); // 5 мин CDN — пересчёт лидеров не дороже standings, но реже меняется
+    res.json({ ageGroup: req.params.age, metric, leaders });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

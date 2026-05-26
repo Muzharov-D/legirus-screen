@@ -27,6 +27,7 @@ import { startPlayersSyncCron, dedupePlayersOnce, migratePlayerPhotoUrls, autoLi
 import { backfillFormationToMeta } from './services/formationBackfill.js';
 import { backfillLegacyPlayers } from './services/playersBackfill.js';
 import { startMatchEventsCron } from './services/matchEventsService.js';
+import { startLeagueLeadersCron } from './services/leagueLeadersService.js';
 import { configurePush } from './services/pushService.js';
 import { startNotifCron } from './services/notifCron.js';
 import { getPool, ping } from './db/pool.js';
@@ -68,6 +69,7 @@ startCupCron();
 startCalendarCron();
 startPlayersSyncCron();
 startMatchEventsCron();
+startLeagueLeadersCron();
 configurePush();
 startNotifCron();
 
