@@ -15,7 +15,7 @@
 // При деплое новой версии — обновить ОБА: CACHE_VERSION здесь
 // и EXPECTED_SW_VERSION в frontend/src/main.jsx.
 // Иначе self-heal механизм не сработает корректно.
-const CACHE_VERSION = 'v10-2026-05-18-league-filter';
+const CACHE_VERSION = 'v11-2026-05-26-league-leaders';
 const STATIC_CACHE = `legirus-static-${CACHE_VERSION}`;
 const API_CACHE = `legirus-api-${CACHE_VERSION}`;
 
