@@ -52,10 +52,13 @@ export default function LeagueFixture() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openMatch, setOpenMatch] = useState(null);
-  const [tournament, setTournament] = useState('league'); // league | cup
+  const [view, setView] = useState('league'); // league | cup | scorers
   const [filter, setFilter] = useState('all'); // all | past | upcoming
 
   const [standings, setStandings] = useState(null);
+  const [leaders, setLeaders] = useState(null);
+  const [leadersLoading, setLeadersLoading] = useState(false);
+  const tournament = view === 'cup' ? 'cup' : 'league'; // backward-compat для grouped
 
   const load = () => {
     setLoading(true);
@@ -77,6 +80,22 @@ export default function LeagueFixture() {
 
   useEffect(() => { load(); }, [age]);
   useAutoRefresh(load, 30 * 60 * 1000); // 30 мин
+
+  // Лидеры лиги (бомбардиры) — отдельный fetch, только когда юзер открыл вкладку.
+  // На бэке агрегация делается из events_data всех past-матчей подгруппы (см.
+  // backend/services/leagueLeadersService.js). CDN-кеш 5 мин, нагрузки нет.
+  useEffect(() => {
+    if (view !== 'scorers') return;
+    if (leaders !== null) return; // уже загружали
+    setLeadersLoading(true);
+    fetch(bustCache(`${PREFIX}/league-leaders/${age}?metric=goals&limit=30`))
+      .then((r) => r.ok ? r.json() : { leaders: [] })
+      .then((data) => { setLeaders(data.leaders || []); setLeadersLoading(false); })
+      .catch(() => { setLeaders([]); setLeadersLoading(false); });
+  }, [view, age, leaders]);
+
+  // Сбрасываем кеш лидеров при смене возраста (other team)
+  useEffect(() => { setLeaders(null); }, [age]);
 
   function findVenue(matchVenue) {
     if (!matchVenue) return null;
@@ -161,6 +180,7 @@ export default function LeagueFixture() {
   const scrolledOnceRef = useRef(false);
   useEffect(() => {
     if (loading || scrolledOnceRef.current || !currentRoundKey) return;
+    if (view === 'scorers') return; // на вкладке лидеров скроллить нечего
     // requestAnimationFrame — даём React закончить рендер списка
     const id = requestAnimationFrame(() => {
       if (currentRef.current) {
@@ -176,7 +196,7 @@ export default function LeagueFixture() {
 
   // Сброс «скроллил один раз» при смене таба турнира / фильтра —
   // чтобы при переключении тоже прыгало к актуальному туру.
-  useEffect(() => { scrolledOnceRef.current = false; }, [tournament, filter]);
+  useEffect(() => { scrolledOnceRef.current = false; }, [view, filter]);
 
   function scrollToCurrent() {
     if (currentRef.current) {
@@ -213,23 +233,33 @@ export default function LeagueFixture() {
 
       {!loading && !error && (
         <>
-          {/* Сегмент лига / кубок */}
+          {/* Сегмент: лига / кубок / бомбардиры */}
           <div className="league-fixture__tournament">
             <button
-              className={`league-fixture__seg ${tournament === 'league' ? 'is-active' : ''}`}
-              onClick={() => setTournament('league')}
+              className={`league-fixture__seg ${view === 'league' ? 'is-active' : ''}`}
+              onClick={() => setView('league')}
             >
               <UiIcon name="ball" size={14} /> Лига
             </button>
             <button
-              className={`league-fixture__seg ${tournament === 'cup' ? 'is-active' : ''}`}
-              onClick={() => setTournament('cup')}
+              className={`league-fixture__seg ${view === 'cup' ? 'is-active' : ''}`}
+              onClick={() => setView('cup')}
             >
               <UiIcon name="trophy" size={14} /> Кубок
             </button>
+            <button
+              className={`league-fixture__seg ${view === 'scorers' ? 'is-active' : ''}`}
+              onClick={() => setView('scorers')}
+            >
+              ⚽ Бомбардиры
+            </button>
           </div>
 
-          {/* Фильтр прошедшие/будущие/все */}
+          {view === 'scorers' ? (
+            <ScorersView leaders={leaders} loading={leadersLoading} />
+          ) : (
+            <>
+          {/* Фильтр прошедшие/будущие/все — только для календаря */}
           <div className="public-page__filters">
             {[
               { key: 'all',      label: 'Все' },
@@ -312,6 +342,8 @@ export default function LeagueFixture() {
               ))}
             </div>
           )}
+            </>
+          )}
         </>
       )}
 
@@ -325,8 +357,9 @@ export default function LeagueFixture() {
       )}
 
       {/* Плавающая кнопка «К текущему туру» — появляется при списке от 4 туров.
-          Полезна когда юзер ушёл скроллом далеко вперёд/назад от current. */}
-      {!loading && currentRoundKey && grouped.length >= 4 && (
+          Полезна когда юзер ушёл скроллом далеко вперёд/назад от current.
+          На вкладке «Бомбардиры» прячем — там нечего скроллить к туру. */}
+      {!loading && view !== 'scorers' && currentRoundKey && grouped.length >= 4 && (
         <button
           type="button"
           className="league-fixture__jump-btn"
@@ -337,5 +370,50 @@ export default function LeagueFixture() {
         </button>
       )}
     </div>
+  );
+}
+
+// Лидеры лиги (пока только бомбардиры). Backend агрегирует goals из events_data
+// всех past-матчей подгруппы. Top 30 — больше показывать незачем, длинный хвост
+// с 1 голом размывает leaderboard.
+function ScorersView({ leaders, loading }) {
+  if (loading) {
+    return (
+      <div className="lf-scorers__skeleton">
+        <Skeleton.List count={8} h={48} gap={6} br={8} />
+      </div>
+    );
+  }
+  if (!leaders || leaders.length === 0) {
+    return <EmptyState icon="⚽" title="Пока нет голов" subtitle="Бомбардиры появятся после первых протоколированных матчей лиги." />;
+  }
+  return (
+    <ol className="lf-scorers">
+      {leaders.map((p) => (
+        <li key={p.playerId || `${p.playerName}-${p.teamName}`} className={`lf-scorers__row ${p.rank <= 3 ? 'lf-scorers__row--top' : ''}`}>
+          <span className={`lf-scorers__rank ${p.rank === 1 ? 'is-gold' : p.rank === 2 ? 'is-silver' : p.rank === 3 ? 'is-bronze' : ''}`}>
+            {p.rank}
+          </span>
+          <div className="lf-scorers__name-block">
+            <span className="lf-scorers__name">{p.playerName}</span>
+            <span className="lf-scorers__team">
+              {p.teamShield && (
+                <img
+                  src={p.teamShield}
+                  alt=""
+                  className="lf-scorers__team-shield"
+                  onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                />
+              )}
+              {shortName(p.teamName)}
+            </span>
+          </div>
+          <span className="lf-scorers__goals">
+            <b>{p.goals}</b>
+            <span className="lf-scorers__goals-label">{p.goals === 1 ? 'гол' : (p.goals >= 2 && p.goals <= 4) ? 'гола' : 'голов'}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }

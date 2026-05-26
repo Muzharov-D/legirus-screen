@@ -256,3 +256,100 @@
   .lf-card__shield { width: 20px; height: 20px; }
   .lf-card__score { font-size: 14px; }
 }
+
+/* Бомбардиры — leaderboard */
+.lf-scorers {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lf-scorers__skeleton {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lf-scorers__row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  min-height: 48px;
+}
+.lf-scorers__row--top {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.10) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-color: rgba(220, 38, 38, 0.30);
+}
+.lf-scorers__rank {
+  font-size: 14px;
+  font-weight: 700;
+  color: #94a3c8;
+  text-align: center;
+  font-family: var(--font-display, 'Montserrat'), sans-serif;
+}
+.lf-scorers__rank.is-gold   { color: #fbbf24; }
+.lf-scorers__rank.is-silver { color: #cbd5e1; }
+.lf-scorers__rank.is-bronze { color: #b45309; }
+.lf-scorers__name-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.lf-scorers__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lf-scorers__team {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #94a3c8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.lf-scorers__team-shield {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+.lf-scorers__goals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+  min-width: 52px;
+}
+.lf-scorers__goals b {
+  font-family: var(--font-display, 'Montserrat'), sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+.lf-scorers__goals-label {
+  font-size: 10px;
+  color: #6b7896;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+@media (max-width: 380px) {
+  .lf-scorers__name { font-size: 13px; }
+  .lf-scorers__goals b { font-size: 16px; }
+}
