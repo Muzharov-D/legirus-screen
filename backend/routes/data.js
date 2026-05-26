@@ -19,6 +19,30 @@ import { listTournamentTopPlayers, isFfspbConfigured } from '../services/ffspbAp
 
 const router = express.Router();
 
+// TEMP debug — пробуем listMatchEvents с фильтром по tournament + смотрим
+// какие поля у player_sport_stats и какие фильтры принимает /players.
+router.get('/_debug/match-events/:tid', async (req, res) => {
+  if (!['head_coach', 'team_coach'].includes(req.user?.role)) return res.status(403).json({ error: 'coach only' });
+  if (!isFfspbConfigured()) return res.status(503).json({ error: 'FFSPB_API_KEY не задан' });
+  const tid = req.params.tid;
+  const KEY = process.env.FFSPB_API_KEY || '';
+  const tryUrl = async (url) => {
+    try {
+      const r = await fetch(url, { headers: { 'X-AUTH-TOKEN': KEY, 'Accept': 'application/ld+json' } });
+      if (!r.ok) return { ok: false, status: r.status, body: (await r.text()).slice(0, 250) };
+      const j = await r.json();
+      const items = j['hydra:member'] || j.member || [];
+      return { ok: true, count: items.length, totalItems: j['hydra:totalItems'] ?? null, sampleKeys: items[0] ? Object.keys(items[0]) : [], sample: items.slice(0, 2) };
+    } catch (e) { return { ok: false, err: e.message }; }
+  };
+  res.json({
+    eventsByTournament: await tryUrl(`https://stat.ffspb.org/api/match_events?match.tournament=/api/tournaments/${tid}&itemsPerPage=5`),
+    eventsByTournamentId: await tryUrl(`https://stat.ffspb.org/api/match_events?match.tournament_id=${tid}&itemsPerPage=5`),
+    playersByTournament: await tryUrl(`https://stat.ffspb.org/api/players?tournaments.id=${tid}&itemsPerPage=5`),
+    sportStatsDocs: await tryUrl(`https://stat.ffspb.org/api/player_sport_stats?itemsPerPage=3`),
+  });
+});
+
 // TEMP debug — список всех stat-endpoints из FFSPB API docs.
 router.get('/_debug/ffspb-endpoints', async (req, res) => {
   if (!['head_coach', 'team_coach'].includes(req.user?.role)) return res.status(403).json({ error: 'coach only' });
