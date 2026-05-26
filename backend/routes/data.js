@@ -15,8 +15,29 @@ import {
 } from '../services/dataRepo.js';
 import { query, isPgEnabled } from '../db/pool.js';
 import { notifyCoachComment } from '../services/matchNotifications.js';
+import { listTournamentTopPlayers, isFfspbConfigured } from '../services/ffspbApi.js';
 
 const router = express.Router();
+
+// TEMP debug — изучаем что отдаёт FFSPB /tournament_top_players. Удалить после
+// проектирования финального API лидеров лиги (см. task 10).
+router.get('/_debug/top-players/:tid', async (req, res) => {
+  if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
+    return res.status(403).json({ error: 'coach only' });
+  }
+  if (!isFfspbConfigured()) return res.status(503).json({ error: 'FFSPB_API_KEY не задан' });
+  try {
+    const data = await listTournamentTopPlayers(req.params.tid);
+    const sample = data.slice(0, 3);
+    res.json({
+      count: data.length,
+      keys: data[0] ? Object.keys(data[0]) : [],
+      sample,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // Browser-side cache (private — НЕ CDN, чтобы не утекли данные между
 // юзерами с разными ролями). Для GET'ов с большим JSON и медленной
