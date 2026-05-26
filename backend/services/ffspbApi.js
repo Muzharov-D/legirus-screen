@@ -121,7 +121,13 @@ export async function listMatchEvents(matchId) {
   return listAll('/match_events', { 'match.id': matchId });
 }
 
-// Топ-бомбардиры турнира
-export async function listTournamentTopPlayers(tournamentId) {
-  return listAll('/tournament_top_players', { tournament_id: tournamentId });
+// Топ-игроки турнира по выбранной метрике (top_by).
+// FFSPB требует IRI `tournament` + параметр `top_by`. Возможные значения top_by
+// определяются API — на момент исследования это goals, assists, и т.д.
+// (см. /api/data/_debug/top-players/:tid в data.js).
+export async function listTournamentTopPlayers(tournamentId, topBy = 'goals') {
+  return listAll('/tournament_top_players', {
+    tournament: `/api/tournaments/${tournamentId}`,
+    top_by: topBy,
+  });
 }

@@ -19,24 +19,32 @@ import { listTournamentTopPlayers, isFfspbConfigured } from '../services/ffspbAp
 
 const router = express.Router();
 
-// TEMP debug — изучаем что отдаёт FFSPB /tournament_top_players. Удалить после
-// проектирования финального API лидеров лиги (см. task 10).
+// TEMP debug — изучаем что отдаёт FFSPB /tournament_top_players по разным top_by.
+// Удалить после проектирования финального API лидеров лиги (см. task 10).
 router.get('/_debug/top-players/:tid', async (req, res) => {
   if (!['head_coach', 'team_coach'].includes(req.user?.role)) {
     return res.status(403).json({ error: 'coach only' });
   }
   if (!isFfspbConfigured()) return res.status(503).json({ error: 'FFSPB_API_KEY не задан' });
-  try {
-    const data = await listTournamentTopPlayers(req.params.tid);
-    const sample = data.slice(0, 3);
-    res.json({
-      count: data.length,
-      keys: data[0] ? Object.keys(data[0]) : [],
-      sample,
-    });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+  // ?top_by= один из: goals|assists|minutes|matches|yellow|red|... — пробуем все
+  const trying = req.query.top_by
+    ? [req.query.top_by]
+    : ['goals', 'assists', 'minutes', 'matches', 'yellow_cards', 'red_cards', 'goalAndAssist'];
+  const out = {};
+  for (const m of trying) {
+    try {
+      const data = await listTournamentTopPlayers(req.params.tid, m);
+      out[m] = {
+        ok: true,
+        count: data.length,
+        keys: data[0] ? Object.keys(data[0]) : [],
+        sample: data.slice(0, 3),
+      };
+    } catch (e) {
+      out[m] = { ok: false, error: e.message.slice(0, 300) };
+    }
   }
+  res.json(out);
 });
 
 // Browser-side cache (private — НЕ CDN, чтобы не утекли данные между
