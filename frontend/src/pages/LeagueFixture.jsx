@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAutoRefresh, bustCache } from '../hooks/useAutoRefresh';
 import { useParams, useNavigate } from 'react-router-dom';
 import MatchDetailSheet from '../components/MatchDetailSheet';
+import LeagueMatchPreview from '../components/LeagueMatchPreview';
 import OfflineBanner from '../components/OfflineBanner';
 import UiIcon from '../components/UiIcon';
 import Skeleton from '../components/Skeleton';
@@ -353,6 +354,13 @@ export default function LeagueFixture() {
           venue={findVenue(openMatch.venue)}
           age={age}
           onClose={() => setOpenMatch(null)}
+          extra={
+            <LeagueMatchPreview
+              match={openMatch}
+              allMatches={cal?.matches || []}
+              standings={standings}
+            />
+          }
         />
       )}
 
