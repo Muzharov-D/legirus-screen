@@ -19,6 +19,28 @@ import { listTournamentTopPlayers, isFfspbConfigured } from '../services/ffspbAp
 
 const router = express.Router();
 
+// TEMP debug — список всех stat-endpoints из FFSPB API docs.
+router.get('/_debug/ffspb-endpoints', async (req, res) => {
+  if (!['head_coach', 'team_coach'].includes(req.user?.role)) return res.status(403).json({ error: 'coach only' });
+  if (!isFfspbConfigured()) return res.status(503).json({ error: 'FFSPB_API_KEY не задан' });
+  try {
+    const r = await fetch('https://stat.ffspb.org/api/docs.json', {
+      headers: { 'X-AUTH-TOKEN': process.env.FFSPB_API_KEY || '' },
+    });
+    const docs = await r.json();
+    // OpenAPI 3 / Hydra-style — у нас интересуют пути и GET-операции
+    const paths = Object.keys(docs.paths || {}).filter(p => /top|stat|score|leader|assist|goal|card|disqual|player|rating/i.test(p));
+    const summary = {};
+    for (const p of paths) {
+      const ops = docs.paths[p];
+      summary[p] = Object.keys(ops).filter(k => !k.startsWith('parameters'));
+    }
+    res.json({ totalPaths: Object.keys(docs.paths || {}).length, filteredPaths: paths.length, summary });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // TEMP debug — изучаем что отдаёт FFSPB /tournament_top_players по разным top_by.
 // Удалить после проектирования финального API лидеров лиги (см. task 10).
 router.get('/_debug/top-players/:tid', async (req, res) => {
