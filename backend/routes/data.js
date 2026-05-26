@@ -29,7 +29,9 @@ router.get('/_debug/top-players/:tid', async (req, res) => {
   // ?top_by= один из: goals|assists|minutes|matches|yellow|red|... — пробуем все
   const trying = req.query.top_by
     ? [req.query.top_by]
-    : ['goals', 'assists', 'minutes', 'matches', 'yellow_cards', 'red_cards', 'goalAndAssist'];
+    : ['goal', 'assist', 'assists', 'yellow', 'red', 'yellowCard', 'redCard', 'card',
+       'minute', 'time', 'played', 'playedTime', 'gamesPlayed', 'goalScored', 'penalty',
+       'best', 'rating', 'mvp'];
   const out = {};
   for (const m of trying) {
     try {
