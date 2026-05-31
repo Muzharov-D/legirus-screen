@@ -12,8 +12,12 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 
-const DEFAULT_INTERVAL = 30 * 60 * 1000;       // 30 минут
-const VISIBILITY_THRESHOLD = 2 * 60 * 1000;    // 2 минуты — порог для refetch при возвращении
+// 5 минут — sync с bucketMs в bustCache(). Cron на бэке тикает каждые 10 мин
+// (см. backend/services/standingsService.js, calendarService.js). Фронт-bucket
+// 5 мин → бьём ровно 2 cache-key'а на каждый бэкенд-tick → родитель видит
+// свежее в течение 5-15 мин с матча.
+const DEFAULT_INTERVAL = 5 * 60 * 1000;        // 5 минут
+const VISIBILITY_THRESHOLD = 60 * 1000;        // 1 минута — порог для refetch при возвращении
 
 export function useAutoRefresh(refetchFn, interval = DEFAULT_INTERVAL) {
   const lastRefetchRef = useRef(Date.now());

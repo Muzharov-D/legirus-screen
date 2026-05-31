@@ -15,7 +15,7 @@
 // При деплое новой версии — обновить ОБА: CACHE_VERSION здесь
 // и EXPECTED_SW_VERSION в frontend/src/main.jsx.
 // Иначе self-heal механизм не сработает корректно.
-const CACHE_VERSION = 'v12-2026-05-26-fix-foreign-stats';
+const CACHE_VERSION = 'v13-2026-05-31-fresh-data';
 const STATIC_CACHE = `legirus-static-${CACHE_VERSION}`;
 const API_CACHE = `legirus-api-${CACHE_VERSION}`;
 

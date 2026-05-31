@@ -19,7 +19,7 @@ createRoot(document.getElementById('root')).render(
 // Если несовпадает (или SW не отвечает на ping — значит pre-self-heal версия) —
 // JS принудительно делает unregister + reload, чтобы получить свежий код.
 // Анти-петля: не чаще 1 раза в 10 минут.
-const EXPECTED_SW_VERSION = 'v12-2026-05-26-fix-foreign-stats';
+const EXPECTED_SW_VERSION = 'v13-2026-05-31-fresh-data';
 
 function askSWVersion() {
   return new Promise((resolve) => {
