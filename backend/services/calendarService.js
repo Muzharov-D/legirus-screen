@@ -364,9 +364,11 @@ export async function refreshCalendarAll() {
 }
 
 let timer = null;
-// Flashscore-режим: 30 минут. FFSPB сам обновляется по факту заполнения протокола судьёй
-// (не моментально), но мы хотим чтобы счёт/таблица долетали до родителей в течение часа.
-const CALENDAR_CRON_MINUTES = 30;
+// Flashscore-режим: 10 минут. FFSPB обновляется по факту заполнения протокола
+// судьёй (не моментально), мы хотим чтобы счёт долетал до родителей в течение
+// 15 мин. Render Starter — sleep'а нет, нагрузки на FFSPB API минимум (по 4-8
+// возрастов × 1 запрос).
+const CALENDAR_CRON_MINUTES = 10;
 export function startCalendarCron() {
   if (timer) return;
   setTimeout(() => refreshCalendarAll().catch((e) => console.error('[calendar] initial tick failed:', e.message)), 8000);

@@ -264,7 +264,7 @@ export async function syncRecentEvents() {
         OR (
           jsonb_typeof(events_data) = 'array'
           AND jsonb_array_length(events_data) = 0
-          AND (events_fetched_at IS NULL OR events_fetched_at < NOW() - INTERVAL '2 hours')
+          AND (events_fetched_at IS NULL OR events_fetched_at < NOW() - INTERVAL '20 minutes')
         )
       )
     ORDER BY match_date DESC
@@ -346,9 +346,12 @@ export async function syncUpcomingLineups() {
 
 let timer = null;
 let lineupsTimer = null;
-// Flashscore-режим: события матчей (голы, замены) обновляются каждые 30 минут.
-// FFSPB сам обновляется по факту заполнения протокола судьёй после матча — чаще нет смысла.
-const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
+// Flashscore-режим: события матчей (голы, замены) обновляются каждые 10 минут.
+// Render Starter — sleep нет, каждый tick дёргает только незаполненные матчи
+// последних 7 дней (SQL фильтр). Раньше было 30 мин + 2ч retry для пустых
+// (если судья не сразу заполнил), родитель ждал гол на главной до 2.5ч.
+// Сейчас: tick 10 мин + 20-мин retry для пустых → лаг ≤ 30 мин в худшем случае.
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 // Pre-match составы — cron тикает каждые 5 мин, но фактически дёргает FFSPB
 // только когда у матча наступил новый чекпоинт (T-24/12/6/4/2/1h) или T<1h.
 const LINEUPS_INTERVAL_MS = 5 * 60 * 1000;
@@ -358,7 +361,7 @@ export function startMatchEventsCron() {
   // Первый прогон через 25 секунд после старта (после calendar+standings+players-sync)
   setTimeout(() => syncRecentEvents().catch((e) => console.error('[match-events] tick failed:', e.message)), 25_000);
   timer = setInterval(() => syncRecentEvents().catch((e) => console.error('[match-events] tick failed:', e.message)), REFRESH_INTERVAL_MS);
-  console.log('[match-events] cron started, every 30 min');
+  console.log('[match-events] cron started, every 10 min');
 
   // Pre-match lineups — каждые 5 минут.
   setTimeout(() => syncUpcomingLineups().catch((e) => console.error('[match-lineups] tick failed:', e.message)), 35_000);

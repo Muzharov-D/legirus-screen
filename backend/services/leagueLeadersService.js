@@ -78,7 +78,7 @@ export async function syncRecentLeagueEvents() {
           OR (
             jsonb_typeof(events_data) = 'array'
             AND jsonb_array_length(events_data) = 0
-            AND (events_fetched_at IS NULL OR events_fetched_at < NOW() - INTERVAL '6 hours')
+            AND (events_fetched_at IS NULL OR events_fetched_at < NOW() - INTERVAL '1 hour')
           )
         )
       ORDER BY match_date DESC
@@ -155,7 +155,11 @@ export async function getTopScorers(ageGroup, limit = 20) {
 }
 
 // === Cron ===
-const TICK_HOURS = 6;
+// Раньше было 6 часов — родитель открывал бомбардиров после субботнего тура и
+// видел старые цифры до вечера воскресенья. Сейчас 20 мин: SQL-фильтр сам
+// пропускает уже синканные матчи, лишней нагрузки на FFSPB нет (5-10 запросов
+// на tick в горячий день, в обычный — 0).
+const TICK_MIN = 20;
 let timer = null;
 export function startLeagueLeadersCron() {
   if (timer) return;
@@ -165,7 +169,7 @@ export function startLeagueLeadersCron() {
     90_000);
   timer = setInterval(
     () => syncRecentLeagueEvents().catch((e) => console.error('[league-events] tick failed:', e.message)),
-    TICK_HOURS * 60 * 60 * 1000);
-  console.log(`[league-events] cron started, tick every ${TICK_HOURS}h`);
+    TICK_MIN * 60 * 1000);
+  console.log(`[league-events] cron started, tick every ${TICK_MIN} min`);
 }
 export function stopLeagueLeadersCron() { if (timer) clearInterval(timer); timer = null; }

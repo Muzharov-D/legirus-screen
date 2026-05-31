@@ -358,14 +358,15 @@ export async function refreshCupAll() {
 }
 
 let timer = null;
-// Flashscore-режим: кубковая сетка обновляется каждые 30 минут синхронно с лиговыми таблицами.
-const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
+// Flashscore-режим: кубковая сетка обновляется каждые 15 минут (реже чем лиги
+// — обновления в кубке реже, играются раз в 2-3 недели).
+const REFRESH_INTERVAL_MS = 15 * 60 * 1000;
 
 export function startCupCron() {
   if (timer) return;
   setTimeout(() => { refreshCupAll().catch((e) => console.error('[cup] initial tick failed:', e.message)); }, 7000); // через 7 сек после старта (после standings)
   timer = setInterval(() => { refreshCupAll().catch((e) => console.error('[cup] tick failed:', e.message)); }, REFRESH_INTERVAL_MS);
-  console.log('[cup] cron запущен: первый прогон через 7 сек, далее каждые 30 мин');
+  console.log('[cup] cron запущен: первый прогон через 7 сек, далее каждые 15 мин');
 }
 
 export function stopCupCron() {

@@ -249,9 +249,10 @@ export async function refreshAll() {
 }
 
 let timer = null;
-// Flashscore-режим: таблицы обновляются за родителями каждые 30 минут.
-// FFSPB пересчитывает после внесения протокола, нам важно подхватывать оперативно.
-const REFRESH_INTERVAL_MS = 30 * 60 * 1000;
+// Flashscore-режим: таблицы обновляются каждые 10 минут (родителю важно
+// видеть свежий счёт сразу после матча). FFSPB пересчитывает таблицу после
+// внесения протокола судьёй — лаг от свистка ≤ 15 мин в худшем случае.
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 export function startStandingsCron() {
   if (timer) return;
@@ -259,7 +260,7 @@ export function startStandingsCron() {
   setTimeout(() => { refreshAll().catch((e) => console.error('[standings] initial tick failed:', e.message)); }, 5000);
   // Далее каждые 30 минут
   timer = setInterval(() => { refreshAll().catch((e) => console.error('[standings] tick failed:', e.message)); }, REFRESH_INTERVAL_MS);
-  console.log('[standings] cron запущен: первый прогон через 5 сек, далее каждые 30 мин');
+  console.log('[standings] cron запущен: первый прогон через 5 сек, далее каждые 10 мин');
 }
 
 export function stopStandingsCron() {
